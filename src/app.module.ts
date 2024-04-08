@@ -4,6 +4,7 @@ import { UsersModule } from '@modules/users/users.module';
 import { RedisModule } from '@database/redis/redis.module';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@security/auth/auth.module';
+import { OffersModule } from '@modules/offers/offers.module';
 /**
  * Main application module
  *
@@ -18,7 +19,8 @@ import { AuthModule } from '@security/auth/auth.module';
     DatabaseModule,
     RedisModule,
     AuthModule,
-    UsersModule
+    UsersModule,
+    OffersModule
     // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
   ]
 })
