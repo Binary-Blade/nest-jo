@@ -11,15 +11,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
 
+/**
+ * Service responsible for handling CRUD operations for offers
+ */
 @Injectable()
 export class OffersService {
+  // Time to live for cache in seconds - 1 hour
   private readonly TTL: number = 60 * 60;
 
+  // Inject the offer repository and the Redis service
   constructor(
     @InjectRepository(Offer) private offerRepository: Repository<Offer>,
     private readonly redisService: RedisService
   ) {}
 
+  /**
+   * Create a new offer
+   *
+   * @param createOfferDto - DTO for creating an offer
+   * @returns - The created offer
+   * @throws ConflictException if an offer with the same title already exists
+   */
   async create(createOfferDto: CreateOfferDto): Promise<Offer> {
     const existingOffer = await this.offerRepository.findOneBy({
       title: createOfferDto.title
@@ -35,6 +47,12 @@ export class OffersService {
     return this.offerRepository.save(offer);
   }
 
+  /**
+   * Get all offers
+   *
+   * @returns - List of all offers
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   async findAll(): Promise<Offer[]> {
     const cacheKey = 'offers_all';
     let offers = await this.redisService.get(cacheKey);
@@ -48,6 +66,14 @@ export class OffersService {
     return this.safeParse<Offer[]>(offers);
   }
 
+  /**
+   * Get a single offer by id
+   *
+   * @param id - The id of the offer to retrieve
+   * @returns - The offer with the given id
+   * @throws NotFoundException if the offer with the given id is not found
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   async findOne(id: number): Promise<Offer> {
     const cacheKey = `offer_${id}`;
     let offer = await this.redisService.get(cacheKey);
@@ -64,6 +90,16 @@ export class OffersService {
     return this.safeParse<Offer>(offer);
   }
 
+  /**
+   * Update an offer
+   *
+   * @param id - The id of the offer to update
+   * @param updateOfferDto - DTO for updating an offer
+   * @returns - The updated offer
+   * @throws NotFoundException if the offer with the given id is not found
+   * @throws ConflictException if an offer with the same title already exists
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   async update(id: number, updateOfferDto: UpdateOfferDto): Promise<Offer> {
     const offer = await this.findOne(id);
     if (!offer) {
@@ -87,6 +123,14 @@ export class OffersService {
     return updatedOffer;
   }
 
+  /**
+   * Remove an offer
+   *
+   * @param id - The id of the offer to remove
+   * @returns - Success message
+   * @throws NotFoundException if the offer with the given id is not found
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   async remove(id: number): Promise<string> {
     const offer = await this.findOne(id);
     if (!offer) {
@@ -98,6 +142,13 @@ export class OffersService {
     return 'Offer deleted successfully';
   }
 
+  /**
+   * Safely parse JSON data
+   *
+   * @param jsonString - The JSON data to parse
+   * @returns - The parsed data
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   private safeParse<T>(jsonString: string): T {
     try {
       return JSON.parse(jsonString) as T;
@@ -107,6 +158,13 @@ export class OffersService {
     }
   }
 
+  /**
+   * Clear cache for a specific offer or all offers
+   *
+   * @param offerId - The id of the offer to clear cache for
+   * @returns - Promise
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
   private async clearCache(offerId?: number): Promise<void> {
     if (offerId) {
       // Invalidate cache for a specific offer

@@ -1,6 +1,18 @@
 import { TypeOffer } from '@common/enums/type-offer.enum';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
+/**
+ * Entity for the offers table
+ * @param offerId - The ID of the offer
+ * @param title - The title of the offer
+ * @param description - The description of the offer
+ * @param type - The type of the offer
+ * @param price - The price of the offer
+ * @param quantityAvailable - The quantity of the offer available
+ * @param createdAt - The date the offer was created
+ * @param updatedAt - The date the offer was last updated
+ * @returns - The created offer
+ */
 @Entity('offers')
 export class Offer {
   @PrimaryGeneratedColumn('increment')
