@@ -7,3 +7,13 @@ BEGIN
 END
 $$;
 `;
+
+export const DOES_ENUM_USER_ROLE_EXIST = `
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_enum') THEN
+        CREATE TYPE "user_role_enum" AS ENUM('USER', 'ADMIN');
+    END IF;
+END
+$$;
+`;

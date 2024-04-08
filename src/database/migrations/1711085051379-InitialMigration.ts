@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { DOES_ENUM_USER_ROLE_EXIST } from './constants-db';
 
 /**
  * Initial migration to create the "users" table in the database.
@@ -18,6 +19,10 @@ export class InitialMigration1711085051379 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "users" table already exists in the database.
     const table = await queryRunner.getTable('users');
+
+    // Check if the "user_role_enum" enum type already exists in the database.
+    await queryRunner.query(DOES_ENUM_USER_ROLE_EXIST);
+
     // If the table doesn't exist, create it with the specified columns.
     if (!table) {
       await queryRunner.query(`
@@ -28,7 +33,7 @@ export class InitialMigration1711085051379 implements MigrationInterface {
                     "lastName" VARCHAR NOT NULL,
                     "passwordHash" VARCHAR NOT NULL,
                     "accountKey" VARCHAR UNIQUE,
-                    "userRole" VARCHAR NOT NULL,
+                    "role" "user_role_enum" DEFAULT 'USER',
                     "tokenVersion" INTEGER DEFAULT 1,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "lastLogin" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
