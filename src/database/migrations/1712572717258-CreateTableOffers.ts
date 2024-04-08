@@ -16,7 +16,7 @@ export class CreateTableOffers1712572717258 implements MigrationInterface {
       await queryRunner.query(`
                 CREATE TABLE "offers" (
                     "offerId" SERIAL PRIMARY KEY,
-                    "title" VARCHAR NOT NULL,
+                    "title" VARCHAR NOT NULL UNIQUE,
                     "description" TEXT NOT NULL,
                     "type_offer" "type_offer_enum" DEFAULT 'SOLO',
                     "price" DECIMAL NOT NULL,
