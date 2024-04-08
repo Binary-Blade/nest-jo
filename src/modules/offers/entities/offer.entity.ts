@@ -6,7 +6,7 @@ export class Offer {
   @PrimaryGeneratedColumn('increment')
   offerId: number;
 
-  @Column()
+  @Column({ unique: true, type: 'varchar' })
   title: string;
 
   @Column('text')
