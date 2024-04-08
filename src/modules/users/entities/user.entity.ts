@@ -25,7 +25,7 @@ export class User {
   accountKey: string;
 
   @Exclude()
-  @Column({ type: 'varchar', default: UserRole.USER, name: 'userRole' })
+  @Column({ type: 'varchar', default: UserRole.USER })
   role: UserRole;
 
   @Exclude()
