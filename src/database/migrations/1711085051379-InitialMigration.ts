@@ -23,8 +23,11 @@ export class InitialMigration1711085051379 implements MigrationInterface {
       await queryRunner.query(`
                 CREATE TABLE "users" (
                     "userId" SERIAL PRIMARY KEY,
-                    "email" VARCHAR NOT NULL,
+                    "email" VARCHAR NOT NULL UNIQUE,
+                    "firstName" VARCHAR NOT NULL,
+                    "lastName" VARCHAR NOT NULL,
                     "passwordHash" VARCHAR NOT NULL,
+                    "accountKey" VARCHAR UNIQUE,
                     "userRole" VARCHAR NOT NULL,
                     "tokenVersion" INTEGER DEFAULT 1,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
