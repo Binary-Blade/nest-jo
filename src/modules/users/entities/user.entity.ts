@@ -7,12 +7,22 @@ export class User {
   @PrimaryGeneratedColumn('increment')
   userId: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  firstName: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  lastName: string;
 
   @Exclude()
   @Column({ type: 'varchar', nullable: false, name: 'passwordHash' })
   password: string;
+
+  @Exclude()
+  @Column({ unique: true })
+  accountKey: string;
 
   @Exclude()
   @Column({ type: 'varchar', default: UserRole.USER, name: 'userRole' })

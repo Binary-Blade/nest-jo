@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Provides security utilities for password hashing and verification.
@@ -25,5 +26,15 @@ export class EncryptionService {
    */
   async verifyPassword(hash: string, password: string): Promise<boolean> {
     return argon2.verify(hash, password);
+  }
+
+  /**
+   * Generates a UUID v4 key.
+   *
+   * @returns A promise that resolves to a UUID v4 key.
+   */
+  async generatedKeyUuid(): Promise<string> {
+    console.log('generatedKeyUuid' + uuidv4());
+    return uuidv4();
   }
 }

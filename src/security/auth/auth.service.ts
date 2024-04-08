@@ -41,6 +41,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
       role,
+      accountKey: await this.encryptionService.generatedKeyUuid(),
       createdAt: new Date()
     });
     // Save the new user to the database

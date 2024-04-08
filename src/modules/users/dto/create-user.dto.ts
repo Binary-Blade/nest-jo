@@ -1,7 +1,27 @@
 import { UserRole } from '@common/enums/user-role.enum';
-import { IsEmail, IsNotEmpty, IsStrongPassword } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsStrongPassword,
+  MaxLength,
+  MinLength
+} from 'class-validator';
 
 export class CreateUserDto {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(50)
+  readonly firstName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(50)
+  readonly lastName: string;
+
   @IsNotEmpty()
   @IsEmail()
   readonly email: string;
@@ -10,5 +30,6 @@ export class CreateUserDto {
   @IsStrongPassword()
   readonly password: string;
 
+  @IsOptional()
   readonly role?: UserRole;
 }
