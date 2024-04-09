@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { UserRole } from '@common/enums/user-role.enum';
+import { Cart } from '@modules/carts/entities/cart.entity';
 
 @Entity('users')
 export class User {
@@ -10,10 +11,10 @@ export class User {
   @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   firstName: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   lastName: string;
 
   @Exclude()
@@ -32,13 +33,12 @@ export class User {
   @Column({ type: 'int', default: 1 })
   tokenVersion: number;
 
+  @OneToOne(() => Cart, cart => cart.user)
+  cart: Cart;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   lastLogin: Date;
-
-  // Example of a one-to-many relationship
-  // @OneToMany(() => Task, (task) => task.user)
-  // tasks: Task[];
 }
