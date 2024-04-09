@@ -17,7 +17,7 @@ import { RedisService } from '@database/redis/redis.service';
 @Injectable()
 export class OffersService {
   // Time to live for cache in seconds - 1 hour
-  private readonly TTL: number = 60 * 60;
+  private readonly TTL: number = 3600;
 
   // Inject the offer repository and the Redis service
   constructor(
@@ -33,18 +33,10 @@ export class OffersService {
    * @throws ConflictException if an offer with the same title already exists
    */
   async create(createOfferDto: CreateOfferDto): Promise<Offer> {
-    const existingOffer = await this.offerRepository.findOneBy({
-      title: createOfferDto.title
-    });
-    if (existingOffer) {
-      throw new ConflictException('An offer with this title already exists.');
-    }
-    const offer: Offer = this.offerRepository.create({
-      ...createOfferDto,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    return this.offerRepository.save(offer);
+    await this.ensureTitleUnique(createOfferDto.title);
+    const offer: Offer = this.offerRepository.create(createOfferDto);
+    await this.offerRepository.save(offer);
+    return offer;
   }
 
   /**
@@ -54,98 +46,101 @@ export class OffersService {
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAll(): Promise<Offer[]> {
-    const cacheKey = 'offers_all';
-    let offers = await this.redisService.get(cacheKey);
-
-    if (!offers) {
-      const dbOffers = await this.offerRepository.find();
-      await this.redisService.set(cacheKey, JSON.stringify(dbOffers), this.TTL);
-      return dbOffers;
-    }
-
-    return this.safeParse<Offer[]>(offers);
+    return this.fetchCachedData('offers_all', () => this.offerRepository.find());
   }
 
   /**
-   * Get a single offer by id
+   * Get a single offer by ID
    *
-   * @param id - The id of the offer to retrieve
-   * @returns - The offer with the given id
-   * @throws NotFoundException if the offer with the given id is not found
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param id - The ID of the offer
+   * @returns - The offer with the given ID
+   * @throws NotFoundException if the offer with the given ID does not exist
    */
   async findOne(id: number): Promise<Offer> {
-    const cacheKey = `offer_${id}`;
-    let offer = await this.redisService.get(cacheKey);
-
-    if (!offer) {
-      const dbOffer = await this.offerRepository.findOneBy({ offerId: id });
-      if (!dbOffer) {
-        throw new NotFoundException(`Offer with id ${id} not found`);
-      }
-      await this.redisService.set(cacheKey, JSON.stringify(dbOffer), this.TTL);
-      return dbOffer;
-    }
-
-    return this.safeParse<Offer>(offer);
+    const offer = await this.fetchCachedData(`offer_${id}`, () =>
+      this.offerRepository.findOneBy({ offerId: id })
+    );
+    if (!offer) throw new NotFoundException(`Offer with id ${id} not found`);
+    return offer;
   }
 
   /**
-   * Update an offer
+   * Update an offer by ID
    *
-   * @param id - The id of the offer to update
+   * @param id - The ID of the offer
    * @param updateOfferDto - DTO for updating an offer
    * @returns - The updated offer
-   * @throws NotFoundException if the offer with the given id is not found
+   * @throws NotFoundException if the offer with the given ID does not exist
    * @throws ConflictException if an offer with the same title already exists
-   * @throws InternalServerErrorException if there is an error parsing the data
    */
   async update(id: number, updateOfferDto: UpdateOfferDto): Promise<Offer> {
     const offer = await this.findOne(id);
-    if (!offer) {
-      throw new NotFoundException('Offer not found');
-    }
-    const existingOffer = await this.offerRepository.findOneBy({
-      title: updateOfferDto.title
-    });
+    await this.ensureTitleUnique(updateOfferDto.title, id);
 
-    if (existingOffer && existingOffer.offerId !== id) {
-      throw new ConflictException('An offer with this title already exists.');
-    }
-    const updatedOffer = await this.offerRepository.save({
-      ...offer,
-      ...updateOfferDto,
-      updatedAt: new Date()
-    });
+    Object.assign(offer, updateOfferDto, { updatedAt: new Date() });
 
-    this.clearCache(id);
-
-    return updatedOffer;
+    await this.offerRepository.save(offer);
+    await this.clearCache(id);
+    return offer;
   }
 
   /**
-   * Remove an offer
+   * Remove an offer by ID
    *
-   * @param id - The id of the offer to remove
-   * @returns - Success message
-   * @throws NotFoundException if the offer with the given id is not found
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param id - The ID of the offer
+   * @returns - The removed offer
+   * @throws NotFoundException if the offer with the given ID does not exist
    */
   async remove(id: number): Promise<string> {
     const offer = await this.findOne(id);
-    if (!offer) {
-      throw new NotFoundException('Offer not found');
-    }
+    if (!offer) throw new NotFoundException(`Offer with id ${id} not found`);
 
     await this.offerRepository.remove(offer);
-    this.clearCache(id);
-    return 'Offer deleted successfully';
+    await this.clearCache(id);
+    return 'Offer deleted successfully.';
+  }
+
+  /**
+   * Ensure that an offer with the given title does not already exist
+   *
+   * @private - This method should not be exposed to the controller
+   * @param title - The title to check
+   * @param excludeId - The ID of the offer to exclude from the check
+   * @returns - Promise that resolves if the title is unique
+   * @throws ConflictException if an offer with the same title already exists
+   */
+  private async ensureTitleUnique(title: string, excludeId?: number): Promise<void> {
+    const existingOffer = await this.offerRepository.findOneBy({ title });
+    if (existingOffer && existingOffer.offerId !== excludeId) {
+      throw new ConflictException('An offer with this title already exists.');
+    }
+  }
+
+  /**
+   * Fetch data from cache if available, otherwise fetch from the database
+   *
+   * @private - This method should not be exposed to the controller
+   * @param key - The key to use for caching
+   * @param fetchFn - Function to fetch data if not available in cache
+   * @returns - The fetched data
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
+  private async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
+    let data = await this.redisService.get(key);
+    if (!data) {
+      const result = await fetchFn();
+      await this.redisService.set(key, JSON.stringify(result), this.TTL);
+      return result;
+    }
+    return this.safeParse(data);
   }
 
   /**
    * Safely parse JSON data
    *
-   * @param jsonString - The JSON data to parse
+   * @private - This method should not be exposed to the controller
+   * @template T - The type of the data to parse
+   * @param jsonString - The JSON string to parse
    * @returns - The parsed data
    * @throws InternalServerErrorException if there is an error parsing the data
    */
@@ -161,17 +156,13 @@ export class OffersService {
   /**
    * Clear cache for a specific offer or all offers
    *
-   * @param offerId - The id of the offer to clear cache for
-   * @returns - Promise
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @private - This method should not be exposed to the controller
+   * @param offerId - The ID of the offer to clear cache for
+   * @returns - Promise that resolves when the cache is cleared
+   * @throws InternalServerErrorException if there is an error clearing the cache
    */
   private async clearCache(offerId?: number): Promise<void> {
-    if (offerId) {
-      // Invalidate cache for a specific offer
-      await this.redisService.del(`offer_${offerId}`);
-    } else {
-      // Invalidate cache for the list of all offers
-      await this.redisService.del('offers_all');
-    }
+    const key = offerId ? `offer_${offerId}` : 'offers_all';
+    await this.redisService.del(key);
   }
 }
