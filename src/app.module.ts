@@ -5,7 +5,9 @@ import { RedisModule } from '@database/redis/redis.module';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@security/auth/auth.module';
 import { OffersModule } from '@modules/offers/offers.module';
+import { CartsModule } from '@modules/carts/carts.module';
 /**
+ *
  * Main application module
  *
  * @class AppModule class (module) for the main application
@@ -20,7 +22,8 @@ import { OffersModule } from '@modules/offers/offers.module';
     RedisModule,
     AuthModule,
     UsersModule,
-    OffersModule
+    OffersModule,
+    CartsModule
     // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
   ]
 })
