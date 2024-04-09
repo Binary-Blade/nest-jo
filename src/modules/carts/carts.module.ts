@@ -9,10 +9,11 @@ import { RedisService } from '@database/redis/redis.service';
 import { OffersService } from '@modules/offers/offers.service';
 import { Offer } from '@modules/offers/entities/offer.entity';
 import { CartsService } from './carts.service';
+import { CartItemsService } from './cart-items.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Cart, CartItem, Offer]), RedisModule],
   controllers: [CartsController],
-  providers: [CartsService, RedisService, OffersService]
+  providers: [CartsService, CartItemsService, RedisService, OffersService]
 })
 export class CartsModule {}
