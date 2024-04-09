@@ -1,5 +1,6 @@
 import { TypeOffer } from '@common/enums/type-offer.enum';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { CartItem } from '@modules/carts/entities/cartitems.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 /**
  * Entity for the offers table
@@ -32,6 +33,9 @@ export class Offer {
 
   @Column({ type: 'int', default: 0 })
   quantityAvailable: number;
+
+  @OneToMany(() => CartItem, cartItem => cartItem.offer)
+  cartItems: CartItem[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
