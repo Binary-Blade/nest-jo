@@ -6,19 +6,42 @@ import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { Offer } from '@modules/offers/entities/offer.entity';
 import { CartsService } from './carts.service';
 
+/**
+ * Service responsible for handling cart items.
+ */
 @Injectable()
 export class CartItemsService {
+  // Inject the CartItem and Offer repositories and the CartsService.
   constructor(
     @InjectRepository(CartItem) private readonly cartItemRepository: Repository<CartItem>,
     @InjectRepository(Offer) private readonly offerRepository: Repository<Offer>,
     private readonly cartsService: CartsService
   ) {}
 
+  /**
+   * Adds an item to the cart.
+   *
+   * @param userId The user ID.
+   * @param createCartItemDto The cart item data.
+   * @returns The created cart item.
+   * @throws NotFoundException if the offer does not exist.
+   * @throws NotFoundException if the cart does not exist.
+   */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto);
   }
 
+  /**
+   * Finds a cart item in the cart.
+   *
+   * @param userId The user ID.
+   * @param cartId The cart ID.
+   * @param cartItemsId The cart item ID.
+   * @returns The found cart item.
+   * @throws NotFoundException if the cart item does not exist in the cart.
+   * @throws NotFoundException if the cart does not exist.
+   */
   async findOneItemInCart(userId: number, cartId: number, cartItemsId: number): Promise<CartItem> {
     await this.cartsService.findCart(userId, cartId);
     const cartItem = await this.cartItemRepository.findOne({
@@ -36,6 +59,15 @@ export class CartItemsService {
     return cartItem;
   }
 
+  /**
+   * Finds all items in the cart.
+   *
+   * @param userId The user ID.
+   * @param cartId The cart ID.
+   * @returns The found cart items.
+   * @throws NotFoundException if the cart does not exist.
+   * @throws NotFoundException if the cart items do not exist.
+   */
   async findAllItemsInCart(userId: number, cartId: number): Promise<CartItem[]> {
     await this.cartsService.findCart(userId, cartId);
     return this.cartItemRepository.find({
@@ -44,6 +76,18 @@ export class CartItemsService {
     });
   }
 
+  /**
+   * Updates the quantity of an item in the cart.
+   *
+   * @param userId The user ID.
+   * @param cartId The cart ID.
+   * @param cartItemsId The cart item ID.
+   * @param quantity The new quantity.
+   * @returns The updated cart item.
+   * @throws NotFoundException if the cart item does not exist in the cart.
+   * @throws NotFoundException if the cart does not exist.
+   * @throws NotFoundException if the offer does not exist.
+   */
   async updateQuantityInCart(
     userId: number,
     cartId: number,
@@ -55,12 +99,30 @@ export class CartItemsService {
     return this.cartItemRepository.save(cartItem);
   }
 
+  /**
+   * Removes an item from the cart.
+   *
+   * @param userId The user ID.
+   * @param cartId The cart ID.
+   * @param cartItemsId The cart item ID.
+   * @returns The removed cart item.
+   * @throws NotFoundException if the cart item does not exist in the cart.
+   */
   async removeItemFromCart(userId: number, cartId: number, cartItemsId: number): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemsId);
     await this.cartItemRepository.remove(cartItem);
     return cartItem;
   }
 
+  /**
+   * Removes all items from the cart.
+   *
+   * @param userId The user ID.
+   * @param cartId The cart ID.
+   * @returns The removed cart items.
+   * @throws NotFoundException if the cart does not exist.
+   * @throws NotFoundException if the cart items do not exist.
+   */
   private async getOrCreateCartItem(
     cartId: number,
     createCartItemDto: CreateCartItemDto
@@ -86,7 +148,6 @@ export class CartItemsService {
         offer: { offerId: createCartItemDto.offerId }
       });
     }
-
     return this.cartItemRepository.save(cartItem);
   }
 }
