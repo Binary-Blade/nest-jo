@@ -1,5 +1,5 @@
 import { TypeOffer } from '@common/enums/type-offer.enum';
-import { CartItem } from '@modules/carts/entities/cartitems.entity';
+import { CartItem } from '@modules/cartitems/entities/cartitems.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 /**

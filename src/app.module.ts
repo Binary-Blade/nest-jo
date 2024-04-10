@@ -6,6 +6,9 @@ import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@security/auth/auth.module';
 import { OffersModule } from '@modules/offers/offers.module';
 import { CartsModule } from '@modules/carts/carts.module';
+import { CartItemsModule } from '@modules/cart-items/cart-items.module';
+import { ReservationsModule } from '@modules/reservations/reservations.module';
+import { ReservationItemsModule } from '@modules/reservation-items/reservation-items.module';
 /**
  *
  * Main application module
@@ -23,7 +26,11 @@ import { CartsModule } from '@modules/carts/carts.module';
     AuthModule,
     UsersModule,
     OffersModule,
-    CartsModule
+    CartsModule,
+    CartItemsModule,
+    ReservationsModule,
+    ReservationItemsModule
+
     // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
   ]
 })

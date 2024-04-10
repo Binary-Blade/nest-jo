@@ -7,7 +7,7 @@ import { CartItemsService } from './cart-items.service';
 
 @UseGuards(AccessTokenGuard) // Use the access token and role guards
 @Controller('carts')
-export class CartsController {
+export class CartItemsController {
   constructor(private readonly cartItemsService: CartItemsService) {}
 
   // Endpoint to add an item to the user's cart

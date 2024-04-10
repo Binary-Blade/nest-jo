@@ -1,6 +1,6 @@
+import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { User } from '@modules/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany, Column } from 'typeorm';
-import { CartItem } from './cartitems.entity';
 
 @Entity('cart')
 export class Cart {

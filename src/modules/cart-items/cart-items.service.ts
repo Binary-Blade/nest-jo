@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CartItem } from './entities/cartitems.entity';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { Offer } from '@modules/offers/entities/offer.entity';
-import { CartsService } from './carts.service';
+import { CartsService } from '@modules/carts/carts.service';
 
 /**
  * Service responsible for handling cart items.
@@ -18,6 +18,8 @@ export class CartItemsService {
     private readonly cartsService: CartsService
   ) {}
 
+  // TODO: Add the necessary methods to handle cart items and prices.
+
   /**
    * Adds an item to the cart.
    *
@@ -29,6 +31,15 @@ export class CartItemsService {
    */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
+    const offer = await this.offerRepository.findOneBy({ offerId: createCartItemDto.offerId });
+    if (!offer) throw new NotFoundException('Offer not found');
+
+    if (createCartItemDto.quantity > offer.quantityAvailable) {
+      throw new NotFoundException('Quantity not available');
+    }
+    offer.quantityAvailable -= createCartItemDto.quantity;
+    await this.offerRepository.save(offer);
+
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto);
   }
 
@@ -56,6 +67,7 @@ export class CartItemsService {
         `CartItem with ID ${cartItemsId} not found in the specified cart.`
       );
     }
+
     return cartItem;
   }
 
@@ -95,7 +107,19 @@ export class CartItemsService {
     quantity: number
   ): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemsId);
-    cartItem.quantity = quantity;
+    const offer = await this.offerRepository.findOneBy({
+      offerId: cartItem.offer.offerId
+    });
+
+    if (!offer) throw new NotFoundException('Offer not found');
+
+    if (quantity > offer.quantityAvailable) {
+      throw new NotFoundException('Quantity not available');
+    }
+    //TODO: Reduce the quantity of the offer by the difference between the new quantity and the old quantity.
+    offer.quantityAvailable -= quantity - cartItem.quantity;
+    await this.offerRepository.save(offer);
+
     return this.cartItemRepository.save(cartItem);
   }
 
