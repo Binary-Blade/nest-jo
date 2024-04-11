@@ -8,7 +8,7 @@ import { OffersModule } from '@modules/offers/offers.module';
 import { CartsModule } from '@modules/carts/carts.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
-import { ReservationItemsModule } from '@modules/reservation-items/reservation-items.module';
+import { PaymentModule } from '@modules/payment/payment.module';
 /**
  *
  * Main application module
@@ -29,7 +29,7 @@ import { ReservationItemsModule } from '@modules/reservation-items/reservation-i
     CartsModule,
     CartItemsModule,
     ReservationsModule,
-    ReservationItemsModule
+    PaymentModule
 
     // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
   ]
