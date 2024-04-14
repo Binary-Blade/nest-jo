@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { ReservationsService } from '@modules/reservations/reservations.service';
-import { PaymentDto } from './dto/payment.dto';
-import { statusReservation } from '@common/enums/status-reservation.enum';
 
 @Injectable()
 export class PaymentService {
@@ -11,38 +9,35 @@ export class PaymentService {
     private readonly reservationsService: ReservationsService
   ) {}
 
-  async processPayment(paymentDto: PaymentDto): Promise<{ status: string; detail: string }> {
-    console.log('Processing payment...', paymentDto);
+  async processPayment(
+    userId: number,
+    cartId: number
+  ): Promise<{ status: string; detail: string }> {
+    console.log('Processing payment for userId:', userId);
 
-    // Simulez une vérification de paiement
-    const isPaymentSuccessful = Math.random() > 0.2; // Simule un taux de succès
-
-    if (isPaymentSuccessful) {
-      // Supposons que tous les items du cart doivent être convertis en réservations
-      const cartItems = await this.cartItemsService.findAllItemsInCart(
-        paymentDto.userId,
-        paymentDto.cartId
-      );
-
-      const paymentId = Math.floor(Math.random() * 1000); // Simulez un ID de paiement
-
-      for (const item of cartItems) {
-        await this.reservationsService.createReservation({
-          userId: paymentDto.userId,
-          cartItemsId: item.cartItemsId,
-          status: statusReservation.PENDING,
-          paymentId: paymentId
-        });
-      }
-
-      return {
-        status: 'success',
-        detail: 'Payment processed successfully. Reservations created.'
-      };
-    } else {
+    const isPaymentSuccessful = Math.random() > 0.2; //  80% success rate
+    if (!isPaymentSuccessful) {
       return {
         status: 'failure',
-        detail: 'Payment failed. No reservations created.'
+        detail: 'Payment failed, please try again later.'
+      };
+    }
+
+    const cartItems = await this.cartItemsService.findAllItemsInCart(userId, cartId);
+    const paymentId = Math.floor(Math.random() * 1000); //  Random payment ID
+
+    try {
+      await this.reservationsService.createReservations(userId, paymentId, cartItems);
+      return {
+        status: 'success',
+        detail: 'Payment successful, reservations created'
+      };
+    } catch (error) {
+      console.error('Error during reservation creation:', error);
+      return {
+        status: 'failure',
+        // payment failed
+        detail: 'Error during reservation creation, please try again later.'
       };
     }
   }
