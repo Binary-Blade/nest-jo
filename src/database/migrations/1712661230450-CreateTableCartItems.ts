@@ -11,7 +11,7 @@ export class CreateTableCartItems1712661230450 implements MigrationInterface {
     if (!table) {
       await queryRunner.query(`
                 CREATE TABLE "cart_items" (
-                    "cartItemsId" SERIAL PRIMARY KEY,
+                    "cartItemId" SERIAL PRIMARY KEY,
                     "cartId" INTEGER NOT NULL,
                     "offerId" INTEGER NOT NULL,
                     "quantity" INTEGER NOT NULL,
