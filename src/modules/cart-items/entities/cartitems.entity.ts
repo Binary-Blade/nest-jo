@@ -6,7 +6,7 @@ import { Reservation } from '@modules/reservations/entities/reservation.entity';
 @Entity('cart_items')
 export class CartItem {
   @PrimaryGeneratedColumn()
-  cartItemsId: number;
+  cartItemId: number;
 
   @ManyToOne(() => Cart, cart => cart.cartId)
   @JoinColumn({ name: 'cartId' })
@@ -21,9 +21,6 @@ export class CartItem {
 
   @Column('int')
   quantity: number;
-
-  @Column('decimal')
-  totalPrice: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

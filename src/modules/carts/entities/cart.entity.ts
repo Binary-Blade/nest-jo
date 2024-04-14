@@ -12,7 +12,7 @@ export class Cart {
   user: User;
 
   @OneToMany(() => CartItem, cartItem => cartItem.cart)
-  cartItems: CartItem[];
+  cartItem: CartItem[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

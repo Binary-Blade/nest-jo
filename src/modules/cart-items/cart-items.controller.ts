@@ -24,38 +24,38 @@ export class CartItemsController {
   }
 
   // Endpoint to find a specific item in a cart
-  @Get(':cartId/items/:cartItemsId')
+  @Get(':cartId/items/:cartItemId')
   findOne(
     @UserId() userId: number,
     @Param('cartId') cartId: string,
-    @Param('cartItemsId') cartItemsId: string
+    @Param('cartItemId') cartItemId: string
   ) {
-    return this.cartItemsService.findOneItemInCart(userId, +cartId, +cartItemsId);
+    return this.cartItemsService.findOneItemInCart(userId, +cartId, +cartItemId);
   }
 
   // Endpoint to update the quantity of a specific item in a cart
-  @Patch(':cartId/items/:cartItemsId')
+  @Patch(':cartId/items/:cartItemId')
   update(
     @UserId() userId: number,
     @Param('cartId') cartId: string,
-    @Param('cartItemsId') cartItemsId: string,
+    @Param('cartItemId') cartItemId: string,
     @Body() updateCartItemDto: UpdateCartItemDto
   ) {
     return this.cartItemsService.updateQuantityInCart(
       userId,
       +cartId,
-      +cartItemsId,
+      +cartItemId,
       updateCartItemDto.quantity
     );
   }
 
   // Endpoint to remove a specific item from a cart
-  @Delete(':cartId/items/:cartItemsId')
+  @Delete(':cartId/items/:cartItemId')
   remove(
     @UserId() userId: number,
     @Param('cartId') cartId: string,
-    @Param('cartItemsId') cartItemsId: string
+    @Param('cartItemId') cartItemId: string
   ) {
-    return this.cartItemsService.removeItemFromCart(userId, +cartId, +cartItemsId);
+    return this.cartItemsService.removeItemFromCart(userId, +cartId, +cartItemId);
   }
 }

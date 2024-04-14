@@ -48,23 +48,23 @@ export class CartItemsService {
    *
    * @param userId The user ID.
    * @param cartId The cart ID.
-   * @param cartItemsId The cart item ID.
+   * @param cartItemId The cart item ID.
    * @returns The found cart item.
    * @throws NotFoundException if the cart item does not exist in the cart.
    * @throws NotFoundException if the cart does not exist.
    */
-  async findOneItemInCart(userId: number, cartId: number, cartItemsId: number): Promise<CartItem> {
+  async findOneItemInCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
     await this.cartsService.findCart(userId, cartId);
     const cartItem = await this.cartItemRepository.findOne({
       where: {
-        cartItemsId,
+        cartItemId,
         cart: { cartId }
       },
       relations: ['offer', 'cart']
     });
     if (!cartItem) {
       throw new NotFoundException(
-        `CartItem with ID ${cartItemsId} not found in the specified cart.`
+        `CartItem with ID ${cartItemId} not found in the specified cart.`
       );
     }
 
@@ -93,7 +93,7 @@ export class CartItemsService {
    *
    * @param userId The user ID.
    * @param cartId The cart ID.
-   * @param cartItemsId The cart item ID.
+   * @param cartItemId The cart item ID.
    * @param quantity The new quantity.
    * @returns The updated cart item.
    * @throws NotFoundException if the cart item does not exist in the cart.
@@ -103,10 +103,10 @@ export class CartItemsService {
   async updateQuantityInCart(
     userId: number,
     cartId: number,
-    cartItemsId: number,
+    cartItemId: number,
     quantity: number
   ): Promise<CartItem> {
-    const cartItem = await this.findOneItemInCart(userId, cartId, cartItemsId);
+    const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
     const offer = await this.offerRepository.findOneBy({
       offerId: cartItem.offer.offerId
     });
@@ -128,12 +128,12 @@ export class CartItemsService {
    *
    * @param userId The user ID.
    * @param cartId The cart ID.
-   * @param cartItemsId The cart item ID.
+   * @param cartItemId The cart item ID.
    * @returns The removed cart item.
    * @throws NotFoundException if the cart item does not exist in the cart.
    */
-  async removeItemFromCart(userId: number, cartId: number, cartItemsId: number): Promise<CartItem> {
-    const cartItem = await this.findOneItemInCart(userId, cartId, cartItemsId);
+  async removeItemFromCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
+    const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
     await this.cartItemRepository.remove(cartItem);
     return cartItem;
   }
