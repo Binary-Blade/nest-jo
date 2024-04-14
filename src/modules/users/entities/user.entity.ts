@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Cart } from '@modules/carts/entities/cart.entity';
+import { Reservation } from '@modules/reservations/entities/reservation.entity';
 
 @Entity('users')
 export class User {
@@ -35,6 +36,9 @@ export class User {
 
   @OneToOne(() => Cart, cart => cart.user)
   cart: Cart;
+
+  @OneToMany(() => Reservation, reservation => reservation.user)
+  reservations: Reservation[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
