@@ -48,6 +48,7 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.11.5",
+    "qrcode": "^1.5.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
@@ -65,6 +66,7 @@
     "@types/node": "^20.12.4",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
+    "@types/qrcode": "^1.5.5",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
@@ -96,7 +98,8 @@
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@config/(.*)$": "<rootDir>/config/$1",
       "^@database/(.*)$": "<rootDir>/database/$1",
-      "^@security/(.*)$": "<rootDir>/security/$1"
+      "^@security/(.*)$": "<rootDir>/security/$1",
+      "^@libs/(.*)$": "<rootDir>/libs/$1"
     },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
