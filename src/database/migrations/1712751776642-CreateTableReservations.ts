@@ -14,7 +14,9 @@ export class CreateTableReservations1712751776642 implements MigrationInterface 
                 CREATE TABLE "reservations" (
                     "reservationId" SERIAL PRIMARY KEY,
                     "userId" INT NOT NULL,
-                    "cartItemId" INT NOT NULL,
+                    "cartItemId" INT NOT NULL UNIQUE,
+                    "ticketId" INT NULL,
+                    "paymentId" INT NOT NULL,
                     "status" "status_reservation_enum" DEFAULT 'PENDING',
                     "totalPrice" DECIMAL NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
