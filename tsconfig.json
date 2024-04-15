@@ -15,6 +15,7 @@
       "@modules/*": ["src/modules/*"],
       "@security/*": ["src/security/*"],
       "@database/*": ["src/database/*"],
+      "@libs/*": ["src/libs/*"],
       },
     "incremental": true,
     "skipLibCheck": true,
