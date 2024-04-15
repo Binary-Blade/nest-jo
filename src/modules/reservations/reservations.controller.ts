@@ -1,25 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
+import { UserId } from '@common/decorators/user-id.decorator';
+import { AccessTokenGuard, RoleGuard } from '@security/guards';
+import { PaymentService } from '@libs/payment/payment.service';
+import { Role } from '@common/decorators/role.decorator';
+import { UserRole } from '@common/enums/user-role.enum';
 
+@UseGuards(AccessTokenGuard)
 @Controller('reservations')
 export class ReservationsController {
-  constructor(private readonly reservationsService: ReservationsService) {}
+  constructor(
+    private readonly reservationsService: ReservationsService,
+    private readonly paymentService: PaymentService
+  ) {}
 
-  @Post()
-  create(@Body() createReservationDto: CreateReservationDto) {
-    return this.reservationsService.create(createReservationDto);
+  @Post('/:cardId')
+  async processPayment(
+    @UserId() userId: number,
+    @Param('cardId')
+    cardId: number
+  ): Promise<{ status: string; detail: string }> {
+    return this.paymentService.processPayment(userId, cardId);
   }
 
-  @Get()
+  @Get('find-all')
   findAll() {
     return this.reservationsService.findAll();
   }
 
+  @UseGuards(RoleGuard)
+  @Role(UserRole.ADMIN)
+  @Get('find-all-admin')
+  findAllAdmin() {
+    return this.reservationsService.findAllAdmin();
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reservationsService.findOne(+id);
+  findOne(@Param('id') id: string, @UserId() userId: number) {
+    return this.reservationsService.findOne(+id, userId);
   }
 
   @Patch(':id')
