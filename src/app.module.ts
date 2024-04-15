@@ -7,8 +7,8 @@ import { AuthModule } from '@security/auth/auth.module';
 import { OffersModule } from '@modules/offers/offers.module';
 import { CartsModule } from '@modules/carts/carts.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
-import { PaymentModule } from '@modules/payment/payment.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
+import { PaymentModule } from '@libs/payment/payment.module';
 /**
  *
  * Main application module
