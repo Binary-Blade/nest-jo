@@ -1,4 +1,13 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Res
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
 import { UserId } from '@common/decorators/user-id.decorator';
@@ -7,6 +16,7 @@ import { AccessTokenGuard } from '@security/guards';
 import { LoginDTO } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { Response } from 'express';
 
 /**
  * Controller that handles authentication-related requests.
@@ -42,9 +52,9 @@ export class AuthController {
    * @returns A promise resolved to an object containing JWT tokens.
    */
   @Post('login')
-  async login(@Body() loginDto: LoginDTO) {
+  async login(@Body() loginDto: LoginDTO, @Res() response: Response) {
     const { email, password } = loginDto;
-    return await this.authService.login(email, password);
+    return await this.authService.login(email, password, response);
   }
 
   /**
@@ -55,8 +65,8 @@ export class AuthController {
    */
   @UseGuards(AccessTokenGuard)
   @Post('logout')
-  async logout(@UserId() userId: number) {
-    await this.authService.logout(userId);
+  async logout(@UserId() userId: number, @Res() response: Response) {
+    await this.authService.logout(userId, response);
     return { message: 'Logged out successfully' };
   }
 
@@ -80,7 +90,7 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/refresh')
-  async refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
-    return await this.tokenService.refreshToken(refreshToken);
+  async refreshToken(@Body() { refreshToken }: RefreshTokenDto, @Res() res: Response) {
+    return await this.tokenService.refreshToken(refreshToken, res);
   }
 }

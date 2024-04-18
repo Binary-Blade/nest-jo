@@ -8,6 +8,7 @@ import { UtilsService } from '@common/utils/utils.service';
 import { JWTTokens } from '@common/interfaces/jwt.interface';
 import { User } from '@modules/users/entities/user.entity';
 import { Payload } from '@common/interfaces/payload.interface';
+import { Response } from 'express';
 
 /**
  * Service responsible for managing JWT tokens, including their creation and validation.
@@ -56,12 +57,12 @@ export class TokenService {
       version: user.tokenVersion // Includes tokenVersion to support token invalidation.
     };
 
-    const token = this.generateAccessToken(payload);
+    const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
 
     const refreshTokenTTL = this.utilsService.convertDaysToSeconds(this.refreshTokenExpiration);
     await this.redisService.set(`refresh_token_${user.userId}`, refreshToken, refreshTokenTTL);
-    return { token, refreshToken };
+    return { accessToken, refreshToken };
   }
 
   /**
@@ -71,23 +72,39 @@ export class TokenService {
    * @returns A promise that resolves to an object containing the new access and refresh tokens.
    * @throws UnauthorizedException If the refresh token is invalid or expired.
    */
-  async refreshToken(token: string): Promise<JWTTokens> {
-    this.logger.debug(`Refreshing token for token: ${token}`);
+  async refreshToken(token: string, res: Response): Promise<void> {
     try {
       const userId = await this.verifyRefreshToken(token);
       await this.removeRefreshToken(userId);
 
       const user = await this.usersRepository.findOneOrFail({ where: { userId } });
-      const tokens = await this.getTokens(user);
+
+      const newTokens = await this.getTokens(user);
 
       const refreshTokenTTL = this.utilsService.convertDaysToSeconds(this.refreshTokenExpiration);
-      await this.redisService.set(`refresh_token_${userId}`, tokens.refreshToken, refreshTokenTTL);
+      await this.redisService.set(
+        `refresh_token_${userId}`,
+        newTokens.refreshToken,
+        refreshTokenTTL
+      );
 
-      return tokens;
+      this.setRefreshTokenCookie(res, newTokens.refreshToken);
+      res.json({ accessToken: newTokens.accessToken });
     } catch (error) {
       this.logger.error('Token refresh error', { error: error.message, stack: error.stack });
       throw new UnauthorizedException('Could not refresh the token. Please try again or log in.');
     }
+  }
+
+  setRefreshTokenCookie(res: Response, refreshToken: string): void {
+    const refreshTokenTTL = this.utilsService.convertDaysToSeconds(this.refreshTokenExpiration);
+    const cookieOptions = {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      maxAge: refreshTokenTTL * 1000,
+      path: '/auth/refresh'
+    };
+    res.cookie('RefreshToken', refreshToken, cookieOptions);
   }
 
   /**
@@ -103,10 +120,7 @@ export class TokenService {
         secret: this.refreshTokenSecret
       });
       const userId = payload.sub;
-      const tokenExists = await this.refreshTokenExists(userId, token);
-
-      if (!tokenExists) {
-        this.logger.warn(`Token does not exist for user: ${userId}`);
+      if (!(await this.refreshTokenExists(userId, token))) {
         throw new UnauthorizedException('Refresh token does not exist or is no longer valid.');
       }
       return userId;

@@ -8,6 +8,7 @@ import { CreateUserDto } from '@modules/users/dto';
 import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { UserRole } from '@common/enums/user-role.enum';
+import { Response } from 'express';
 
 /**
  * Service providing authentication functionality.
@@ -55,7 +56,7 @@ export class AuthService {
    * @returns JWT access and refresh tokens for the authenticated session.
    * @throws InvalidCredentialsException If the email doesn't exist or the password doesn't match.
    */
-  async login(email: string, password: string): Promise<JWTTokens> {
+  async login(email: string, password: string, res: Response): Promise<void> {
     // Find the user by email
     const user = await this.usersRepository.findOneBy({ email });
     if (!user) {
@@ -69,7 +70,10 @@ export class AuthService {
     user.lastLogin = new Date(); // Updates the last login timestamp.
     await this.usersRepository.save(user);
 
-    return this.tokenService.getTokens(user); // Generates and returns JWT tokens for the user.
+    const { accessToken, refreshToken } = await this.tokenService.getTokens(user);
+
+    this.tokenService.setRefreshTokenCookie(res, refreshToken); // Set the HTTP only cookie for the refresh token
+    res.json({ accessToken });
   }
 
   /**
@@ -102,7 +106,7 @@ export class AuthService {
    * @param userId The ID of the user to logout.
    * @throws NotFoundException If the user ID does not exist in the database.
    */
-  async logout(userId: number): Promise<void> {
+  async logout(userId: number, res: Response): Promise<void> {
     const user = await this.usersRepository.findOneBy({ userId });
     if (!user) {
       throw new NotFoundException('User not connected');
@@ -110,5 +114,8 @@ export class AuthService {
     await this.tokenService.removeRefreshToken(userId); // Invalidate the current refresh token.
     user.tokenVersion += 1; // Incrementing the token version invalidates all previously issued tokens.
     await this.usersRepository.save(user);
+
+    res.clearCookie('RefreshToken', { path: '/auth/refresh' }); // Clear the refresh token cookie
+    res.status(200).send('Logged out successfully');
   }
 }
