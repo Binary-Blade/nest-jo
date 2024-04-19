@@ -8,7 +8,8 @@ import { UtilsService } from '@common/utils/utils.service';
 import { JWTTokens } from '@common/interfaces/jwt.interface';
 import { User } from '@modules/users/entities/user.entity';
 import { Payload } from '@common/interfaces/payload.interface';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { UserSessionStatus } from '@common/interfaces/user-session.interface';
 
 /**
  * Service responsible for managing JWT tokens, including their creation and validation.
@@ -72,13 +73,12 @@ export class TokenService {
    * @returns A promise that resolves to an object containing the new access and refresh tokens.
    * @throws UnauthorizedException If the refresh token is invalid or expired.
    */
-  async refreshToken(token: string, res: Response): Promise<void> {
+  async refreshToken(token: string, res: Response): Promise<any> {
     try {
       const userId = await this.verifyRefreshToken(token);
       await this.removeRefreshToken(userId);
 
       const user = await this.usersRepository.findOneOrFail({ where: { userId } });
-
       const newTokens = await this.getTokens(user);
 
       const refreshTokenTTL = this.utilsService.convertDaysToSeconds(this.refreshTokenExpiration);
@@ -90,10 +90,17 @@ export class TokenService {
 
       this.setRefreshTokenCookie(res, newTokens.refreshToken);
       res.json({ accessToken: newTokens.accessToken });
+
+      return { accessToken: newTokens.accessToken, refreshToken: newTokens.refreshToken };
     } catch (error) {
+      this.clearRefreshTokenCookie(res);
       this.logger.error('Token refresh error', { error: error.message, stack: error.stack });
       throw new UnauthorizedException('Could not refresh the token. Please try again or log in.');
     }
+  }
+
+  private clearRefreshTokenCookie(res: Response) {
+    res.clearCookie('RefreshToken', { path: '/auth/refresh' });
   }
 
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
@@ -160,7 +167,18 @@ export class TokenService {
       expiresIn: this.refreshTokenExpiration
     });
   }
+  async checkSession(req: Request): Promise<UserSessionStatus> {
+    try {
+      const cookie = req.cookies['RefreshToken']; // Nom du cookie à vérifier
+      if (!cookie) throw new UnauthorizedException('No session found.');
 
+      const payload = this.jwtService.verify(cookie, { secret: this.refreshTokenSecret });
+      const user = await this.usersRepository.findOneOrFail({ where: { userId: payload.sub } });
+      return { isAuthenticated: true, user };
+    } catch (error) {
+      return { isAuthenticated: false };
+    }
+  }
   /**
    * Removes the refresh token associated with the provided user ID.
    *
