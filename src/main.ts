@@ -21,9 +21,10 @@ async function bootstrap() {
 
   // Enable CORS for the frontend URL
   app.enableCors({
-    origin: configService.get('FRONTEND_URL'),
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept'
+    origin: 'http://localhost:5173', // Make sure this matches exactly with your frontend URL
+    methods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    credentials: true, // Important for cookies/session to work across origins
+    allowedHeaders: 'Content-Type, Authorization'
   });
 
   // Middleware for parsing cookies and setting security headers
