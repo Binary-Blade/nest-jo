@@ -7,4 +7,5 @@ export interface JwtPayload {
 export interface JWTTokens {
   accessToken: string;
   refreshToken: string;
+  expiresIn?: number;
 }
