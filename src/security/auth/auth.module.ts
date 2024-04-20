@@ -10,6 +10,8 @@ import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { AuthController } from './auth.controller';
 import { User } from '@modules/users/entities/user.entity';
+import { CookieService } from '@security/token/cookie.service';
+import { TokenManagementService } from '@security/token/token-management.service';
 
 /**
  * Module for handling authentication-related operations.
@@ -27,8 +29,10 @@ import { User } from '@modules/users/entities/user.entity';
     AuthService, // The service responsible for handling authentication logic
     UsersService, // The service responsible for user-related operations
     TokenService, // The service responsible for handling token-related operations
+    CookieService, // The service responsible for handling cookie-related operations
     JwtService, // Nest's JwtService for JWT operations such as signing and verification
     EncryptionService, // A service for handling common security tasks such as hashing
+    TokenManagementService, // A service for managing JWT tokens
     UtilsService, // A utility service for common tasks such as generating random strings
     RedisService // A service for interacting with the Redis store
   ]

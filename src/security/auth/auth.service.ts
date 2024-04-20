@@ -2,13 +2,13 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
-import { JWTTokens } from '@common/interfaces/jwt.interface';
 import { InvalidCredentialsException } from '@common/exceptions/invalid-credentials.exception';
 import { CreateUserDto } from '@modules/users/dto';
 import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Response } from 'express';
+import { CookieService } from '@security/token/cookie.service';
 
 /**
  * Service providing authentication functionality.
@@ -18,7 +18,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>, // Repository for accessing User entity operations.
     private encryptionService: EncryptionService, // Service for hashing and verifying passwords.
-    private tokenService: TokenService // Service for managing JWT tokens, including creation and validation.
+    private tokenService: TokenService, // Service for managing JWT tokens, including creation and validation.
+    private cookieService: CookieService
   ) {}
 
   /**
@@ -72,7 +73,7 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.tokenService.getTokens(user);
 
-    this.tokenService.setRefreshTokenCookie(res, refreshToken); // Set the HTTP only cookie for the refresh token
+    this.cookieService.setRefreshTokenCookie(res, refreshToken); // Set the HTTP only cookie for the refresh token
     res.json({ accessToken });
   }
 
@@ -115,7 +116,7 @@ export class AuthService {
     user.tokenVersion += 1; // Incrementing the token version invalidates all previously issued tokens.
     await this.usersRepository.save(user);
 
-    res.clearCookie('RefreshToken', { path: '/auth/refresh' }); // Clear the refresh token cookie
+    res.clearCookie('RefreshToken', { path: '/' }); // Clear the refresh token cookie
     res.status(200).send('Logged out successfully');
   }
 }
