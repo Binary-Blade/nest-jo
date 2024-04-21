@@ -4,11 +4,11 @@ import { UsersModule } from '@modules/users/users.module';
 import { RedisModule } from '@database/redis/redis.module';
 import { DatabaseModule } from '@database/database.module';
 import { AuthModule } from '@security/auth/auth.module';
-import { OffersModule } from '@modules/offers/offers.module';
 import { CartsModule } from '@modules/carts/carts.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { PaymentModule } from '@libs/payment/payment.module';
+import { EventsModule } from '@modules/events/events.module';
 /**
  *
  * Main application module
@@ -25,7 +25,7 @@ import { PaymentModule } from '@libs/payment/payment.module';
     RedisModule,
     AuthModule,
     UsersModule,
-    OffersModule,
+    EventsModule,
     CartsModule,
     CartItemsModule,
     ReservationsModule,

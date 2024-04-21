@@ -4,6 +4,7 @@ import { Role } from '@common/decorators/role.decorator';
 import { UpdateUserDto } from './dto';
 import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
 import { UserRole } from '@common/enums/user-role.enum';
+import { UserId } from '@common/decorators/user-id.decorator';
 
 /**
  * Controller that manages user operations. It includes endpoints for fetching,
@@ -35,6 +36,11 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
+  }
+
+  @Get('get-user')
+  getUser(@UserId() userId: number) {
+    return { userId };
   }
 
   /**

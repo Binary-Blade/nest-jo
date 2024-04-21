@@ -1,16 +1,16 @@
-import { TypeOffer } from '@common/enums/type-offer.enum';
+import { TypeEvent } from '@common/enums/type-event.enum';
 import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
 /**
- * DTO for creating an offer
- * @param title - The title of the offer
- * @param description - The description of the offer
- * @param price - The price of the offer
- * @param quantityAvailable - The quantity of the offer available
- * @param type - The type of the offer
- * @returns - The created offer
+ * DTO for creating an event
+ * @param title - The title of the event
+ * @param description - The description of the event
+ * @param price - The price of the event
+ * @param quantityAvailable - The quantity of the event available
+ * @param type - The type of the event
+ * @returns - The created event
  */
-export class CreateOfferDto {
+export class CreateEventDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(5)
@@ -32,5 +32,5 @@ export class CreateOfferDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly type: TypeOffer;
+  readonly type: TypeEvent;
 }

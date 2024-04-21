@@ -4,12 +4,12 @@ import { User } from '@modules/users/entities/user.entity';
 import { Cart } from './entities/cart.entity';
 import { RedisModule } from '@database/redis/redis.module';
 import { RedisService } from '@database/redis/redis.service';
-import { OffersService } from '@modules/offers/offers.service';
-import { Offer } from '@modules/offers/entities/offer.entity';
+import { EventsService } from '@modules/events/events.service';
+import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from './carts.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Cart, Offer]), RedisModule],
-  providers: [CartsService, RedisService, OffersService]
+  imports: [TypeOrmModule.forFeature([User, Cart, Event]), RedisModule],
+  providers: [CartsService, RedisService, EventsService]
 })
 export class CartsModule {}

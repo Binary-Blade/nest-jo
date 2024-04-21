@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CartItem } from './entities/cartitems.entity';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
-import { Offer } from '@modules/offers/entities/offer.entity';
+import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from '@modules/carts/carts.service';
 
 /**
@@ -11,10 +11,10 @@ import { CartsService } from '@modules/carts/carts.service';
  */
 @Injectable()
 export class CartItemsService {
-  // Inject the CartItem and Offer repositories and the CartsService.
+  // Inject the CartItem and Event repositories and the CartsService.
   constructor(
     @InjectRepository(CartItem) private readonly cartItemRepository: Repository<CartItem>,
-    @InjectRepository(Offer) private readonly offerRepository: Repository<Offer>,
+    @InjectRepository(Event) private readonly eventRepository: Repository<Event>,
     private readonly cartsService: CartsService
   ) {}
 
@@ -26,19 +26,19 @@ export class CartItemsService {
    * @param userId The user ID.
    * @param createCartItemDto The cart item data.
    * @returns The created cart item.
-   * @throws NotFoundException if the offer does not exist.
+   * @throws NotFoundException if the event does not exist.
    * @throws NotFoundException if the cart does not exist.
    */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
-    const offer = await this.offerRepository.findOneBy({ offerId: createCartItemDto.offerId });
-    if (!offer) throw new NotFoundException('Offer not found');
+    const event = await this.eventRepository.findOneBy({ eventId: createCartItemDto.eventId });
+    if (!event) throw new NotFoundException('Event not found');
 
-    if (createCartItemDto.quantity > offer.quantityAvailable) {
+    if (createCartItemDto.quantity > event.quantityAvailable) {
       throw new NotFoundException('Quantity not available');
     }
-    offer.quantityAvailable -= createCartItemDto.quantity;
-    await this.offerRepository.save(offer);
+    event.quantityAvailable -= createCartItemDto.quantity;
+    await this.eventRepository.save(event);
 
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto);
   }
@@ -60,7 +60,7 @@ export class CartItemsService {
         cartItemId,
         cart: { cartId }
       },
-      relations: ['offer', 'cart']
+      relations: ['event', 'cart']
     });
     if (!cartItem) {
       throw new NotFoundException(
@@ -84,7 +84,7 @@ export class CartItemsService {
     await this.cartsService.findCart(userId, cartId);
     return this.cartItemRepository.find({
       where: { cart: { cartId } },
-      relations: ['offer', 'cart']
+      relations: ['event', 'cart']
     });
   }
 
@@ -98,7 +98,7 @@ export class CartItemsService {
    * @returns The updated cart item.
    * @throws NotFoundException if the cart item does not exist in the cart.
    * @throws NotFoundException if the cart does not exist.
-   * @throws NotFoundException if the offer does not exist.
+   * @throws NotFoundException if the event does not exist.
    */
   async updateQuantityInCart(
     userId: number,
@@ -107,18 +107,18 @@ export class CartItemsService {
     quantity: number
   ): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
-    const offer = await this.offerRepository.findOneBy({
-      offerId: cartItem.offer.offerId
+    const event = await this.eventRepository.findOneBy({
+      eventId: cartItem.event.eventId
     });
 
-    if (!offer) throw new NotFoundException('Offer not found');
+    if (!event) throw new NotFoundException('Event not found');
 
-    if (quantity > offer.quantityAvailable) {
+    if (quantity > event.quantityAvailable) {
       throw new NotFoundException('Quantity not available');
     }
-    //TODO: Reduce the quantity of the offer by the difference between the new quantity and the old quantity.
-    offer.quantityAvailable -= quantity - cartItem.quantity;
-    await this.offerRepository.save(offer);
+    //TODO: Reduce the quantity of the event by the difference between the new quantity and the old quantity.
+    event.quantityAvailable -= quantity - cartItem.quantity;
+    await this.eventRepository.save(event);
 
     return this.cartItemRepository.save(cartItem);
   }
@@ -151,15 +151,15 @@ export class CartItemsService {
     cartId: number,
     createCartItemDto: CreateCartItemDto
   ): Promise<CartItem> {
-    const offerExists = await this.offerRepository.findOneBy({
-      offerId: createCartItemDto.offerId
+    const eventExists = await this.eventRepository.findOneBy({
+      eventId: createCartItemDto.eventId
     });
-    if (!offerExists) throw new NotFoundException('Offer not found');
+    if (!eventExists) throw new NotFoundException('Event not found');
 
     let cartItem = await this.cartItemRepository.findOne({
       where: {
         cart: { cartId },
-        offer: { offerId: createCartItemDto.offerId }
+        event: { eventId: createCartItemDto.eventId }
       }
     });
 
@@ -169,7 +169,7 @@ export class CartItemsService {
       cartItem = this.cartItemRepository.create({
         ...createCartItemDto,
         cart: { cartId },
-        offer: { offerId: createCartItemDto.offerId }
+        event: { eventId: createCartItemDto.eventId }
       });
     }
     return this.cartItemRepository.save(cartItem);

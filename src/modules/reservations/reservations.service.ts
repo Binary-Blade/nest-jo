@@ -45,7 +45,7 @@ export class ReservationsService {
       reservation.user = user;
       reservation.cartItem = item;
       reservation.paymentId = Math.floor(Math.random() * 1000); // Random payment ID
-      reservation.totalPrice = item.offer.price * item.quantity;
+      reservation.totalPrice = item.event.price * item.quantity;
       reservation.status = status; // Set the reservation status based on the parameter
 
       const savedReservation = await this.reservationRepository.save(reservation);

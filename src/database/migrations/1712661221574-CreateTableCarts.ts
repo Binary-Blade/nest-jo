@@ -5,8 +5,6 @@ export class CreateTableCarts1712661221574 implements MigrationInterface {
     // Check if the "carts" table already exists in the database.
     const table = await queryRunner.getTable('cart');
 
-    // Check if the "type_offer_enum" enum type already exists in the database.
-    //await queryRunner.query(DOES_ENUM_OFFER_TYPE_EXIST);
     // If the table doesn't exist, create it with the specified columns.
     if (!table) {
       await queryRunner.query(`
