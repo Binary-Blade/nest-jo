@@ -112,7 +112,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not connected');
     }
-    await this.tokenService.removeRefreshToken(userId); // Invalidate the current refresh token.
+    await this.tokenService.removeRefreshTokenRedis(userId); // Invalidate the current refresh token.
     user.tokenVersion += 1; // Incrementing the token version invalidates all previously issued tokens.
     await this.usersRepository.save(user);
 

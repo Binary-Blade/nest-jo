@@ -51,8 +51,12 @@ export class TokenService {
     await this.redisService.set(`refresh_token_${userId}`, refreshToken, refreshTokenTTL);
   }
 
+  async removeRefreshTokenRedis(userId: number) {
+    await this.redisService.del(`refresh_token_${userId}`);
+  }
+
   async refreshToken(req: Request, res: Response): Promise<void> {
-    const oldRefreshToken = this.extractRefreshToken(req);
+    const oldRefreshToken = this.cookieService.extractRefreshTokenCookie(req);
     try {
       const payload = await this.tokenManagementService.verifyToken(oldRefreshToken);
       const userId = payload.sub;
@@ -77,13 +81,5 @@ export class TokenService {
       }
       throw new UnauthorizedException('Could not refresh the token. Please try again or log in.');
     }
-  }
-
-  private extractRefreshToken(req: Request): string {
-    return req.cookies['RefreshToken'];
-  }
-
-  async removeRefreshToken(userId: number) {
-    await this.redisService.del(`refresh_token_${userId}`);
   }
 }

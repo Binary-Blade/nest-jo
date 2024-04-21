@@ -1,7 +1,7 @@
 import { UtilsService } from '@common/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CookieOptions, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 
 @Injectable()
 export class CookieService {
@@ -9,6 +9,10 @@ export class CookieService {
     private configService: ConfigService,
     private utilsService: UtilsService
   ) {}
+
+  extractRefreshTokenCookie(req: Request): string {
+    return req.cookies['RefreshToken'];
+  }
 
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
     const refreshTokenExpiration = this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION');
