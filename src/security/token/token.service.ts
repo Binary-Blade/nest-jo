@@ -71,7 +71,8 @@ export class TokenService {
       this.cookieService.setRefreshTokenCookie(res, refreshToken);
       res.json({
         accessToken,
-        expiresIn
+        expiresIn,
+        userId
       });
     } catch (error) {
       this.logger.error('Token refresh error', { error: error.message, stack: error.stack });
