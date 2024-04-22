@@ -1,10 +1,11 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role } from '@common/decorators/role.decorator';
 import { UpdateUserDto } from './dto';
 import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
 import { UserRole } from '@common/enums/user-role.enum';
 import { UserId } from '@common/decorators/user-id.decorator';
+import { Request } from 'express';
 
 /**
  * Controller that manages user operations. It includes endpoints for fetching,
@@ -36,11 +37,6 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
-  }
-
-  @Get('get-user')
-  getUser(@UserId() userId: number) {
-    return { userId };
   }
 
   /**
