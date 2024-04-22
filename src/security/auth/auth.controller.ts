@@ -72,8 +72,8 @@ export class AuthController {
   @Get('get-refresh-token')
   async getRefreshToken(@Req() req: Request, @Res() res: Response) {
     try {
-      const accessToken = await this.tokenService.refreshToken(req, res);
-      res.status(HttpStatus.OK).json({ accessToken });
+      const response = await this.tokenService.refreshToken(req, res);
+      res.status(HttpStatus.OK).json({ response });
     } catch (error) {
       res
         .status(HttpStatus.UNAUTHORIZED)
