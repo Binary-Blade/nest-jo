@@ -1,4 +1,3 @@
-import { TypeEvent } from '@common/enums/type-event.enum';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
@@ -25,8 +24,17 @@ export class Event {
   @Column('text')
   description: string;
 
-  @Column('decimal')
-  price: number;
+  @Column('int')
+  basePrice: number;
+
+  @Column('int', { nullable: true })
+  soloPrice: number;
+
+  @Column('int', { nullable: true })
+  duoPrice: number;
+
+  @Column('int', { nullable: true })
+  familyPrice: number;
 
   @Column({ type: 'int', default: 0 })
   quantityAvailable: number;

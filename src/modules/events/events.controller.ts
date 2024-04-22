@@ -40,6 +40,22 @@ export class EventsController {
   }
 
   /**
+   * Get the price of a ticket for a given event and ticket type
+   *
+   * @param id - The ID of the event
+   * @param ticketType - The type of ticket
+   * @returns - The price of the ticket
+   */
+  @Get(':id/price/:ticketType')
+  async getTicketPrice(
+    @Param('id') id: number,
+    @Param('ticketType') ticketType: string
+  ): Promise<{ eventId: number; ticketType: string; price: number }> {
+    const price = await this.eventsService.getPriceByType(+id, ticketType);
+    return { eventId: +id, ticketType, price: +price }; // Ensure price is a number
+  }
+
+  /**
    * Get a single event by ID
    *
    * @param id - The ID of the event

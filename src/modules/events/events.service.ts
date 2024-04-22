@@ -10,6 +10,7 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { TypeEvent } from '@common/enums/type-event.enum';
 
 /**
  * Service responsible for handling CRUD operations for events
@@ -34,8 +35,16 @@ export class EventsService {
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
     await this.ensureTitleUnique(createEventDto.title);
-    const event: Event = this.eventRepository.create(createEventDto);
+    const event: Event = this.eventRepository.create({
+      ...createEventDto,
+      basePrice: createEventDto.basePrice,
+      soloPrice: createEventDto.basePrice,
+      duoPrice: createEventDto.basePrice * 1.3,
+      familyPrice: createEventDto.basePrice * 1.8
+    });
+
     await this.eventRepository.save(event);
+    await this.clearCacheEvent();
     return event;
   }
 
@@ -80,7 +89,7 @@ export class EventsService {
     Object.assign(event, updateEventDto, { updatedAt: new Date() });
 
     await this.eventRepository.save(event);
-    await this.clearCache(id);
+    await this.clearCacheEvent(id);
     return event;
   }
 
@@ -96,8 +105,26 @@ export class EventsService {
     if (!event) throw new NotFoundException(`Event with id ${id} not found`);
 
     await this.eventRepository.remove(event);
-    await this.clearCache(id);
+    await this.clearCacheEvent(id);
     return 'Event deleted successfully.';
+  }
+
+  async getPriceByType(eventId: number, ticketType: string): Promise<number> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) {
+      throw new NotFoundException(`Event with id ${eventId} not found`);
+    }
+
+    switch (ticketType) {
+      case TypeEvent.SOLO:
+        return event.soloPrice;
+      case TypeEvent.DUO:
+        return event.duoPrice;
+      case TypeEvent.FAMILY:
+        return event.familyPrice;
+      default:
+        throw new NotFoundException(`Invalid ticket type provided`);
+    }
   }
 
   /**
@@ -161,7 +188,7 @@ export class EventsService {
    * @returns - Promise that resolves when the cache is cleared
    * @throws InternalServerErrorException if there is an error clearing the cache
    */
-  private async clearCache(eventId?: number): Promise<void> {
+  private async clearCacheEvent(eventId?: number): Promise<void> {
     const key = eventId ? `event_${eventId}` : 'events_all';
     await this.redisService.del(key);
   }

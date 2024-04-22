@@ -24,13 +24,9 @@ export class CreateEventDto {
 
   @IsNotEmpty()
   @IsNumber()
-  readonly price: number;
+  readonly basePrice: number;
 
   @IsNotEmpty()
   @IsNumber()
   readonly quantityAvailable: number;
-
-  @IsNotEmpty()
-  @IsString()
-  readonly type: TypeEvent;
 }
