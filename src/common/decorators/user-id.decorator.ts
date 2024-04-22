@@ -1,4 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { Request } from 'express';
 
 /*
  * Custom decorator that extracts the user ID from the request object.
@@ -12,6 +13,6 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
  *  }
  */
 export const UserId = createParamDecorator((data: unknown, ctx: ExecutionContext): number => {
-  const request = ctx.switchToHttp().getRequest();
-  return request.user.userId; // Assuming `user` is always present in the request object
+  const request = ctx.switchToHttp().getRequest<Request>();
+  return request.user?.userId;
 });
