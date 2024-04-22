@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { DOES_ENUM_EVENT_TYPE_EXIST } from './constants-db';
 
 /**
  * This migration creates the "events" table in the database.
@@ -9,8 +8,6 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
     // Check if the "events" table already exists in the database.
     const table = await queryRunner.getTable('events');
 
-    // Check if the "type_event_enum" enum type already exists in the database.
-    await queryRunner.query(DOES_ENUM_EVENT_TYPE_EXIST);
     // If the table doesn't exist, create it with the specified columns.
     if (!table) {
       await queryRunner.query(`
@@ -18,7 +15,10 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
                     "eventId" SERIAL PRIMARY KEY,
                     "title" VARCHAR NOT NULL UNIQUE,
                     "description" TEXT NOT NULL,
-                    "price" DECIMAL NOT NULL,
+                    "basePrice" DECIMAL NOT NULL,
+                    "soloPrice" DECIMAL NULL,
+                    "duoPrice" DECIMAL NULL,
+                    "familyPrice" DECIMAL NULL,
                     "quantityAvailable" INTEGER DEFAULT 0,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
