@@ -1,5 +1,4 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './entities/reservation.entity';
@@ -41,11 +40,13 @@ export class ReservationsService {
         throw new Error(`Reservation for item with ID ${item.cartItemId} already exists.`);
       }
 
+      const price = item.event.soloPrice || item.event.duoPrice || item.event.familyPrice;
+
       const reservation = new Reservation();
       reservation.user = user;
       reservation.cartItem = item;
       reservation.paymentId = Math.floor(Math.random() * 1000); // Random payment ID
-      reservation.totalPrice = item.event.price * item.quantity;
+      reservation.totalPrice = price * item.quantity;
       reservation.status = status; // Set the reservation status based on the parameter
 
       const savedReservation = await this.reservationRepository.save(reservation);
