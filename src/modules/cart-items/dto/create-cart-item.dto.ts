@@ -9,4 +9,6 @@ export class CreateCartItemDto {
   @IsInt()
   @Min(1)
   readonly quantity: number;
+
+  readonly type: string;
 }
