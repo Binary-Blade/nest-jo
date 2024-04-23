@@ -146,16 +146,29 @@ export class CartItemsService {
     const event = await this.eventRepository.findOneBy({
       eventId: cartItem.event.eventId
     });
-
-    if (!event) throw new NotFoundException('Event not found');
+    const eventId = cartItem.event.eventId;
+    if (!eventId) throw new NotFoundException('Event not found');
 
     if (quantity > event.quantityAvailable) {
       throw new NotFoundException('Quantity not available');
     }
+    // Update the available quantity in the event
     event.quantityAvailable -= quantity - cartItem.quantity;
-    await this.eventRepository.save(event);
 
-    return this.cartItemRepository.save(cartItem);
+    // Recalculate the total price for the new quantity and ticket type
+    const createCartItemDto = {
+      quantity: quantity,
+      ticketType: cartItem.ticketType, // Assuming cartItem includes ticketType
+      eventId: event.eventId // Assuming you have access to eventId here, else adjust accordingly
+    };
+    cartItem.price = this.calculateTotalTicketPrice(createCartItemDto, event);
+
+    // Update the cart item quantity
+    cartItem.quantity = quantity;
+
+    // Save the updated event and cart item
+    await this.eventRepository.save(event);
+    return await this.cartItemRepository.save(cartItem);
   }
 
   /**
