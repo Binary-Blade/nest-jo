@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RedisService } from '@database/redis/redis.service';
@@ -55,7 +55,7 @@ export class TokenService {
     await this.redisService.del(`refresh_token_${userId}`);
   }
 
-  async refreshToken(req: Request, res: Response): Promise<void> {
+  async refreshToken(req: Request, res: Response): Promise<any> {
     const oldRefreshToken = this.cookieService.extractRefreshTokenCookie(req);
     try {
       const payload = await this.tokenManagementService.verifyToken(oldRefreshToken);
@@ -69,11 +69,7 @@ export class TokenService {
       await this.storeRefreshTokenRedis(userId, refreshToken);
 
       this.cookieService.setRefreshTokenCookie(res, refreshToken);
-      res.json({
-        accessToken,
-        expiresIn,
-        userId
-      });
+      return res.status(HttpStatus.OK).json({ accessToken, refreshToken, expiresIn, userId });
     } catch (error) {
       this.logger.error('Token refresh error', { error: error.message, stack: error.stack });
       if (error instanceof UnauthorizedException) {
