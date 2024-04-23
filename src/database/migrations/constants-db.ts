@@ -1,3 +1,13 @@
+export const DOES_ENUM_EVENT_TYPE_EXIST = `
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'type_event_enum') THEN
+        CREATE TYPE "type_event_enum" AS ENUM('SOLO', 'DUO', 'FAMILY');
+    END IF;
+END
+$$;
+`;
+
 export const DOES_ENUM_USER_ROLE_EXIST = `
 DO $$
 BEGIN

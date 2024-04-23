@@ -1,5 +1,5 @@
 export enum TypeEvent {
-  SOLO = 'Solo',
-  DUO = 'Duo',
-  FAMILY = 'Family'
+  SOLO = 'SOLO',
+  DUO = 'DUO',
+  FAMILY = 'FAMILY'
 }

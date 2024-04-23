@@ -1,10 +1,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { DOES_ENUM_EVENT_TYPE_EXIST } from './constants-db';
 
 export class CreateTableCartItems1712661230450 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "cart_items" table already exists in the database.
     const table = await queryRunner.getTable('cart_items');
 
+    await queryRunner.query(DOES_ENUM_EVENT_TYPE_EXIST);
     // If the table doesn't exist, create it with the specified columns.
     if (!table) {
       await queryRunner.query(`
@@ -12,6 +14,8 @@ export class CreateTableCartItems1712661230450 implements MigrationInterface {
                     "cartItemId" SERIAL PRIMARY KEY,
                     "cartId" INTEGER NOT NULL,
                     "eventId" INTEGER NOT NULL,
+                    "ticketType" "type_event_enum" NOT NULL,
+                    "price" INTEGER NOT NULL,
                     "quantity" INTEGER NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
