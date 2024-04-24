@@ -1,7 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
-import { CreateReservationDto } from './dto/create-reservation.dto';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { UserId } from '@common/decorators/user-id.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { PaymentService } from '@libs/payment/payment.service';
@@ -25,9 +23,9 @@ export class ReservationsController {
     return this.paymentService.processPayment(userId, cardId);
   }
 
-  @Get('find-all')
-  findAll() {
-    return this.reservationsService.findAll();
+  @Get(':userId/find-all')
+  findAll(@Param('userId') userId: number) {
+    return this.reservationsService.findAll(userId);
   }
 
   @UseGuards(RoleGuard)
@@ -40,15 +38,5 @@ export class ReservationsController {
   @Get(':id')
   findOne(@Param('id') id: string, @UserId() userId: number) {
     return this.reservationsService.findOne(+id, userId);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto) {
-    return this.reservationsService.update(+id, updateReservationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reservationsService.remove(+id);
   }
 }
