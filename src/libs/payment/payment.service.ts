@@ -7,7 +7,7 @@ import { PaymentResult, ProcessPaymentResponse } from '@common/interfaces/paymen
 
 @Injectable()
 export class PaymentService {
-  private readonly SUCCESS_RATE = 0.4; // 40% chance of payment failure
+  private readonly SUCCESS_RATE = 0.1; // 40% chance of payment being successful
   private readonly PENDING_RATE = 0.3; // 30% chance of payment being pending
 
   constructor(
@@ -28,6 +28,7 @@ export class PaymentService {
         const reservationResponse = await this.createReservationsWithStatus(
           userId,
           cartItems,
+          cartId,
           statusReservation.APPROVED
         );
         // Assuming reservationResponse.reservations contains the array of Reservation
@@ -38,10 +39,43 @@ export class PaymentService {
         }
         return reservationResponse;
       case 'pending':
-        return this.createReservationsWithStatus(userId, cartItems, statusReservation.PENDING);
+        return this.createReservationsWithStatus(
+          userId,
+          cartItems,
+          cartId,
+          statusReservation.PENDING
+        );
       case 'failure':
       default:
-        return this.createReservationsWithStatus(userId, cartItems, statusReservation.REJECTED);
+        return this.createReservationsWithStatus(
+          userId,
+          cartItems,
+          cartId,
+          statusReservation.REJECTED
+        );
+    }
+  }
+
+  private async createReservationsWithStatus(
+    userId: number,
+    cartItems: CartItem[],
+    cartId: number,
+    status: statusReservation
+  ): Promise<ProcessPaymentResponse> {
+    try {
+      const reservations = await this.reservationsService.createReservations(
+        userId,
+        cartItems,
+        cartId,
+        status
+      );
+      return { status: 'success', detail: 'Reservations successfully created.', reservations };
+    } catch (error) {
+      console.error('Error during reservation creation:', error);
+      return {
+        status: 'failure',
+        detail: 'Error during reservation creation, please try again later.'
+      };
     }
   }
 
@@ -56,27 +90,6 @@ export class PaymentService {
         return { status: 'pending', detail: 'Payment is pending confirmation.' };
       }
       return { status: 'failure', detail: 'Payment processing failed.' };
-    }
-  }
-
-  private async createReservationsWithStatus(
-    userId: number,
-    cartItems: CartItem[],
-    status: statusReservation
-  ): Promise<ProcessPaymentResponse> {
-    try {
-      const reservations = await this.reservationsService.createReservations(
-        userId,
-        cartItems,
-        status
-      );
-      return { status: 'success', detail: 'Reservations successfully created.', reservations };
-    } catch (error) {
-      console.error('Error during reservation creation:', error);
-      return {
-        status: 'failure',
-        detail: 'Error during reservation creation, please try again later.'
-      };
     }
   }
 }
