@@ -1,5 +1,4 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { Repository } from 'typeorm';
@@ -9,24 +8,37 @@ import { Ticket } from './entities/ticket.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import * as qrcode from 'qrcode';
+import { Cart } from '@modules/carts/entities/cart.entity';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     @InjectRepository(Reservation) private readonly reservationRepository: Repository<Reservation>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(Ticket) private readonly ticketRepository: Repository<Ticket>
+    @InjectRepository(Ticket) private readonly ticketRepository: Repository<Ticket>,
+    @InjectRepository(Cart) private readonly cartRepository: Repository<Cart>,
+    @InjectRepository(CartItem) private readonly cartItemRepository: Repository<CartItem>
   ) {}
 
   async createReservations(
     userId: number,
     cartItems: CartItem[],
+    cartId: number,
     status: statusReservation
   ): Promise<Reservation[]> {
     const user = await this.userRepository.findOneBy({ userId });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+
+    const cart = await this.cartRepository.findOne({
+      where: { cartId },
+      relations: ['cartItem'] // Assurez-vous que les cartItems sont chargés avec le panier
+    });
+
+    if (!cart) {
+      throw new NotFoundException(`Cart with ID ${cartId} not found.`);
     }
 
     let createdReservations: Reservation[] = [];
@@ -40,25 +52,42 @@ export class ReservationsService {
         throw new Error(`Reservation for item with ID ${item.cartItemId} already exists.`);
       }
 
-      const price = item.event.soloPrice || item.event.duoPrice || item.event.familyPrice;
-
+      item.cart.cartId = null;
+      await this.cartItemRepository.save(item);
       const reservation = new Reservation();
       reservation.user = user;
       reservation.cartItem = item;
       reservation.paymentId = Math.floor(Math.random() * 1000); // Random payment ID
-      reservation.totalPrice = price * item.quantity;
+      reservation.totalPrice = item.price;
       reservation.status = status; // Set the reservation status based on the parameter
-
       const savedReservation = await this.reservationRepository.save(reservation);
       createdReservations.push(savedReservation);
     }
+    await this.deleteCart(cartId);
+    await this.createCartForUser(user); // Méthode pour créer un nouveau cart
 
     return createdReservations;
   }
 
-  // TODO: Link to user and cartItem
-  async findAll() {
-    return await this.reservationRepository.find();
+  private async deleteCart(cartId: number): Promise<void> {
+    const cart = await this.cartRepository.findOneBy({ cartId });
+    if (!cart) {
+      throw new NotFoundException(`Cart with ID ${cartId} not found.`);
+    }
+    await this.cartRepository.remove(cart);
+  }
+
+  private async createCartForUser(user: User): Promise<Cart> {
+    const newCart = new Cart();
+    newCart.user = user;
+    return await this.cartRepository.save(newCart);
+  }
+
+  async findAll(userId: number) {
+    return await this.reservationRepository.find({
+      where: { user: { userId } },
+      relations: ['cartItem', 'cartItem.event', 'user'] // Include the cartItem and event relations
+    });
   }
 
   async findAllAdmin() {
@@ -71,7 +100,15 @@ export class ReservationsService {
   ): Promise<{ reservation: Reservation; user: User }> {
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId },
-      relations: ['user'] // Make sure you are loading the user relation
+      relations: ['user', 'ticket'],
+      select: {
+        reservationId: true,
+        status: true,
+        ticket: {
+          ticketId: true,
+          qrCode: true
+        }
+      }
     });
 
     if (!reservation) {
@@ -99,6 +136,7 @@ export class ReservationsService {
       }
     }
   }
+
   private async confirmReservation(reservationId: number, userId: number): Promise<Ticket> {
     const { reservation, user } = await this.findOne(reservationId, userId);
 
@@ -127,13 +165,5 @@ export class ReservationsService {
     await this.reservationRepository.save(reservation);
 
     return savedTicket;
-  }
-
-  update(id: number, updateReservationDto: UpdateReservationDto) {
-    return `This action updates a #${id} reservation`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} reservation`;
   }
 }
