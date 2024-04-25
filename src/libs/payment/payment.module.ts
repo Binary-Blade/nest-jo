@@ -11,9 +11,17 @@ import { CartsService } from '@modules/carts/carts.service';
 import { UsersService } from '@modules/users/users.service';
 import { User } from '@modules/users/entities/user.entity';
 import { Ticket } from '@modules/reservations/entities/ticket.entity';
+import { EncryptionService } from '@security/encryption/encryption.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reservation, CartItem, Event, Cart, User, Ticket])],
-  providers: [PaymentService, ReservationsService, CartItemsService, CartsService, UsersService]
+  providers: [
+    PaymentService,
+    ReservationsService,
+    CartItemsService,
+    CartsService,
+    UsersService,
+    EncryptionService
+  ]
 })
 export class PaymentModule {}
