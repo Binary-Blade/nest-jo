@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { RedisService } from '@database/redis/redis.service';
 import { Repository } from 'typeorm';
-import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { TypeEvent } from '@common/enums/type-event.enum';
