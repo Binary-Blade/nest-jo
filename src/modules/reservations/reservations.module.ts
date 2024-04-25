@@ -11,10 +11,19 @@ import { Ticket } from './entities/ticket.entity';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
 import { Event } from '@modules/events/entities/event.entity';
+import { EncryptionService } from '@security/encryption/encryption.service';
+import { UsersService } from '@modules/users/users.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket])],
   controllers: [ReservationsController],
-  providers: [ReservationsService, PaymentService, CartItemsService, CartsService]
+  providers: [
+    ReservationsService,
+    PaymentService,
+    CartItemsService,
+    CartsService,
+    EncryptionService,
+    UsersService
+  ]
 })
 export class ReservationsModule {}
