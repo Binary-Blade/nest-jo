@@ -1,5 +1,7 @@
+import { User } from '@modules/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
+import * as qrcode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -34,7 +36,27 @@ export class EncryptionService {
    * @returns A promise that resolves to a UUID v4 key.
    */
   async generatedKeyUuid(): Promise<string> {
-    console.log('generatedKeyUuid' + uuidv4());
     return uuidv4();
+  }
+
+  /**
+   * Generates a secure key for a user.
+   *
+   * @param user The user to generate the secure key for.
+   * @returns A promise that resolves to a secure key.
+   **/
+  async generatedSecureKey(user: User): Promise<string> {
+    const purchaseKey = await this.generatedKeyUuid();
+    return `${user.accountKey}-${purchaseKey}`;
+  }
+
+  /**
+   * Generates a QR code for a secure key.
+   *
+   * @param secureKey The secure key to generate the QR code for.
+   * @returns A promise that resolves to a data URL for the QR code.
+   */
+  async generatedQRCode(secureKey: string): Promise<string> {
+    return await qrcode.toDataURL(secureKey);
   }
 }
