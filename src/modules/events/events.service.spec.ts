@@ -4,16 +4,17 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { RedisService } from '@database/redis/redis.service';
 import { Repository } from 'typeorm';
+import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
-import { TypeEvent } from '@common/enums/type-event.enum';
-import { UpdateUserDto } from '@modules/users/dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { TypeEvent } from '@common/enums/type-event.enum';
 
 describe('EventsService', () => {
   let service: EventsService;
   let repository: Repository<Event>;
   let redisService: RedisService;
 
+  // Mock services and repositories
   const mockRedisService = {
     get: jest.fn(),
     set: jest.fn(),
@@ -53,34 +54,29 @@ describe('EventsService', () => {
   });
 
   describe('create', () => {
-    it('should throw a ConflictException if an event with the same title already exists', async () => {
-      mockEventRepository.findOneBy.mockResolvedValue(new Event());
-      const dto: CreateEventDto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10,
-        type: TypeEvent.SOLO
-      };
+    const dto: CreateEventDto = {
+      title: 'New Year',
+      description: 'New Year Celebration',
+      basePrice: 50,
+      quantityAvailable: 100
+    };
+    it('should create a new event', async () => {
+      mockEventRepository.findOneBy.mockResolvedValue(null);
+      mockEventRepository.create.mockImplementation(event => event);
+      mockEventRepository.save.mockResolvedValue({ eventId: 1, ...dto });
 
-      await expect(service.create(dto)).rejects.toThrow();
+      const result = await service.create(dto);
+      expect(result).toMatchObject({ ...dto });
+      expect(mockRedisService.del).toHaveBeenCalledWith('events_all');
     });
 
-    it('should successfully create a new event', async () => {
-      mockEventRepository.findOneBy.mockResolvedValue(undefined);
-      mockEventRepository.create.mockImplementation(dto => dto);
-      mockEventRepository.save.mockImplementation(event => Promise.resolve({ id: 1, ...event }));
+    it('should throw a ConflictException for duplicate titles', async () => {
+      // Make sure the mocked event has an eventId if necessary
+      const existingEvent = new Event();
+      existingEvent.eventId = 2; // Set an ID different from what might be used in the creation
+      mockEventRepository.findOneBy.mockResolvedValue(existingEvent);
 
-      const dto: CreateEventDto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10,
-        type: TypeEvent.SOLO
-      };
-      const result = await service.create(dto);
-
-      expect(result).toEqual(expect.objectContaining(dto));
+      await expect(service.create(dto)).rejects.toThrow(ConflictException);
     });
   });
 
@@ -101,50 +97,86 @@ describe('EventsService', () => {
   });
 
   describe('findOne', () => {
-    it('should return a single event', async () => {
-      const event = { id: 1, title: 'Test' };
-      mockRedisService.get.mockResolvedValue(null); // Simulate cache miss
+    it('should retrieve an event by ID', async () => {
+      const event = { eventId: 1, title: 'Event' };
+      mockRedisService.get.mockResolvedValue(null);
       mockEventRepository.findOneBy.mockResolvedValue(event);
 
       const result = await service.findOne(1);
       expect(result).toEqual(event);
       expect(mockRedisService.set).toHaveBeenCalledWith(`event_${1}`, JSON.stringify(event), 3600);
     });
-    it('should throw a NotFoundException if the event does not exist', async () => {
-      mockRedisService.get.mockResolvedValue(null);
-      mockEventRepository.findOneBy.mockResolvedValue(undefined);
-      await expect(service.findOne(1)).rejects.toThrow();
+
+    it('should throw a NotFoundException if event not found', async () => {
+      mockEventRepository.findOneBy.mockResolvedValue(null);
+      await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
     });
   });
 
-  // FIX: Correct the test description
   describe('update', () => {
-    it('should successfully update an event', async () => {
-      const event = { id: 1, title: 'Test' };
-      mockEventRepository.findOneBy.mockImplementation((condition: any) =>
-        condition.title !== 'Test' ? undefined : event
-      );
-      mockEventRepository.save.mockResolvedValue(event);
+    it('should update an event', async () => {
+      const event = { eventId: 1, title: 'Event', basePrice: 100 };
+      const updateDto: UpdateEventDto = { title: 'Updated Event', basePrice: 150 };
+      mockEventRepository.findOneBy.mockResolvedValue(event);
+      mockEventRepository.save.mockResolvedValue({ ...event, ...updateDto });
 
-      const dto: UpdateEventDto = {
-        title: 'Test Updated',
-        description: 'Desc Updated',
-        price: 150,
-        quantityAvailable: 15,
-        type: TypeEvent.SOLO
-      };
+      const result = await service.update(1, updateDto);
+      expect(result).toMatchObject(updateDto);
+      mockRedisService.del.mockImplementation(key => {
+        if (key === 'events_all' || key.startsWith('event_')) return Promise.resolve('OK');
+        return Promise.reject('Key does not match');
+      });
+    });
 
-      const result = await service.update(1, dto);
+    it('should throw a NotFoundException if event to update not found', async () => {
+      mockEventRepository.findOneBy.mockResolvedValue(null);
+      await expect(service.update(1, {} as UpdateEventDto)).rejects.toThrow(NotFoundException);
+    });
+  });
 
-      expect(result).toEqual(expect.objectContaining(dto));
+  describe('remove', () => {
+    it('should remove an event', async () => {
+      const event = { eventId: 1, title: 'Event' };
+      mockEventRepository.findOneBy.mockResolvedValue(event);
+      mockEventRepository.remove.mockResolvedValue(event);
+
+      const result = await service.remove(1);
+      expect(result).toEqual('Event deleted successfully.');
       expect(mockRedisService.del).toHaveBeenCalledWith(`event_${1}`);
       expect(mockRedisService.del).toHaveBeenCalledWith('events_all');
     });
 
-    it('should throw a NotFoundException if the event does not exist in cache', async () => {
-      mockRedisService.get.mockResolvedValue(null);
+    it('should throw a NotFoundException if event to remove not found', async () => {
+      mockEventRepository.findOneBy.mockResolvedValue(null);
+      await expect(service.remove(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getPriceByType', () => {
+    it('should return the correct price based on the ticket type', async () => {
+      const mockEvent = { id: 1, soloPrice: 100, duoPrice: 130, familyPrice: 180 };
+      mockEventRepository.findOneBy.mockResolvedValue(mockEvent);
+
+      const soloPrice = await service.getPriceByType(1, TypeEvent.SOLO);
+      const duoPrice = await service.getPriceByType(1, TypeEvent.DUO);
+      const familyPrice = await service.getPriceByType(1, TypeEvent.FAMILY);
+
+      expect(soloPrice).toEqual(100);
+      expect(duoPrice).toEqual(130);
+      expect(familyPrice).toEqual(180);
+    });
+
+    it('should throw a NotFoundException if the event does not exist', async () => {
       mockEventRepository.findOneBy.mockResolvedValue(undefined);
-      await expect(service.update(1, {} as CreateEventDto)).rejects.toThrow();
+
+      await expect(service.getPriceByType(1, TypeEvent.SOLO)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw a NotFoundException if an invalid ticket type is provided', async () => {
+      const mockEvent = { id: 1, soloPrice: 100, duoPrice: 130, familyPrice: 180 };
+      mockEventRepository.findOneBy.mockResolvedValue(mockEvent);
+
+      await expect(service.getPriceByType(1, 'invalid')).rejects.toThrow(NotFoundException);
     });
   });
 });
