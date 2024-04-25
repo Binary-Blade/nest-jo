@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,23 +7,30 @@ import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { Cart } from '@modules/carts/entities/cart.entity';
 import { User } from '@modules/users/entities/user.entity';
 import { PaymentService } from '@libs/payment/payment.service';
-import { Ticket } from './entities/ticket.entity';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
 import { Event } from '@modules/events/entities/event.entity';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { UsersService } from '@modules/users/users.service';
+import { Ticket } from '@modules/tickets/entities/ticket.entity';
+import { TicketsService } from '@modules/tickets/tickets.service';
+import { TicketsModule } from '@modules/tickets/tickets.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket])],
+  imports: [
+    TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket]),
+    forwardRef(() => TicketsModule)
+  ],
   controllers: [ReservationsController],
   providers: [
     ReservationsService,
     PaymentService,
+    TicketsService,
     CartItemsService,
     CartsService,
     EncryptionService,
     UsersService
-  ]
+  ],
+  exports: [ReservationsService]
 })
 export class ReservationsModule {}
