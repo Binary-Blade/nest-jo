@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { ReservationsService } from '@modules/reservations/reservations.service';
-import { statusReservation } from '@common/enums/status-reservation.enum';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { PaymentResult, ProcessPaymentResponse } from '@common/interfaces/payment.interface';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 
 @Injectable()
 export class PaymentService {
@@ -30,7 +30,7 @@ export class PaymentService {
           userId,
           cartItems,
           cartId,
-          statusReservation.APPROVED
+          StatusReservation.APPROVED
         );
         // Assuming reservationResponse.reservations contains the array of Reservation
         if (reservationResponse.status === 'success') {
@@ -44,7 +44,7 @@ export class PaymentService {
           userId,
           cartItems,
           cartId,
-          statusReservation.PENDING
+          StatusReservation.PENDING
         );
       case 'failure':
       default:
@@ -52,7 +52,7 @@ export class PaymentService {
           userId,
           cartItems,
           cartId,
-          statusReservation.REJECTED
+          StatusReservation.REJECTED
         );
     }
   }
@@ -61,7 +61,7 @@ export class PaymentService {
     userId: number,
     cartItems: CartItem[],
     cartId: number,
-    status: statusReservation
+    status: StatusReservation
   ): Promise<ProcessPaymentResponse> {
     try {
       const reservations = await this.reservationsService.createReservations(

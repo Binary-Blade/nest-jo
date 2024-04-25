@@ -1,4 +1,4 @@
-import { statusReservation } from '@common/enums/status-reservation.enum';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { User } from '@modules/users/entities/user.entity';
 import { IsNotEmpty } from 'class-validator';
 
@@ -10,7 +10,7 @@ export class CreateReservationDto {
   cartItemId: number;
 
   @IsNotEmpty()
-  status: statusReservation;
+  status: StatusReservation;
 
   @IsNotEmpty()
   totalPrice: number;

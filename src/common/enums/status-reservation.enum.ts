@@ -1,4 +1,4 @@
-export enum statusReservation {
+export enum StatusReservation {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
