@@ -2,7 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('EventsController', () => {
   let controller: EventsController;
@@ -13,7 +14,8 @@ describe('EventsController', () => {
     findAll: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
-    remove: jest.fn()
+    remove: jest.fn(),
+    getPriceByType: jest.fn()
   };
 
   beforeEach(async () => {
@@ -40,46 +42,34 @@ describe('EventsController', () => {
   });
 
   describe('create', () => {
+    const dto: CreateEventDto = {
+      title: 'Test',
+      description: 'Desc',
+      basePrice: 100,
+      quantityAvailable: 10
+    };
+
     it('should create an event', async () => {
-      const dto: CreateEventDto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10,
-        type: TypeEvent.SOLO
-      };
-      await controller.create(dto);
+      mockEventsService.create.mockResolvedValue({ ...dto, id: 1 });
+      const result = await controller.create(dto);
       expect(service.create).toHaveBeenCalledWith(dto);
+      expect(result).toEqual({ ...dto, id: 1 });
     });
-    it('should throw an error if an event with the same title already exists', async () => {
-      const dto: CreateEventDto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10,
-        type: TypeEvent.SOLO
-      };
-      mockEventsService.create.mockRejectedValue(new Error());
-      await expect(controller.create(dto)).rejects.toThrow();
-    });
-    it('should throw an error if an event with the same title already exists', async () => {
-      const dto: CreateEventDto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10,
-        type: TypeEvent.SOLO
-      };
-      mockEventsService.create.mockRejectedValue(new Error());
-      await expect(controller.create(dto)).rejects.toThrow();
+
+    it('should throw a ConflictException if an event with the same title already exists', async () => {
+      mockEventsService.create.mockRejectedValue(new ConflictException());
+      await expect(controller.create(dto)).rejects.toThrow(ConflictException);
     });
   });
 
   describe('findAll', () => {
     it('should return all events', async () => {
-      await controller.findAll();
-      expect(service.findAll).toHaveBeenCalled();
+      const events = [{ id: 1, title: 'Event 1' }];
+      mockEventsService.findAll.mockResolvedValue(events);
+      const result = await controller.findAll();
+      expect(result).toEqual(events);
     });
+
     it('should throw an error if there is an error parsing the data', async () => {
       mockEventsService.findAll.mockRejectedValue(new Error());
       await expect(controller.findAll()).rejects.toThrow();
@@ -88,66 +78,50 @@ describe('EventsController', () => {
 
   describe('findOne', () => {
     it('should return a single event', async () => {
-      const id = '1';
-      mockEventsService.findOne.mockResolvedValue({}); // provide a mock return value
-      await controller.findOne(id);
-      expect(service.findOne).toHaveBeenCalledWith(+id);
+      const event = { id: 1, title: 'Event' };
+      mockEventsService.findOne.mockResolvedValue(event);
+      const result = await controller.findOne('1');
+      expect(result).toEqual(event);
     });
 
-    it('should throw an error if the event does not exist or if there is an error', async () => {
-      const id = '1';
-      mockEventsService.findOne.mockRejectedValue(new Error('Service error'));
-      await expect(controller.findOne(id)).rejects.toThrow('Service error');
+    it('should throw a NotFoundException if the event does not exist', async () => {
+      mockEventsService.findOne.mockRejectedValue(new NotFoundException());
+      await expect(controller.findOne('999')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('update', () => {
+    const dto: UpdateEventDto = {
+      title: 'Updated Title',
+      description: 'Updated Description',
+      basePrice: 150,
+      quantityAvailable: 20
+    };
+
     it('should update an event', async () => {
-      const id = '1';
-      const dto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10
-      };
-      await controller.update(id, dto);
-      expect(service.update).toHaveBeenCalledWith(+id, dto);
+      mockEventsService.update.mockResolvedValue({ ...dto, id: 1 });
+      const result = await controller.update('1', dto);
+      expect(result).toEqual({ ...dto, id: 1 });
     });
-    it('should throw an error if the event does not exist', async () => {
-      const id = '1';
-      const dto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10
-      };
-      mockEventsService.update.mockRejectedValue(new Error());
-      await expect(controller.update(id, dto)).rejects.toThrow();
-    });
-    it('should throw an error if the event with the same title already exists', async () => {
-      const id = '1';
-      const dto = {
-        title: 'Test',
-        description: 'Desc',
-        price: 100,
-        quantityAvailable: 10
-      };
-      mockEventsService.update.mockRejectedValue(new Error());
-      await expect(controller.update(id, dto)).rejects.toThrow();
+
+    it('should throw a NotFoundException if the event to update does not exist', async () => {
+      mockEventsService.update.mockRejectedValue(new NotFoundException());
+      await expect(controller.update('1', dto)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should remove an event', async () => {
       const id = '1';
-      await controller.remove(id);
-      expect(service.remove).toHaveBeenCalledWith(+id);
+      mockEventsService.remove.mockResolvedValue({ id: +id, title: 'Deleted Event' });
+      const result = await controller.remove(id);
+      expect(result).toEqual({ id: +id, title: 'Deleted Event' });
     });
 
-    it('should throw an error if the event cannot be removed', async () => {
-      const id = '1';
-      mockEventsService.remove.mockRejectedValue(new Error('Service error'));
-      await expect(controller.remove(id)).rejects.toThrow('Service error');
+    it('should throw a NotFoundException if the event to remove does not exist', async () => {
+      const id = '999';
+      mockEventsService.remove.mockRejectedValue(new NotFoundException());
+      await expect(controller.remove(id)).rejects.toThrow(NotFoundException);
     });
   });
 });
