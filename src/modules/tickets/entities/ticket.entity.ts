@@ -1,5 +1,5 @@
+import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from 'typeorm';
-import { Reservation } from './reservation.entity'; // Assurez-vous que le chemin d'accès à cette entité est correct
 
 @Entity('tickets')
 export class Ticket {
