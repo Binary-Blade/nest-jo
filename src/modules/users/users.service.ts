@@ -28,11 +28,8 @@ export class UsersService {
    * @returns A promise resolved with the user entity.
    * @throws NotFoundException if the user is not found.
    */
-  async findOne(id: number): Promise<User> {
-    const user = await this.usersRepository.findOneBy({ userId: id });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  async findOne(userId: number): Promise<User> {
+    const user = await this.verifyUserOneBy(userId);
     return user;
   }
 
@@ -43,11 +40,8 @@ export class UsersService {
    * @returns A promise resolved with the updated user entity.
    * @throws NotFoundException if the user is not found.
    */
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.usersRepository.findOneBy({ userId: id });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  async update(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.verifyUserOneBy(userId);
     this.usersRepository.merge(user, updateUserDto);
     return this.usersRepository.save(user);
   }
@@ -57,11 +51,27 @@ export class UsersService {
    * @param id The ID of the user to remove.
    * @throws NotFoundException if the user is not found.
    */
-  async remove(id: number): Promise<void> {
-    const user = await this.usersRepository.findOneBy({ userId: id });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+  async remove(userId: number): Promise<void> {
+    const user = await this.verifyUserOneBy(userId);
     await this.usersRepository.remove(user);
+  }
+
+  async verifyUserOneBy(userId: number): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ userId });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+    return user;
+  }
+
+  async verifyUserOneRelation(userId: number, relations: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { userId },
+      relations: [relations]
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+    return user;
   }
 }
