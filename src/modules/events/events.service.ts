@@ -109,12 +109,19 @@ export class EventsService {
     return 'Event deleted successfully.';
   }
 
+  /**
+   * Get the price for a ticket type for a specific event
+   *
+   * @param eventId - The ID of the event
+   * @param ticketType - The type of ticket
+   * @returns - The price for the ticket type
+   * @throws NotFoundException if the event with the given ID does not exist
+   **/
   async getPriceByType(eventId: number, ticketType: string): Promise<number> {
     const event = await this.eventRepository.findOneBy({ eventId });
     if (!event) {
       throw new NotFoundException(`Event with id ${eventId} not found`);
     }
-
     switch (ticketType) {
       case TypeEvent.SOLO:
         return event.soloPrice;
@@ -189,7 +196,9 @@ export class EventsService {
    * @throws InternalServerErrorException if there is an error clearing the cache
    */
   private async clearCacheEvent(eventId?: number): Promise<void> {
-    const key = eventId ? `event_${eventId}` : 'events_all';
-    await this.redisService.del(key);
+    if (eventId) {
+      await this.redisService.del(`event_${eventId}`);
+    }
+    await this.redisService.del('events_all');
   }
 }
