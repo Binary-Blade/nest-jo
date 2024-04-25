@@ -10,6 +10,7 @@ export class PaymentService {
   private readonly SUCCESS_RATE = 0.1; // 40% chance of payment being successful
   private readonly PENDING_RATE = 0.3; // 30% chance of payment being pending
 
+  // TODO: IMPROVE SERVICE BEFORE UNITS TESTS
   constructor(
     private readonly cartItemsService: CartItemsService,
     private readonly reservationsService: ReservationsService

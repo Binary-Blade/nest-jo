@@ -7,6 +7,7 @@ import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from '@modules/carts/carts.service';
 import { TypeEvent } from '@common/enums/type-event.enum';
 
+// TODO: Improve the documentation
 /**
  * Service responsible for handling cart items.
  */
@@ -184,5 +185,9 @@ export class CartItemsService {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
     await this.cartItemRepository.remove(cartItem);
     return cartItem;
+  }
+
+  async save(item: CartItem): Promise<CartItem> {
+    return await this.cartItemRepository.save(item);
   }
 }
