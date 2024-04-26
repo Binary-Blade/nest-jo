@@ -12,18 +12,6 @@ export class CartsService {
   constructor(@InjectRepository(Cart) private readonly cartRepository: Repository<Cart>) {}
 
   /**
-   * Creates a cart for a user.
-   *
-   * @param userId The user ID.
-   * @returns A promise resolved with the created cart.
-   * @throws NotFoundException if the user does not exist.
-   **/
-  async createCart(userId: number): Promise<Cart> {
-    const cart = this.cartRepository.create({ user: { userId } });
-    return await this.cartRepository.save(cart);
-  }
-
-  /**
    * Finds a cart.
    *
    * @param userId The user ID.
