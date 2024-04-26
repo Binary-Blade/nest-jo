@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Reservation } from './entities/reservation.entity';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
-import { statusReservation } from '@common/enums/status-reservation.enum';
-import { Ticket } from './entities/ticket.entity';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
-import { EncryptionService } from '@security/encryption/encryption.service';
 import { UsersService } from '@modules/users/users.service';
 import { CartsService } from '@modules/carts/carts.service';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
+import { Reservation } from './entities/reservation.entity';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
+import { TicketsService } from '@modules/tickets/tickets.service';
+import { PaymentService } from '@libs/payment/payment.service';
 
 /**
  * Service responsible for handling reservations.
@@ -17,12 +17,12 @@ import { CartItemsService } from '@modules/cart-items/cart-items.service';
 @Injectable()
 export class ReservationsService {
   constructor(
-    @InjectRepository(Reservation) private readonly reservationRepository: Repository<Reservation>,
-    @InjectRepository(Ticket) private readonly ticketRepository: Repository<Ticket>,
-    private readonly encryptionService: EncryptionService,
+    @InjectRepository(Reservation) private reservationRepository: Repository<Reservation>,
+    private readonly ticketService: TicketsService,
     private readonly usersService: UsersService,
     private readonly cartService: CartsService,
-    private readonly cartItemsService: CartItemsService
+    private readonly cartItemsService: CartItemsService,
+    private readonly paymentService: PaymentService
   ) {}
 
   /**
@@ -35,14 +35,12 @@ export class ReservationsService {
    * @returns A promise resolved with the created reservations.
    * @throws Error if a reservation already exists for an item in the cart.
    */
-  async createReservations(
-    userId: number,
-    cartItems: CartItem[],
-    cartId: number,
-    status: statusReservation
-  ): Promise<Reservation[]> {
+  async createReservations(userId: number, cartId: number): Promise<Reservation[]> {
     const user = await this.usersService.verifyUserOneBy(userId);
+    const cartItems = await this.cartItemsService.findAllItemsInCart(userId, cartId);
     await this.cartService.verifyCartRelation(cartId, 'cartItem');
+    const cartTotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+    const paymentResult = await this.paymentService.processPayment(cartTotal);
 
     let createdReservations: Reservation[] = [];
     for (const item of cartItems) {
@@ -51,11 +49,15 @@ export class ReservationsService {
 
       await this.cartItemsService.save(item);
       // Create a new reservation for each item in the cart
-      const newReservation = await this.addReservation(user, item, status);
+      const newReservation = await this.addReservation(user, item, paymentResult.status);
+      //await this.issueTicketsForApprovedReservations();
       createdReservations.push(newReservation);
     }
+    if (paymentResult.status === StatusReservation.APPROVED) {
+      await this.issueTicketsForApprovedReservations(createdReservations);
+    }
     await this.cartService.deleteCart(cartId);
-    await this.cartService.createCart(user.userId);
+    await this.cartService.getOrCreateCart(user.userId);
     return createdReservations;
   }
 
@@ -90,13 +92,10 @@ export class ReservationsService {
    * @returns A promise resolved with the reservation entity.
    * @throws NotFoundException if the reservation is not found.
    */
-  async findOne(
-    reservationId: number,
-    userId: number
-  ): Promise<{ reservation: Reservation; user: User }> {
+  async findOne(reservationId: number, userId: number): Promise<Reservation> {
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId },
-      relations: ['user', 'ticket'],
+      relations: ['ticket', 'user'],
       select: {
         reservationId: true,
         status: true,
@@ -110,9 +109,7 @@ export class ReservationsService {
     if (!reservation || reservation.user.userId !== userId) {
       throw new NotFoundException(`Reservation with ID ${reservationId} not found.`);
     }
-    // Retrieve the user associated with the reservation
-    await this.usersService.verifyUserOneBy(userId);
-    return { reservation, user: reservation.user };
+    return reservation;
   }
 
   /**
@@ -124,12 +121,26 @@ export class ReservationsService {
    */
   async issueTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
     for (const reservation of reservations) {
-      if (reservation.status === statusReservation.APPROVED) {
-        await this.confirmReservation(reservation.reservationId, reservation.user.userId);
+      if (reservation.status === StatusReservation.APPROVED) {
+        await this.ticketService.createTickets(reservation.reservationId, reservation.user.userId);
       }
     }
   }
 
+  private async addReservation(
+    user: User,
+    item: CartItem,
+    status: StatusReservation
+  ): Promise<Reservation> {
+    const reservation = this.reservationRepository.create({
+      user,
+      cartItem: item,
+      status,
+      paymentId: Math.floor(Math.random() * 1000),
+      totalPrice: item.price
+    });
+    return await this.reservationRepository.save(reservation);
+  }
   /**
    * Updates a reservation's status.
    *
@@ -147,6 +158,9 @@ export class ReservationsService {
     }
   }
 
+  async saveReservation(reservation: Reservation): Promise<Reservation> {
+    return await this.reservationRepository.save(reservation);
+  }
   /**
    * Adds a reservation to the database.
    *
@@ -156,63 +170,4 @@ export class ReservationsService {
    * @returns A promise resolved with the created reservation.
    * @throws Error if the reservation could not be created.
    */
-  private async addReservation(
-    user: User,
-    item: CartItem,
-    status: statusReservation
-  ): Promise<Reservation> {
-    const reservation = this.reservationRepository.create({
-      user,
-      cartItem: item,
-      status,
-      paymentId: Math.floor(Math.random() * 1000),
-      totalPrice: item.price
-    });
-    return await this.reservationRepository.save(reservation);
-  }
-
-  /**
-   * Confirms a reservation and generates a ticket.
-   *
-   * @param reservationId The ID of the reservation to confirm.
-   * @param userId The ID of the user confirming the reservation.
-   * @returns A promise resolved with the ticket.
-   * @throws Error if the reservation is not approved.
-   */
-  private async confirmReservation(reservationId: number, userId: number): Promise<Ticket> {
-    const { reservation, user } = await this.findOne(reservationId, userId);
-    // Check if the reservation status is completed
-    if (reservation.status !== statusReservation.APPROVED) {
-      throw new Error('Reservation is not approved.');
-    }
-    // Generate purchase_key and secure_key
-    const qrcodeGenerated = await this.generateQRCode(user, reservation);
-    // Update reservation with the ticket ID
-    reservation.ticketId = qrcodeGenerated.ticketId;
-    await this.reservationRepository.save(reservation);
-    return qrcodeGenerated;
-  }
-
-  /**
-   * Generates a QR code for a ticket.
-   *
-   * @param user The user creating the ticket.
-   * @param reservation The reservation associated with the ticket.
-   * @returns A promise resolved with the created ticket.
-   * @throws Error if the QR code could not be generated.
-   */
-  private async generateQRCode(user: User, reservation: Reservation): Promise<Ticket> {
-    const purchaseKey = await this.encryptionService.generatedKeyUuid();
-    const secureKey = await this.encryptionService.generatedSecureKey(user);
-    const qrCode = await this.encryptionService.generatedQRCode(secureKey);
-
-    // Create the ticket with the generated keys and QR code
-    const ticket = this.ticketRepository.create({
-      reservation,
-      purchaseKey,
-      secureKey,
-      qrCode
-    });
-    return await this.ticketRepository.save(ticket);
-  }
 }
