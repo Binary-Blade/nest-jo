@@ -1,12 +1,13 @@
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
 
 export interface PaymentResult {
-  status: 'success' | 'pending' | 'failure';
+  status: StatusReservation;
   detail: string;
 }
 
 export interface ProcessPaymentResponse {
-  status: string;
+  status: StatusReservation;
   detail: string;
   reservations?: Reservation[];
 }
