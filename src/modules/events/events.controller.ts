@@ -8,6 +8,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 
 /**
  * Controller responsible for handling requests to the /events route
+ * This controller is used to manage events, including creating, updating, and deleting events.
  */
 @Controller('events')
 export class EventsController {

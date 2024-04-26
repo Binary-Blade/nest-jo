@@ -20,7 +20,6 @@ export class EventsService {
   // Time to live for cache in seconds - 1 hour
   private readonly TTL: number = 3600;
 
-  // Inject the event repository and the Redis service
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
     private readonly redisService: RedisService
