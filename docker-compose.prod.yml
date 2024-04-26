@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+  # SERVER - NESTJS
+  server-prod:
+    image: server-jo-prod:latest
+    container_name: server-jo-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: production
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres-prod
+      - redis-prod
+    volumes:
+      - type: volume
+        source: pg-data-prod
+        target: /var/lib/postgresql/data
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # DATABASE - POSTGRESQL
+  postgres-prod:
+    image: postgres:16-alpine
+    container_name: postgres-jo-prod
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    restart: always
+    volumes:
+      - type: volume
+        source: pg-data-prod
+        target: /var/lib/postgresql/data
+    networks:
+      - appnet
+
+  # REDIS - CACHE
+  redis-prod:
+    image: redis:alpine
+    container_name: redis-jo-prod
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - type: volume
+        source: redis-data-prod
+        target: /data
+    networks:
+      - appnet
+
+  # API GATEWAY - NGINX
+  nginx-prod:
+    container_name: nginx-jo-prod
+    image: nginx:alpine
+    ports:
+      - "80:80"   # If active HTTPS, also add "443:443"
+    depends_on:
+      - server-prod
+    volumes:
+      - type: bind
+        source: ./nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    networks:
+      - appnet
+
+
+networks: 
+  appnet:
+
+volumes:
+  pg-data-prod:  # PERSISTENT VOLUME : db-postgres
+  redis-data-prod: # PERSISTENT VOLUME : redis-cache
+  logs: # OPTIONAL: PERSISTENT VOLUME : app-logs
