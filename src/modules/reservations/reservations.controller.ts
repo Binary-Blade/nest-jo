@@ -2,25 +2,22 @@ import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { UserId } from '@common/decorators/user-id.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
-import { PaymentService } from '@libs/payment/payment.service';
 import { Role } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
+import { Reservation } from './entities/reservation.entity';
 
 @UseGuards(AccessTokenGuard)
 @Controller('reservations')
 export class ReservationsController {
-  constructor(
-    private readonly reservationsService: ReservationsService,
-    private readonly paymentService: PaymentService
-  ) {}
+  constructor(private readonly reservationsService: ReservationsService) {}
 
-  @Post('/:cardId')
-  async processPayment(
+  @Post('/:cartId')
+  async createReservations(
     @UserId() userId: number,
-    @Param('cardId')
-    cardId: number
-  ): Promise<{ status: string; detail: string }> {
-    return this.paymentService.processPayment(userId, cardId);
+    @Param('cartId')
+    cartId: number
+  ): Promise<Reservation[]> {
+    return this.reservationsService.createReservations(userId, cartId);
   }
 
   @Get(':userId/find-all')
