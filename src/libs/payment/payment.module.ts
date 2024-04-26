@@ -10,8 +10,9 @@ import { Cart } from '@modules/carts/entities/cart.entity';
 import { CartsService } from '@modules/carts/carts.service';
 import { UsersService } from '@modules/users/users.service';
 import { User } from '@modules/users/entities/user.entity';
-import { Ticket } from '@modules/reservations/entities/ticket.entity';
 import { EncryptionService } from '@security/encryption/encryption.service';
+import { Ticket } from '@modules/tickets/entities/ticket.entity';
+import { TicketsService } from '@modules/tickets/tickets.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reservation, CartItem, Event, Cart, User, Ticket])],
@@ -21,7 +22,8 @@ import { EncryptionService } from '@security/encryption/encryption.service';
     CartItemsService,
     CartsService,
     UsersService,
-    EncryptionService
+    EncryptionService,
+    TicketsService
   ]
 })
 export class PaymentModule {}
