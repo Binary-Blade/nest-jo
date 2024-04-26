@@ -29,11 +29,9 @@ export class ReservationsService {
    * Creates a reservation for each item in the cart.
    *
    * @param userId The ID of the user creating the reservation.
-   * @param cartItems The items in the cart.
    * @param cartId The ID of the cart.
-   * @param status The status of the reservation.
-   * @returns A promise resolved with the created reservations.
-   * @throws Error if a reservation already exists for an item in the cart.
+   * @returns A promise resolved with the list of created reservations.
+   * @throws Error if the reservation already exists for an item in the cart.
    */
   async createReservations(userId: number, cartId: number): Promise<Reservation[]> {
     const user = await this.usersService.verifyUserOneBy(userId);
@@ -62,10 +60,11 @@ export class ReservationsService {
   }
 
   /**
-   * Confirms a reservation and generates a ticket.
+   * Finds all reservations for a user.
    *
-   * @param userId The ID of the user confirming the reservation.
-   * @returns A promise resolved with the ticket.
+   * @param userId The ID of the user to find.
+   * @returns A promise resolved with the list of all reservation entities.
+   * @throws NotFoundException if the reservation is not found.
    */
   async findAll(userId: number) {
     return await this.reservationRepository.find({
@@ -75,7 +74,7 @@ export class ReservationsService {
   }
 
   /**
-   * Finds all reservations.
+   * Finds all reservations for Admin.
    *
    * @returns A promise resolved with the list of all reservation entities.
    * @throws NotFoundException if the reservation is not found.
@@ -113,10 +112,10 @@ export class ReservationsService {
   }
 
   /**
-   * Updates a reservation's status.
+   * Finds a single reservation by its ID.
    *
-   * @param reservations The reservations to update.
-   * @returns A promise resolved with the updated reservation entity.
+   * @param reservationId The ID of the reservation to find.
+   * @returns A promise resolved with the reservation entity.
    * @throws NotFoundException if the reservation is not found.
    */
   async issueTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
@@ -127,6 +126,15 @@ export class ReservationsService {
     }
   }
 
+  /**
+   * Add a reservation to the database.
+   *
+   * @param user The user creating the reservation.
+   * @param item The item being reserved.
+   * @param status The status of the reservation.
+   * @returns A promise resolved with the created reservation.
+   * @throws Error if the reservation already exists for the item.
+   */
   private async addReservation(
     user: User,
     item: CartItem,
@@ -139,15 +147,16 @@ export class ReservationsService {
       paymentId: Math.floor(Math.random() * 1000),
       totalPrice: item.price
     });
-    return await this.reservationRepository.save(reservation);
+    return await this.saveReservation(reservation);
   }
+
   /**
-   * Updates a reservation's status.
+   * Prevents duplicate reservations for the same item.
    *
-   * @param item The item to check for duplicate reservations.
+   * @param item The item being reserved.
    * @param user The user creating the reservation.
-   * @throws Error if a reservation already exists for the item.
-   * @returns A promise resolved with the updated reservation entity.
+   * @returns A promise resolved with void.
+   * @throws Error if the reservation already exists for the item.
    */
   private async preventDuplicateReservation(item: CartItem, user: User): Promise<void> {
     const existingReservation = await this.reservationRepository.findOne({
@@ -158,16 +167,13 @@ export class ReservationsService {
     }
   }
 
+  /**
+   * Save a reservation to the database.
+   *
+   * @param reservation The reservation to save.
+   * @returns A promise resolved with the saved reservation.
+   */
   async saveReservation(reservation: Reservation): Promise<Reservation> {
     return await this.reservationRepository.save(reservation);
   }
-  /**
-   * Adds a reservation to the database.
-   *
-   * @param user The user creating the reservation.
-   * @param item The item in the cart.
-   * @param status The status of the reservation.
-   * @returns A promise resolved with the created reservation.
-   * @throws Error if the reservation could not be created.
-   */
 }

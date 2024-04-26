@@ -1,3 +1,8 @@
+/**
+ * This file contains all the constants that are used in the database.
+ * These constants are used to create tables, columns, and constraints in the database.
+ */
+
 export const DOES_ENUM_EVENT_TYPE_EXIST = `
 DO $$
 BEGIN

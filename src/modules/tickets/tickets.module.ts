@@ -15,10 +15,16 @@ import { UsersService } from '@modules/users/users.service';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
 
+/**
+ * Module for handling tickets.
+ * This module is used to create tickets for reservations.
+ * This module imports the ReservationsModule to resolve circular dependencies.
+ */
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ticket, Reservation, Cart, CartItem, User, Event]),
-    forwardRef(() => ReservationsModule) // Add forwardRef to resolve circular dependency
+    forwardRef(() => ReservationsModule) // Import the ReservationsModule with forwardRef
   ],
   controllers: [TicketsController],
   providers: [

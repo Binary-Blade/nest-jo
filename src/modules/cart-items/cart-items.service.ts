@@ -10,16 +10,26 @@ import { TypeEvent } from '@common/enums/type-event.enum';
 // TODO: Improve the documentation
 /**
  * Service responsible for handling cart items.
+ * This service is used to add, update, and remove items from the cart.
  */
 @Injectable()
 export class CartItemsService {
-  // Inject the CartItem and Event repositories and the CartsService.
   constructor(
     @InjectRepository(CartItem) private readonly cartItemRepository: Repository<CartItem>,
     @InjectRepository(Event) private readonly eventRepository: Repository<Event>,
     private readonly cartsService: CartsService
   ) {}
 
+  /**
+   * Adds an item to the cart.
+   *
+   * @param userId The ID of the user adding the item to the cart.
+   * @param createCartItemDto The item to add to the cart.
+   * @returns The created cart item.
+   * @throws NotFoundException if the event does not exist.
+   * @throws NotFoundException if the quantity is not available.
+   * @throws NotFoundException if the cart item does not exist in the cart.
+   */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
     const event = await this.eventRepository.findOneBy({ eventId: createCartItemDto.eventId });
@@ -30,11 +40,22 @@ export class CartItemsService {
     }
 
     const totalTicketPrice = this.calculateTotalTicketPrice(createCartItemDto, event);
-
     await this.eventRepository.save(event); // Save the event updates
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto, totalTicketPrice);
   }
 
+  /**
+   * Creates a new cart item or updates an existing one.
+   *
+   * @param cartId The cart ID.
+   * @param createCartItemDto The item to add to the cart.
+   * @param ticketPrice The price of the ticket.
+   * @returns The created or updated cart item.
+   * @throws NotFoundException if the cart item does not exist in the cart.
+   * @throws NotFoundException if the cart does not exist.
+   * @throws NotFoundException if the event does not exist.
+   * @throws NotFoundException if the quantity is not available.
+   */
   private async getOrCreateCartItem(
     cartId: number,
     createCartItemDto: CreateCartItemDto,
@@ -65,6 +86,13 @@ export class CartItemsService {
     return await this.cartItemRepository.save(existingCartItem);
   }
 
+  /**
+   * Calculates the total price of the ticket.
+   *
+   * @param createCartItemDto The item to add to the cart.
+   * @param event The event to calculate the ticket price for.
+   * @returns The total price of the ticket.
+   */
   private calculateTotalTicketPrice(createCartItemDto: CreateCartItemDto, event: Event): number {
     let ticketPrice = 0;
     switch (createCartItemDto.ticketType) {
@@ -187,6 +215,12 @@ export class CartItemsService {
     return cartItem;
   }
 
+  /**
+   * Saves a cart item to the database.
+   *
+   * @param item The cart item to save.
+   * @returns A promise resolved with the saved cart item.
+   */
   async save(item: CartItem): Promise<CartItem> {
     return await this.cartItemRepository.save(item);
   }

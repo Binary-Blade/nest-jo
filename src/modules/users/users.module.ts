@@ -7,6 +7,9 @@ import { RedisModule } from '@database/redis/redis.module';
 import { RedisService } from '@database/redis/redis.service';
 import { AccessTokenStrategy } from '@security/auth/strategies/access-token.strategy';
 
+/**
+ * Module that manages user-related operations.
+ */
 @Module({
   imports: [TypeOrmModule.forFeature([User]), RedisModule], // Registers the User entity for TypeORM
   controllers: [UsersController], // The controllers that are part of this module

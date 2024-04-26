@@ -14,6 +14,9 @@ import { EncryptionService } from '@security/encryption/encryption.service';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { TicketsService } from '@modules/tickets/tickets.service';
 
+/**
+ * Module for handling payments.
+ */
 @Module({
   imports: [TypeOrmModule.forFeature([Reservation, CartItem, Event, Cart, User, Ticket])],
   providers: [

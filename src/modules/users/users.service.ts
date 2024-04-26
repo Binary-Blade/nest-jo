@@ -16,6 +16,7 @@ export class UsersService {
 
   /**
    * Finds all users.
+   *
    * @returns A promise resolved with the list of all user entities.
    */
   findAll(): Promise<User[]> {
@@ -24,6 +25,7 @@ export class UsersService {
 
   /**
    * Finds a single user by their ID.
+   *
    * @param id The ID of the user to find.
    * @returns A promise resolved with the user entity.
    * @throws NotFoundException if the user is not found.
@@ -35,6 +37,7 @@ export class UsersService {
 
   /**
    * Updates a user's data.
+   *
    * @param id The ID of the user to update.
    * @param updateUserDto The new data for the user.
    * @returns A promise resolved with the updated user entity.
@@ -48,6 +51,7 @@ export class UsersService {
 
   /**
    * Removes a user from the database.
+   *
    * @param id The ID of the user to remove.
    * @throws NotFoundException if the user is not found.
    */
@@ -56,6 +60,13 @@ export class UsersService {
     await this.usersRepository.remove(user);
   }
 
+  /**
+   * Verifies that a user exists in the database.
+   *
+   * @param userId The ID of the user to verify.
+   * @returns A promise resolved with the user entity.
+   * @throws NotFoundException if the user does not exist.
+   */
   async verifyUserOneBy(userId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ userId });
     if (!user) {
@@ -64,6 +75,14 @@ export class UsersService {
     return user;
   }
 
+  /**
+   * Verifies that a user exists in the database with the specified relations.
+   *
+   * @param userId The ID of the user to verify.
+   * @param relations The relations to include in the query.
+   * @returns A promise resolved with the user entity.
+   * @throws NotFoundException if the user does not exist.
+   */
   async verifyUserOneRelation(userId: number, relations: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { userId },

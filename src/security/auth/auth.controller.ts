@@ -21,6 +21,7 @@ import { Request, Response } from 'express';
 
 /**
  * Controller that handles authentication-related requests.
+ * This controller includes endpoints for user signup, login, and token management.
  */
 @Controller('auth')
 export class AuthController {

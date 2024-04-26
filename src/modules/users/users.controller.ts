@@ -17,6 +17,7 @@ export class UsersController {
 
   /**
    * Fetches all users. This operation is restricted to admins.
+   *
    * @returns A list of user entities.
    */
   @Role(UserRole.ADMIN)
@@ -28,6 +29,7 @@ export class UsersController {
 
   /**
    * Fetches a single user by ID. Access is restricted to the user themself or an admin.
+   *
    * @param id The ID of the user to fetch.
    * @returns The requested user entity.
    */
@@ -39,6 +41,7 @@ export class UsersController {
 
   /**
    * Updates a user's data. Access is restricted to the user themself or an admin.
+   *
    * @param id The ID of the user to update.
    * @param updateUserDto The updated user data.
    * @returns The updated user entity.
@@ -51,6 +54,7 @@ export class UsersController {
 
   /**
    * Deletes a user. Access is restricted to the user themself or an admin.
+   *
    * @param id The ID of the user to delete.
    */
   @UseGuards(IsCreatorGuard)
