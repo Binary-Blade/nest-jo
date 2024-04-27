@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from '@common/globals-filter/http-exceptions-filter';
 import { WinstonLoggerService } from '@common/logger/winston.service';
 import { ConfigService } from '@nestjs/config';
+import { runMigrations } from '@database/migration-runner';
 
 /**
  * Bootstrap the application
@@ -16,7 +17,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new WinstonLoggerService() // Custom Winston logger
   });
-
   const configService = app.get(ConfigService);
 
   // Enable CORS for the frontend URL
@@ -27,9 +27,16 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization'
   });
 
+  await runMigrations();
   // Middleware for parsing cookies and setting security headers
   app.use(cookieParser());
   app.use(helmet());
+
+  if (process.env.NODE_ENV === 'production') {
+    console.log('================ Environnement de production ================');
+  } else {
+    console.log('================ Environnement de développement ================');
+  }
 
   // Globally applied pipes, filters, and interceptors
   app.useGlobalPipes(
