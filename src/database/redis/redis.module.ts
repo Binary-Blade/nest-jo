@@ -10,7 +10,7 @@ import Redis from 'ioredis';
       provide: 'REDIS_CLIENT',
       useFactory: async (configService: ConfigService) =>
         new Redis({
-          host: configService.get('REDIS_HOST'),
+          host: configService.get('REDIS_HOST' || 'redis'),
           port: configService.get('REDIS_PORT'),
           password: configService.get('REDIS_PASSWORD')
         }),
