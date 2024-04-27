@@ -1,3 +1,4 @@
+import { PROD_ENV } from '@common/constants';
 import { UtilsService } from '@common/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -38,7 +39,7 @@ export class CookieService {
     const refreshTokenTTL = this.utilsService.convertDaysToSeconds(refreshTokenExpiration);
     const cookieOptions: CookieOptions = {
       httpOnly: true,
-      secure: this.configService.get('NODE_ENV') === 'production',
+      secure: this.configService.get('NODE_ENV') === PROD_ENV,
       maxAge: refreshTokenTTL * 1000,
       path: '/',
       sameSite: 'strict'
