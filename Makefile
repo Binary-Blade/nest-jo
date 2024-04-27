@@ -27,20 +27,22 @@ redis-cli:
 
 # --- DEVELOPMENT
 # Docker compose up for development
-dcu-dev:
-	docker-compose --env-file .dev.env up --build -d
+up-dev:
+	docker-compose --env-file .dev.env -f docker-compose.dev.yml up -d
 
+down-dev:
+	docker-compose --env-file .dev.env -f docker-compose.dev.yml down 
 # --- PRODUCTION
 # Build the production image
-dbi-prod:
-	docker build --target prod -t server-jo-prod:latest .
-
-# Docker compose up for production
-dcu-prod:
+img-prod:
 	docker-compose --env-file .prod.env -f docker-compose.prod.yml up --build -d
 
-# Docker compose down for production
-dcd-prod:
-	docker-compose -f docker-compose.prod.yml down 
+# Docker compose up for production
+up-prod:
+	docker-compose --env-file .prod.env -f docker-compose.prod.yml up -d
 
-.PHONY: migrate-create migrate-run migrat je-revert test redis-cli dbi-prod dcu-prod dcd-prod
+# Docker compose down for production
+down-prod:
+	docker-compose --env-file .prod.env -f docker-compose.prod.yml down 
+
+.PHONY: migrate-create migrate-run migrat je-revert test redis-cli up-dev down-dev img-prod up-prod down-prod

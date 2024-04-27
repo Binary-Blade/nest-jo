@@ -11,4 +11,5 @@ RUN npm install -g pnpm && \
 
 # == DEVELOPMENT STAGE ==
 FROM builder as dev
+EXPOSE 3000
 CMD [""]
