@@ -10,6 +10,7 @@ import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { PaymentModule } from '@libs/payment/payment.module';
 import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
+import { AppController } from './app.controller';
 /**
  *
  * Main application module
@@ -33,6 +34,7 @@ import { TicketsModule } from '@modules/tickets/tickets.module';
     PaymentModule,
     TicketsModule
     // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
-  ]
+  ],
+  controllers: [AppController]
 })
 export class AppModule {}
