@@ -7,6 +7,7 @@ import { HttpExceptionFilter } from '@common/globals-filter/http-exceptions-filt
 import { WinstonLoggerService } from '@common/logger/winston.service';
 import { ConfigService } from '@nestjs/config';
 import { runMigrations } from '@database/migration-runner';
+import { PROD_ENV } from '@common/constants';
 
 /**
  * Bootstrap the application
@@ -18,7 +19,6 @@ async function bootstrap() {
     logger: new WinstonLoggerService() // Custom Winston logger
   });
   const configService = app.get(ConfigService);
-
   // Enable CORS for the frontend URL
   app.enableCors({
     origin: 'http://localhost:5173', // Make sure this matches exactly with your frontend URL
@@ -32,7 +32,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(helmet());
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === PROD_ENV) {
     console.log('================ Environnement de production ================');
   } else {
     console.log('================ Environnement de développement ================');

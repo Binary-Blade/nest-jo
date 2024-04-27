@@ -22,7 +22,10 @@ import { AppController } from './app.controller';
 @Module({
   imports: [
     // Global configuration module that loads environment variables.
-    ConfigModule.forRoot({ envFilePath: './.env', isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: `./.${process.env.NODE_ENV}.env`,
+      isGlobal: true
+    }),
     DatabaseModule,
     RedisModule,
     AuthModule,
