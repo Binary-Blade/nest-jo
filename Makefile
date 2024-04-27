@@ -6,6 +6,7 @@ migrate-create:
 
 # Run migrations
 migrate-run:
+	@echo "Running migrations..."
 	docker-compose exec server pnpm run migration:run
 
 # Revert the last migration
@@ -15,11 +16,13 @@ migrate-revert:
 # === TESTING ====
 # Run tests
 test:
+	@echo "Running tests..."
 	docker-compose exec server pnpm run test
 
 # === REDIS ====
 # Connect to the redis cli
 redis-cli:
+	@echo "Connecting to redis cli..."
 	docker-compose exec redis redis-cli
 
 
@@ -27,22 +30,24 @@ redis-cli:
 
 # --- DEVELOPMENT
 # Docker compose up for development
-up-dev:
-	docker-compose --env-file .dev.env -f docker-compose.dev.yml up -d
+dev:
+	@echo "Setting containers to development..."
+	@export NODE_ENV=development
+	docker-compose --env-file ./.dev.env up -d
 
-down-dev:
-	docker-compose --env-file .dev.env -f docker-compose.dev.yml down 
+clean-d:
+	@echo "Stopping development containers..."
+	docker-compose --env-file .dev.env -f docker-compose.yml down 
 # --- PRODUCTION
-# Build the production image
-img-prod:
-	docker-compose --env-file .prod.env -f docker-compose.prod.yml up --build -d
-
 # Docker compose up for production
-up-prod:
-	docker-compose --env-file .prod.env -f docker-compose.prod.yml up -d
+prod:
+	@echo "Setting containers to production..."
+	@export NODE_ENV=production
+	docker-compose --env-file ./.prod.env -f docker-compose.prod.yml up -d
 
 # Docker compose down for production
-down-prod:
+clean-p:
+	@echo "Stopping production containers..."
 	docker-compose --env-file .prod.env -f docker-compose.prod.yml down 
 
-.PHONY: migrate-create migrate-run migrat je-revert test redis-cli up-dev down-dev img-prod up-prod down-prod
+.PHONY: migrate-create migrate-run migrat je-revert test redis-cli dev clean-d prod clean-p
