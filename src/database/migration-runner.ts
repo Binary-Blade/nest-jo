@@ -12,7 +12,10 @@ export async function runMigrations() {
 
   try {
     logger.log('Running migration...');
+    logger.log('Initializing datasource...');
     await datasource.initialize();
+
+    logger.log('Running migrations...');
     await datasource.runMigrations();
   } catch (err) {
     logger.error('Cannot start the app. Migration have failed!', err);

@@ -21,6 +21,7 @@ export default new DataSource({
   database: configService.get<string>('DB_NAME'), // Database name
   username: configService.get<string>('DB_USERNAME'), // Database username
   password: configService.get<string>('DB_PASSWORD'), // Database password
+  synchronize: false, // Disable auto schema synchronization
   entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'], // Entities path
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'] // Migrations path
 });
