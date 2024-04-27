@@ -31,7 +31,7 @@ FROM $IMAGE as production
 COPY --chown=node:node --from=builder /app/dist ./dist
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 # Copy the .env file into the container.
-COPY --chown=node:node --from=builder /app/.env /app/.env
+COPY --chown=node:node --from=builder /app/.prod.env /app/.env
 
 EXPOSE 3000
 
