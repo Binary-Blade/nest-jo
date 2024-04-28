@@ -11,6 +11,7 @@ import { PaymentModule } from '@libs/payment/payment.module';
 import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { AppController } from './app.controller';
+import { ThrollerModule } from '@security/throttler/throttler.module';
 /**
  *
  * Main application module
@@ -35,8 +36,8 @@ import { AppController } from './app.controller';
     CartItemsModule,
     ReservationsModule,
     PaymentModule,
-    TicketsModule
-    // ThrollerModule  NOTE: Configure it to prevent abuse of the API instead of nginx if necessary.
+    TicketsModule,
+    ThrollerModule
   ],
   controllers: [AppController]
 })
