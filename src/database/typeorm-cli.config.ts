@@ -16,11 +16,11 @@ const configService = new ConfigService();
  */
 export default new DataSource({
   type: 'postgres', // Database type
-  host: configService.get<string>('DB_HOST'), // Database host
-  port: configService.get<number>('DB_PORT'), // Database port
-  database: configService.get<string>('DB_NAME'), // Database name
-  username: configService.get<string>('DB_USERNAME'), // Database username
-  password: configService.get<string>('DB_PASSWORD'), // Database password
+  host: configService.get<string>('PGHOST'),
+  port: configService.get<number>('PGPORT'),
+  username: configService.get<string>('PGUSER'),
+  password: configService.get<string>('PGPASSOWRD'),
+  database: configService.get<string>('PGDATABASE'),
   synchronize: false, // Disable auto schema synchronization
   entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'], // Entities path
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'] // Migrations path

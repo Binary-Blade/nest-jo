@@ -16,11 +16,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        host: config.get<string>('PGHOST'),
+        port: config.get<number>('PGPORT'),
+        username: config.get<string>('PGUSER'),
+        password: config.get<string>('PGPASSOWRD'),
+        database: config.get<string>('PGDATABASE'),
         synchronize: false,
         entities: [__dirname + '/../**/*.entity{.ts,.js}']
       })

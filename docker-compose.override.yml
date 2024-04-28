@@ -6,18 +6,18 @@ services:
     container_name: server-jo-dev
     build:
       target: dev
+    ports:
+      - "3000:3000"
     command: [sh, -c, 'pnpm run start:dev']
     environment:
       - NODE_ENV=development
-    env_file:
-      - ./.dev.env
 
   postgres:
     container_name: postgres-jo-dev
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
 
   redis:
     container_name: redis-jo-dev
@@ -25,5 +25,5 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
-  nginx:
-    container_name: nginx-jo-dev
+  # nginx:
+  #   container_name: nginx-jo-dev
