@@ -24,7 +24,7 @@ import { ThrollerModule } from '@security/throttler/throttler.module';
   imports: [
     // Global configuration module that loads environment variables.
     ConfigModule.forRoot({
-      envFilePath: `./.${process.env.NODE_ENV}.env`,
+      envFilePath: `./.env`,
       isGlobal: true
     }),
     DatabaseModule,
