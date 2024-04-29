@@ -36,8 +36,8 @@ import { ThrollerModule } from '@security/throttler/throttler.module';
     CartItemsModule,
     ReservationsModule,
     PaymentModule,
-    TicketsModule,
-    ThrollerModule
+    TicketsModule
+    //ThrollerModule
   ],
   controllers: [AppController]
 })
