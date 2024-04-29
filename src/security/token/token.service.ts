@@ -8,7 +8,7 @@ import { Payload } from '@common/interfaces/payload.interface';
 import { Request, Response } from 'express';
 import { TokenManagementService } from './token-management.service';
 import { UsersService } from '@modules/users/users.service';
-import { CookieService } from '@security/cookies/cookie.service';
+import { CookieService } from '@security/cookie/cookie.service';
 
 /**
  * Service responsible for managing JWT tokens, including their creation and validation.

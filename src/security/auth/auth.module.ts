@@ -11,7 +11,7 @@ import { EncryptionService } from '@security/encryption/encryption.service';
 import { AuthController } from './auth.controller';
 import { User } from '@modules/users/entities/user.entity';
 import { TokenManagementService } from '@security/token/token-management.service';
-import { CookieService } from '@security/cookies/cookie.service';
+import { CookieService } from '@security/cookie/cookie.service';
 
 /**
  * Module for handling authentication-related operations.
