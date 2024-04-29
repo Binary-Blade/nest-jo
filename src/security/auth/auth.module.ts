@@ -10,8 +10,8 @@ import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { AuthController } from './auth.controller';
 import { User } from '@modules/users/entities/user.entity';
-import { CookieService } from '@security/token/cookie.service';
 import { TokenManagementService } from '@security/token/token-management.service';
+import { CookieService } from '@security/cookies/cookie.service';
 
 /**
  * Module for handling authentication-related operations.

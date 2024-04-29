@@ -8,7 +8,7 @@ import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Response } from 'express';
-import { CookieService } from '@security/token/cookie.service';
+import { CookieService } from '@security/cookies/cookie.service';
 
 /**
  * Service providing authentication functionality.
