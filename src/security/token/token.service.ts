@@ -70,6 +70,16 @@ export class TokenService {
 
   /**
    * Removes the refresh token from Redis for the given user.
+   *
+   * @param userId The ID of the user for whom to remove the token.
+   **/
+  private async refreshTokenRedisExist(userId: number, refreshToken: string): Promise<boolean> {
+    const storedToken = await this.redisService.get(`refresh_token_${userId}`);
+    return storedToken === refreshToken;
+  }
+
+  /**
+   * Removes the refresh token from Redis for the given user.
    * This method is called when the user logs out or refreshes their token.
    *
    * @param userId The ID of the user for whom to remove the token.
@@ -95,6 +105,11 @@ export class TokenService {
     try {
       const payload = await this.tokenManagementService.verifyToken(oldRefreshToken);
       const userId = payload.sub;
+
+      const isTokenValid = await this.refreshTokenRedisExist(userId, oldRefreshToken);
+      if (!isTokenValid) {
+        throw new UnauthorizedException('Invalid refresh token.');
+      }
 
       const user = await this.usersService.verifyUserOneBy(userId);
       await this.redisService.del(`refresh_token_${userId}`);

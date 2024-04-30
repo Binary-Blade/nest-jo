@@ -1,5 +1,4 @@
 import { Payload } from '@common/interfaces/payload.interface';
-import { RedisService } from '@database/redis/redis.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -12,8 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 export class TokenManagementService {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService,
-    private redisService: RedisService
+    private configService: ConfigService
   ) {}
 
   /**
@@ -58,15 +56,5 @@ export class TokenManagementService {
       ? this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET')
       : this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET');
     return this.jwtService.verifyAsync(token, { secret: secretKey });
-  }
-
-  /**
-   * Removes the refresh token from Redis for the given user.
-   *
-   * @param userId The ID of the user for whom to remove the token.
-   **/
-  async refreshTokenRedisExist(userId: number, refreshToken: string): Promise<boolean> {
-    const storedToken = await this.redisService.get(`refresh_token_${userId}`);
-    return storedToken === refreshToken;
   }
 }
