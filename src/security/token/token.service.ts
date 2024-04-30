@@ -1,4 +1,10 @@
-import { HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException
+} from '@nestjs/common';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 import { UtilsService } from '@common/utils/utils.service';
@@ -40,6 +46,10 @@ export class TokenService {
     const refreshToken = this.tokenManagementService.createRefreshToken(payload);
 
     await this.storeRefreshTokenRedis(user.userId, refreshToken);
+
+    this.logger.log(`Access token created for user ${user.userId}`);
+    this.logger.log(`Refresh token created and stored in Redis for user ${user.userId}`);
+
     return { accessToken, refreshToken };
   }
 
@@ -85,6 +95,7 @@ export class TokenService {
    * @returns A promise resolved when the token is removed.
    */
   async removeRefreshTokenRedis(userId: number) {
+    this.logger.log(`Refresh token for user ${userId} removed from Redis`);
     await this.redisService.del(`refresh_token_${userId}`);
   }
 
@@ -119,14 +130,25 @@ export class TokenService {
       await this.storeRefreshTokenRedis(userId, refreshToken);
       this.cookieService.setRefreshTokenCookie(res, refreshToken);
 
+      this.logger.log(`Tokens refreshed for user ${userId}`);
       return res.status(HttpStatus.OK).json({ accessToken, refreshToken, expiresIn, userId });
     } catch (error) {
-      this.logger.error('Token refresh error', { error: error.message, stack: error.stack });
+      this.logger.error(`Token refresh error for user extracted from token: ${error.message}`);
+
       if (error instanceof UnauthorizedException) {
         this.cookieService.clearRefreshTokenCookie(res);
         throw error;
       }
-      throw new UnauthorizedException('Could not refresh the token. Please try again or log in.');
+
+      if (error instanceof Error) {
+        this.cookieService.clearRefreshTokenCookie(res);
+        throw new InternalServerErrorException('Internal server error. Please try again later.');
+      }
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error. Please contact support if the problem persists.'
+      });
     }
   }
 }
