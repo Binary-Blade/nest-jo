@@ -1,10 +1,4 @@
-import {
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  UnauthorizedException
-} from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 import { UtilsService } from '@common/utils/utils.service';
@@ -137,19 +131,11 @@ export class TokenService {
     } catch (error) {
       this.logger.error(`Token refresh error for user extracted from token: ${error.message}`);
 
-      if (error instanceof UnauthorizedException) {
-        this.cookieService.clearRefreshTokenCookie(res);
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        this.cookieService.clearRefreshTokenCookie(res);
-        throw new InternalServerErrorException('Internal server error. Please try again later.');
-      }
-
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error. Please contact support if the problem persists.'
+        message:
+          error.message || 'Internal server error. Please contact support if the problem persists.',
+        actionRequired: 'Please login again.'
       });
     }
   }

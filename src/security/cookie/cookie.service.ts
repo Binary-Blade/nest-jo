@@ -42,7 +42,7 @@ export class CookieService {
       secure: this.configService.get('NODE_ENV') === PROD_ENV,
       maxAge: refreshTokenTTL * 1000,
       path: '/',
-      sameSite: this.configService.get('NODE_ENV') === PROD_ENV ? 'none' : 'lax'
+      sameSite: this.configService.get('NODE_ENV') === PROD_ENV ? 'none' : 'strict'
     };
     res.cookie('RefreshToken', refreshToken, cookieOptions);
   }
