@@ -43,7 +43,7 @@ describe('CartsService', () => {
       mockRepository.create.mockReturnValue(expectedCart);
       mockRepository.save.mockResolvedValue(expectedCart);
 
-      const result = await service.createCart(userId);
+      const result = await service.getOrCreateCart(userId);
       expect(result).toEqual(expectedCart);
       expect(mockRepository.create).toHaveBeenCalledWith({ user: { userId } });
       expect(mockRepository.save).toHaveBeenCalledWith(expectedCart);
