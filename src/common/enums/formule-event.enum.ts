@@ -4,7 +4,7 @@
  * DUO - The event is for two people.
  * FAMILY - The event is for a family.
  */
-export enum TypeEvent {
+export enum FormuleEventEnum {
   SOLO = 'SOLO',
   DUO = 'DUO',
   FAMILY = 'FAMILY'
