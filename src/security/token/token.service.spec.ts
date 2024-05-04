@@ -1,160 +1,239 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
+import { TokenService } from './token.service';
 import { ConfigService } from '@nestjs/config';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TokenManagementService } from './token-management.service';
+import { UsersService } from '@modules/users/users.service';
+import { CookieService } from '@security/cookie/cookie.service';
+import { RefreshTokenStoreService } from './refreshtoken-store.service';
 import { User } from '@modules/users/entities/user.entity';
-import { TokenService } from '@security/token/token.service';
-import { RedisService } from '@database/redis/redis.service';
-import { UnauthorizedException } from '@nestjs/common';
-import { UtilsService } from '@common/utils/utils.service';
 import { UserRole } from '@common/enums/user-role.enum';
+import { JWTTokens } from '@common/interfaces/jwt.interface';
+import { UnauthorizedException, HttpStatus } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 describe('TokenService', () => {
   let service: TokenService;
-  let jwtService: JwtService;
-  let redisService: RedisService;
-  let utilsService: UtilsService;
+  let usersService: UsersService;
+  let tokenManagementService: TokenManagementService;
+  let cookieService: CookieService;
+  let refreshTokenStoreService: RefreshTokenStoreService;
+  let configService: ConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TokenService,
         {
-          provide: JwtService,
+          provide: UsersService,
           useValue: {
-            sign: jest.fn(),
-            verifyAsync: jest.fn()
+            verifyUserOneBy: jest.fn()
+          }
+        },
+        {
+          provide: TokenManagementService,
+          useValue: {
+            createAccessToken: jest.fn(),
+            createRefreshToken: jest.fn(),
+            verifyToken: jest.fn()
+          }
+        },
+        {
+          provide: CookieService,
+          useValue: {
+            setRefreshTokenCookie: jest.fn(),
+            extractRefreshTokenCookie: jest.fn()
+          }
+        },
+        {
+          provide: RefreshTokenStoreService,
+          useValue: {
+            storeRefreshTokenInRedis: jest.fn(),
+            verifyRefreshTokenInRedis: jest.fn(),
+            removeRefreshTokenRedis: jest.fn()
           }
         },
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn(key => {
-              switch (key) {
-                case 'JWT_ACCESS_TOKEN_SECRET':
-                  return 'access-secret';
-                case 'JWT_REFRESH_TOKEN_SECRET':
-                  return 'refresh-secret';
-                case 'JWT_ACCESS_TOKEN_EXPIRATION':
-                  return '1h';
-                case 'JWT_REFRESH_TOKEN_EXPIRATION':
-                  return '7d';
-                default:
-                  return null;
-              }
-            })
-          }
-        },
-        {
-          provide: getRepositoryToken(User),
-          useValue: {
-            findOneBy: jest.fn(),
-            findOneOrFail: jest.fn()
-          }
-        },
-        {
-          provide: RedisService,
-          useValue: {
-            set: jest.fn(),
-            get: jest.fn(),
-            del: jest.fn()
-          }
-        },
-        {
-          provide: UtilsService,
-          useValue: {
-            convertDaysToSeconds: jest.fn().mockReturnValue(604800) // 7 days in seconds
+            get: jest.fn()
           }
         }
       ]
     }).compile();
 
     service = module.get<TokenService>(TokenService);
-    jwtService = module.get<JwtService>(JwtService);
-    redisService = module.get<RedisService>(RedisService);
-    utilsService = module.get<UtilsService>(UtilsService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    usersService = module.get<UsersService>(UsersService);
+    tokenManagementService = module.get<TokenManagementService>(TokenManagementService);
+    cookieService = module.get<CookieService>(CookieService);
+    refreshTokenStoreService = module.get<RefreshTokenStoreService>(RefreshTokenStoreService);
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   describe('getTokens', () => {
-    it('should generate access and refresh tokens', async () => {
-      const user: User = { userId: 1, role: UserRole.USER, tokenVersion: 1 } as User;
-      jest.spyOn(jwtService, 'sign').mockReturnValue('mockToken');
+    it('should create access and refresh tokens and store the refresh token in Redis', async () => {
+      const user = new User();
+      user.userId = 1;
+      user.role = UserRole.USER;
+      user.tokenVersion = 1;
 
-      const tokens = await service.generateAndStoreTokens(user);
+      const accessToken = 'accessToken';
+      const refreshToken = 'refreshToken';
 
-      expect(tokens).toHaveProperty('token', 'mockToken');
-      expect(tokens).toHaveProperty('refreshToken', 'mockToken');
-      expect(jwtService.sign).toHaveBeenCalledTimes(2);
-      // Vérifiez que convertDaysToSeconds a été appelé avec la bonne valeur
-      expect(utilsService.convertDaysToSeconds).toHaveBeenCalledWith('7d');
+      jest.spyOn(tokenManagementService, 'createAccessToken').mockReturnValue(accessToken);
+      jest.spyOn(tokenManagementService, 'createRefreshToken').mockReturnValue(refreshToken);
+
+      const result: JWTTokens = await service.getTokens(user);
+
+      expect(result).toEqual({ accessToken, refreshToken });
+      expect(tokenManagementService.createAccessToken).toHaveBeenCalledWith({
+        sub: user.userId,
+        role: user.role,
+        version: user.tokenVersion
+      });
+      expect(tokenManagementService.createRefreshToken).toHaveBeenCalledWith({
+        sub: user.userId,
+        role: user.role,
+        version: user.tokenVersion
+      });
+      expect(refreshTokenStoreService.storeRefreshTokenInRedis).toHaveBeenCalledWith(
+        user.userId,
+        refreshToken
+      );
     });
   });
 
   describe('refreshToken', () => {
-    it('should refresh the token successfully', async () => {
-      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: 1 });
-      jest.spyOn(redisService, 'get').mockResolvedValue('mockRefreshToken');
-      jest.spyOn(redisService, 'set').mockResolvedValue('OK');
-      jest.spyOn(utilsService, 'convertDaysToSeconds').mockReturnValue(604800); // 7 days in seconds
+    it('should refresh tokens and set the refresh token cookie', async () => {
+      const req = { cookies: {} } as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+      const user = new User();
+      user.userId = 1;
+      const accessToken = 'newAccessToken';
+      const refreshToken = 'newRefreshToken';
+
+      jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue('oldRefreshToken');
       jest
-        .spyOn(service, 'getTokens')
-        .mockResolvedValue({ token: 'newAccessToken', refreshToken: 'newRefreshToken' });
+        .spyOn(service, 'validateAndExtractFromRefreshToken')
+        .mockResolvedValue({ userId: 1, payload: {} });
+      jest.spyOn(usersService, 'verifyUserOneBy').mockResolvedValue(user);
+      jest.spyOn(service, 'getTokens').mockResolvedValue({ accessToken, refreshToken });
 
-      const tokens = await service.refreshToken('mockRefreshToken');
+      await service.refreshToken(req, res);
 
-      expect(tokens).toEqual({ token: 'newAccessToken', refreshToken: 'newRefreshToken' });
-      expect(redisService.set).toHaveBeenCalled();
-      expect(jwtService.verifyAsync).toHaveBeenCalledWith('mockRefreshToken', {
-        secret: expect.any(String)
+      expect(cookieService.extractRefreshTokenCookie).toHaveBeenCalledWith(req);
+      expect(service.validateAndExtractFromRefreshToken).toHaveBeenCalledWith('oldRefreshToken');
+      expect(usersService.verifyUserOneBy).toHaveBeenCalledWith(1);
+      expect(refreshTokenStoreService.removeRefreshTokenRedis).toHaveBeenCalledWith(1);
+      expect(service.getTokens).toHaveBeenCalledWith(user);
+      expect(refreshTokenStoreService.storeRefreshTokenInRedis).toHaveBeenCalledWith(
+        1,
+        refreshToken
+      );
+      expect(cookieService.setRefreshTokenCookie).toHaveBeenCalledWith(res, refreshToken);
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith({ accessToken, refreshToken, userId: 1 });
+    });
+
+    it('should return an error response when no refresh token is provided', async () => {
+      const req = { cookies: {} } as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+
+      jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue(null);
+
+      await service.refreshToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'No refresh token provided. Please login again.',
+        actionRequired: 'Please login again.'
+      });
+    });
+  });
+
+  describe('generateAccessTokenFromRefreshToken', () => {
+    it('should generate a new access token from a refresh token', async () => {
+      const req = { cookies: {} } as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+      const accessToken = 'newAccessToken';
+
+      jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue('refreshToken');
+      jest
+        .spyOn(service, 'validateAndExtractFromRefreshToken')
+        .mockResolvedValue({ userId: 1, payload: {} });
+      jest.spyOn(tokenManagementService, 'createAccessToken').mockReturnValue(accessToken);
+      jest.spyOn(configService, 'get').mockReturnValue('1h');
+
+      await service.generateAccessTokenFromRefreshToken(req, res);
+
+      expect(cookieService.extractRefreshTokenCookie).toHaveBeenCalledWith(req);
+      expect(service.validateAndExtractFromRefreshToken).toHaveBeenCalledWith('refreshToken');
+      expect(tokenManagementService.createAccessToken).toHaveBeenCalledWith({
+        sub: 1,
+        role: undefined,
+        version: undefined
+      });
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith({
+        accessToken,
+        userId: 1,
+        expiresIn: '1h'
       });
     });
 
-    describe('verifyRefreshToken', () => {
-      it('should verify the refresh token successfully and return the userId', async () => {
-        const mockUserId = 1;
-        const mockRefreshToken = 'valid-refresh-token';
-        jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: mockUserId });
-        jest.spyOn(redisService, 'get').mockResolvedValue(mockRefreshToken);
+    it('should return an error response when no refresh token is provided', async () => {
+      const req = { cookies: {} } as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
 
-        const userId = await service.verifyRefreshToken(mockRefreshToken);
+      jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue(null);
 
-        expect(userId).toEqual(mockUserId);
-        expect(jwtService.verifyAsync).toHaveBeenCalledWith(mockRefreshToken, expect.any(Object));
-        expect(redisService.get).toHaveBeenCalledWith(`refresh_token_${mockUserId}`);
-      });
+      await service.generateAccessTokenFromRefreshToken(req, res);
 
-      it('should throw UnauthorizedException if the refresh token does not exist', async () => {
-        const mockRefreshToken = 'invalid-refresh-token';
-        jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: 1 });
-        jest.spyOn(redisService, 'get').mockResolvedValue(null);
-
-        await expect(service.verifyRefreshToken(mockRefreshToken)).rejects.toThrow(
-          UnauthorizedException
-        );
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'No refresh token provided. Please login again.',
+        actionRequired: 'Please login again.'
       });
     });
+  });
 
-    describe('removeRefreshToken', () => {
-      it('should successfully remove the refresh token', async () => {
-        const mockUserId = 1;
-        jest.spyOn(redisService, 'del').mockResolvedValue('Key deleted: refresh_token_1');
+  describe('validateAndExtractFromRefreshToken', () => {
+    it('should validate and extract the payload from a refresh token', async () => {
+      const refreshToken = 'refreshToken';
+      const payload = { sub: 1, role: UserRole.USER, version: 1 };
 
-        const result = await service.removeRefreshToken(mockUserId);
+      jest.spyOn(tokenManagementService, 'verifyToken').mockResolvedValue(payload);
+      jest.spyOn(refreshTokenStoreService, 'verifyRefreshTokenInRedis').mockResolvedValue(true);
 
-        expect(result).toBeUndefined();
-        expect(redisService.del).toHaveBeenCalledWith(`refresh_token_${mockUserId}`);
-      });
+      const result = await service.validateAndExtractFromRefreshToken(refreshToken);
 
-      it('should not throw an error if the refresh token does not exist', async () => {
-        const mockUserId = 2;
-        jest.spyOn(redisService, 'del').mockResolvedValue('Key not found: refresh_token_2');
+      expect(result).toEqual({ payload, userId: 1 });
+      expect(tokenManagementService.verifyToken).toHaveBeenCalledWith(refreshToken);
+      expect(refreshTokenStoreService.verifyRefreshTokenInRedis).toHaveBeenCalledWith(
+        1,
+        refreshToken
+      );
+    });
 
-        await expect(service.removeRefreshToken(mockUserId)).resolves.toBeUndefined();
-      });
+    it('should throw UnauthorizedException if the token is invalid or expired', async () => {
+      const refreshToken = 'invalidToken';
+
+      jest.spyOn(tokenManagementService, 'verifyToken').mockRejectedValue(new Error('Token error'));
+
+      await expect(service.validateAndExtractFromRefreshToken(refreshToken)).rejects.toThrow(
+        UnauthorizedException
+      );
+    });
+
+    it('should throw UnauthorizedException if the refresh token does not match', async () => {
+      const refreshToken = 'refreshToken';
+      const payload = { sub: 1, role: UserRole.USER, version: 1 };
+
+      jest.spyOn(tokenManagementService, 'verifyToken').mockResolvedValue(payload);
+      jest.spyOn(refreshTokenStoreService, 'verifyRefreshTokenInRedis').mockResolvedValue(false);
+
+      await expect(service.validateAndExtractFromRefreshToken(refreshToken)).rejects.toThrow(
+        UnauthorizedException
+      );
     });
   });
 });

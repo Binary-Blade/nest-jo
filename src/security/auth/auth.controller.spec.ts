@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { TokenService } from '@security/token/token.service';
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
 import { LoginDTO } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { TokenService } from '@security/token/token.service';
-import { AccessTokenGuard } from '@security/guards';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { AccessTokenGuard } from '@security/guards';
+import { Request, Response } from 'express';
+import { Reflector } from '@nestjs/core';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -17,80 +18,71 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        {
-          provide: AuthService,
-          useValue: {
-            signup: jest.fn(),
-            login: jest.fn(),
-            logout: jest.fn(),
-            updatePassword: jest.fn()
-          }
-        },
-        {
-          provide: TokenService,
-          useValue: {
-            refreshToken: jest.fn()
-          }
-        },
+        AuthService,
+        TokenService,
         {
           provide: AccessTokenGuard,
-          useValue: { canActivate: jest.fn(() => true) }
-        }
+          useValue: {
+            canActivate: jest.fn()
+          }
+        },
+        Reflector
       ]
-    }).compile();
+    })
+      .overrideProvider(AuthService)
+      .useValue({
+        signup: jest.fn(),
+        login: jest.fn(),
+        updatePassword: jest.fn(),
+        logout: jest.fn()
+      })
+      .overrideProvider(TokenService)
+      .useValue({
+        generateAccessTokenFromRefreshToken: jest.fn(),
+        refreshToken: jest.fn()
+      })
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
     tokenService = module.get<TokenService>(TokenService);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('signup', () => {
-    it('should sign up a user', async () => {
+  describe('create', () => {
+    it('should call AuthService.signup with correct parameters', async () => {
       const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         password: 'password123'
       };
-      jest.spyOn(authService, 'signup').mockImplementation(async () => ({}) as any);
-
-      await expect(controller.create(createUserDto)).resolves.not.toThrow();
+      await controller.create(createUserDto);
+      expect(authService.signup).toHaveBeenCalledWith(createUserDto);
     });
   });
 
   describe('login', () => {
-    it('should log in a user', async () => {
+    it('should call AuthService.login with correct parameters', async () => {
       const loginDto: LoginDTO = {
         email: 'test@example.com',
         password: 'password123'
       };
-      jest.spyOn(authService, 'login').mockImplementation(async () => ({}) as any);
+      const response = {
+        cookie: jest.fn()
+      } as unknown as Response;
 
-      await expect(controller.login(loginDto)).resolves.not.toThrow();
-    });
-  });
-
-  describe('logout', () => {
-    it('should log out a user', async () => {
-      const userId = 1;
-      jest.spyOn(authService, 'logout').mockImplementation(async () => ({}) as any);
-
-      await expect(controller.logout(userId)).resolves.not.toThrow();
+      await controller.login(loginDto, response);
+      expect(authService.login).toHaveBeenCalledWith(loginDto.email, loginDto.password, response);
     });
   });
 
   describe('updatePassword', () => {
-    it('should update the user password', async () => {
+    it('should call AuthService.updatePassword with correct parameters', async () => {
       const userId = 1;
       const updatePasswordDto: UpdatePasswordDTO = {
-        oldPassword: 'oldPassword123',
-        newPassword: 'newPassword123'
+        oldPassword: 'oldpassword',
+        newPassword: 'newpassword'
       };
-      jest.spyOn(authService, 'updatePassword').mockImplementation(async () => undefined);
-      await expect(controller.updatePassword(userId, updatePasswordDto)).resolves.not.toThrow();
 
+      await controller.updatePassword(userId, updatePasswordDto);
       expect(authService.updatePassword).toHaveBeenCalledWith(
         userId,
         updatePasswordDto.oldPassword,
@@ -98,12 +90,39 @@ describe('AuthController', () => {
       );
     });
   });
-  describe('refreshToken', () => {
-    it('should refresh the access token', async () => {
-      const refreshTokenDto: RefreshTokenDto = { refreshToken: 'some-refresh-token' };
-      jest.spyOn(tokenService, 'refreshToken').mockImplementation(async () => ({}) as any);
 
-      await expect(controller.refreshToken(refreshTokenDto)).resolves.not.toThrow();
+  describe('getRefreshToken', () => {
+    it('should call TokenService.generateAccessTokenFromRefreshToken with correct parameters', async () => {
+      const req = {
+        cookies: {
+          refresh_token: 'some_refresh_token'
+        }
+      } as unknown as Request;
+      const res = {} as unknown as Response;
+
+      await controller.getRefreshToken(req, res);
+      expect(tokenService.generateAccessTokenFromRefreshToken).toHaveBeenCalledWith(req, res);
+    });
+  });
+
+  describe('refreshToken', () => {
+    it('should call TokenService.refreshToken with correct parameters', async () => {
+      const req = {} as Request;
+      const res = {} as Response;
+
+      await controller.refreshToken(req, res);
+      expect(tokenService.refreshToken).toHaveBeenCalledWith(req, res);
+    });
+  });
+
+  describe('logout', () => {
+    it('should call AuthService.logout with correct parameters', async () => {
+      const userId = 1;
+      const response = {} as unknown as Response;
+
+      const result = await controller.logout(userId, response);
+      expect(authService.logout).toHaveBeenCalledWith(userId, response);
+      expect(result).toEqual({ message: 'Logged out successfully' });
     });
   });
 });
