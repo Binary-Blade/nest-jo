@@ -135,7 +135,7 @@ export class TokenService {
     }
   }
 
-  private async validateAndExtractFromRefreshToken(refreshToken: string): Promise<any> {
+  async validateAndExtractFromRefreshToken(refreshToken: string): Promise<any> {
     try {
       const payload = await this.tokenManagementService.verifyToken(refreshToken);
       const userId = payload.sub;
