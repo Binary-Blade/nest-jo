@@ -84,7 +84,7 @@ describe('TokenService', () => {
       const user: User = { userId: 1, role: UserRole.USER, tokenVersion: 1 } as User;
       jest.spyOn(jwtService, 'sign').mockReturnValue('mockToken');
 
-      const tokens = await service.getTokens(user);
+      const tokens = await service.generateAndStoreTokens(user);
 
       expect(tokens).toHaveProperty('token', 'mockToken');
       expect(tokens).toHaveProperty('refreshToken', 'mockToken');
