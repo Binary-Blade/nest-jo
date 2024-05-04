@@ -36,6 +36,10 @@ export class CookieService {
    */
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
     const refreshTokenExpiration = this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION');
+    if (!refreshTokenExpiration) {
+      throw new Error('JWT_REFRESH_TOKEN_EXPIRATION is not configured.');
+    }
+
     const refreshTokenTTL = this.utilsService.convertDaysToSeconds(refreshTokenExpiration);
     const cookieOptions: CookieOptions = {
       httpOnly: true,
