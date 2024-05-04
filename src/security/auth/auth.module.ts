@@ -12,6 +12,7 @@ import { AuthController } from './auth.controller';
 import { User } from '@modules/users/entities/user.entity';
 import { TokenManagementService } from '@security/token/token-management.service';
 import { CookieService } from '@security/cookie/cookie.service';
+import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
 
 /**
  * Module for handling authentication-related operations.
@@ -33,6 +34,7 @@ import { CookieService } from '@security/cookie/cookie.service';
     JwtService, // Nest's JwtService for JWT operations such as signing and verification
     EncryptionService, // A service for handling common security tasks such as hashing
     TokenManagementService, // A service for managing JWT tokens
+    RefreshTokenStoreService, // A service for storing and verifying refresh tokens in Redis
     UtilsService, // A utility service for common tasks such as generating random strings
     RedisService // A service for interacting with the Redis store
   ]

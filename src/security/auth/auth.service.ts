@@ -9,6 +9,7 @@ import { EncryptionService } from '@security/encryption/encryption.service';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Response } from 'express';
 import { CookieService } from '@security/cookie/cookie.service';
+import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
 
 /**
  * Service providing authentication functionality.
@@ -19,7 +20,8 @@ export class AuthService {
     @InjectRepository(User) private usersRepository: Repository<User>, // Repository for accessing User entity operations.
     private encryptionService: EncryptionService, // Service for hashing and verifying passwords.
     private tokenService: TokenService, // Service for managing JWT tokens, including creation and validation.
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private refreshTokenStoreService: RefreshTokenStoreService // Service for storing and removing refresh tokens in Redis.
   ) {}
 
   /**
@@ -112,7 +114,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not connected');
     }
-    await this.tokenService.removeRefreshTokenRedis(userId); // Invalidate the current refresh token.
+    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId); // Invalidate the current refresh token.
     user.tokenVersion += 1; // Incrementing the token version invalidates all previously issued tokens.
     await this.usersRepository.save(user);
 

@@ -7,8 +7,7 @@ import {
   HttpStatus,
   Patch,
   Res,
-  Req,
-  Get
+  Req
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
@@ -70,9 +69,9 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('get-refresh-token')
+  @Post('access-token')
   async getRefreshToken(@Req() req: Request, @Res() res: Response) {
-    await this.tokenService.refreshToken(req, res);
+    await this.tokenService.generateAccessTokenFromRefreshToken(req, res);
   }
 
   /**
@@ -82,7 +81,7 @@ export class AuthController {
    * @param refreshTokenDto The data transfer object containing the refresh token.
    * @returns A promise resolved to a new set of access and refresh tokens.
    */
-  @UseGuards(AccessTokenGuard)
+
   @HttpCode(HttpStatus.OK)
   @Post('/refresh-token')
   async refreshToken(@Req() req: Request, @Res() res: Response) {
