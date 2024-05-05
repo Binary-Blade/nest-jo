@@ -8,6 +8,7 @@ import { UsersService } from '@modules/users/users.service';
 import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { User } from '@modules/users/entities/user.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
+import { OrdersService } from '@modules/orders/orders.service';
 
 /**
  * Service responsible for handling tickets.
@@ -20,7 +21,8 @@ export class TicketsService {
     private encryptionService: EncryptionService,
     private usersService: UsersService,
     @Inject(forwardRef(() => ReservationsService)) // Inject the ReservationsService with forwardRef
-    private reservationService: ReservationsService
+    private reservationService: ReservationsService,
+    private ordersService: OrdersService
   ) {}
 
   /**
@@ -33,19 +35,22 @@ export class TicketsService {
    */
   async createTickets(reservationId: number, userId: number): Promise<Ticket> {
     const reservation = await this.reservationService.findOne(reservationId, userId);
-    // Check if the reservation status is completed
-    if (reservation.status !== StatusReservation.APPROVED) {
-      throw new Error('Reservation is not approved.');
+    const order = await this.ordersService.findOrderByReservationId(reservationId); // Fetch the linked order
+
+    // Check if the order status is APPROVED
+    if (order.statusPayment !== 'APPROVED') {
+      throw new Error('Reservation order is not approved.');
     }
-    // Generate purchase_key and secure_key
+
     const user = await this.usersService.verifyUserOneBy(userId);
     const ticket = await this.createTicketForReservation(user, reservation);
-    // Update reservation with the ticket ID
-    reservation.ticketId = ticket.ticketId;
+
+    reservation.ticket = ticket;
+
     await this.reservationService.saveReservation(reservation);
+
     return ticket;
   }
-
   /**
    * Creates a ticket for a reservation.
    *
