@@ -21,9 +21,6 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
                     "startDate" TIMESTAMP NOT NULL,
                     "endDate" TIMESTAMP NOT NULL,
                     "basePrice" DECIMAL NOT NULL,
-                    "soloPrice" DECIMAL NULL,
-                    "duoPrice" DECIMAL NULL,
-                    "familyPrice" DECIMAL NULL,
                     "quantityAvailable" INTEGER DEFAULT 0,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
