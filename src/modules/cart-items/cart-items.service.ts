@@ -122,6 +122,12 @@ export class CartItemsService {
     return cartItem;
   }
 
+  // remove all item from cart
+  async removeAllItemFromCart(userId: number, cartId: number): Promise<void> {
+    await this.cartsService.findCart(userId, cartId);
+    await this.cartItemRepository.delete({ cart: { cartId } });
+  }
+
   async save(item: CartItem): Promise<CartItem> {
     return await this.cartItemRepository.save(item);
   }
