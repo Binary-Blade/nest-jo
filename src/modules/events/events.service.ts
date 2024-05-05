@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
@@ -19,7 +14,7 @@ import { UtilsService } from '@common/utils/utils.service';
 @Injectable()
 export class EventsService {
   // Time to live for cache in seconds - 1 hour
-  private readonly TTL: number = 3600;
+  private readonly TTL_OneHour: number = 3600;
 
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
@@ -57,10 +52,13 @@ export class EventsService {
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAll(): Promise<Event[]> {
-    return this.fetchCachedData('events_all', () =>
-      this.eventRepository.find({
-        relations: ['prices']
-      })
+    return this.redisService.fetchCachedData(
+      'events_all',
+      () =>
+        this.eventRepository.find({
+          relations: ['prices']
+        }),
+      this.TTL_OneHour
     );
   }
 
@@ -72,8 +70,10 @@ export class EventsService {
    * @throws NotFoundException if the event with the given ID does not exist
    */
   async findOne(id: number): Promise<Event> {
-    const event = await this.fetchCachedData(`event_${id}`, () =>
-      this.eventRepository.findOneBy({ eventId: id })
+    const event = await this.redisService.fetchCachedData(
+      `event_${id}`,
+      () => this.eventRepository.findOneBy({ eventId: id }),
+      this.TTL_OneHour
     );
     if (!event) throw new NotFoundException(`Event with id ${id} not found`);
     return event;
@@ -126,44 +126,6 @@ export class EventsService {
     await this.clearCacheEvent(id);
     return 'Event deleted successfully.';
   }
-
-  /**
-   * Fetch data from cache if available, otherwise fetch from the database
-   *
-   * @private - This method should not be exposed to the controller
-   * @param key - The key to use for caching
-   * @param fetchFn - Function to fetch data if not available in cache
-   * @returns - The fetched data
-   * @throws InternalServerErrorException if there is an error parsing the data
-   */
-  private async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
-    let data = await this.redisService.get(key);
-    if (!data) {
-      const result = await fetchFn();
-      await this.redisService.set(key, JSON.stringify(result), this.TTL);
-      return result;
-    }
-    return this.safeParse(data);
-  }
-
-  /**
-   * Safely parse JSON data
-   *
-   * @private - This method should not be exposed to the controller
-   * @template T - The type of the data to parse
-   * @param jsonString - The JSON string to parse
-   * @returns - The parsed data
-   * @throws InternalServerErrorException if there is an error parsing the data
-   */
-  private safeParse<T>(jsonString: string): T {
-    try {
-      return JSON.parse(jsonString) as T;
-    } catch (error) {
-      console.error('Error parsing JSON', error);
-      throw new InternalServerErrorException('Error parsing data');
-    }
-  }
-
   /**
    * Ensure that an event with the given title does not already exist
    *

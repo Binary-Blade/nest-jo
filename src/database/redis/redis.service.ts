@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
 import Redis from 'ioredis';
 
 /**
@@ -78,24 +78,37 @@ export class RedisService {
     return `Key deleted: ${key}`;
   }
 
-  // /**
-  //  * Set multiple key-value pairs in Redis cache
-  //  *
-  //  * @param keyValuePairs Key-value pairs to set
-  //  * @param ttl Time to live for the keys
-  //  * @returns Success message
-  //  */
-  // async setMultiple(keyValuePairs: KeyValuePairs, ttl?: number): Promise<void> {
-  //   const pipeline = this.redisClient.pipeline();
-  //   keyValuePairs.forEach(([key, value]) => {
-  //     const fullKey = this.formatKey(key);
-  //     const stringValue = JSON.stringify(value);
-  //     if (typeof ttl === 'number') {
-  //       pipeline.set(fullKey, stringValue, 'EX', ttl);
-  //     } else {
-  //       pipeline.set(fullKey, stringValue);
-  //     }
-  //   });
-  //   await pipeline.exec();
-  // }
+  /**
+   * Fetch data from cache if available, otherwise fetch from the database
+   *
+   * @param key - The key to use for caching
+   * @param fetchFn - Function to fetch data if not available in cache
+   * @returns - The fetched data
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
+  async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>, TTL: number): Promise<T> {
+    let data = await this.get(key);
+    if (!data) {
+      const result = await fetchFn();
+      await this.set(key, JSON.stringify(result), TTL);
+      return result;
+    }
+    return this.safeParse(data);
+  }
+
+  /**
+   * Safely parse JSON data
+   *
+   * @param jsonString - The JSON string to parse
+   * @returns - The parsed data
+   * @throws InternalServerErrorException if there is an error parsing the data
+   */
+  private safeParse<T>(jsonString: string): T {
+    try {
+      return JSON.parse(jsonString) as T;
+    } catch (error) {
+      console.error('Error parsing JSON', error);
+      throw new InternalServerErrorException('Error parsing data');
+    }
+  }
 }
