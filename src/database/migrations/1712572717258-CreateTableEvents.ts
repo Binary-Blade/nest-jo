@@ -18,10 +18,12 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
                     "title" VARCHAR NOT NULL UNIQUE,
                     "description" TEXT NOT NULL,
                     "categoryType" "category_type_enum" NOT NULL,
-                    "startDate" TIMESTAMP NOT NULL,
-                    "endDate" TIMESTAMP NOT NULL,
                     "basePrice" DECIMAL NOT NULL,
                     "quantityAvailable" INTEGER DEFAULT 0,
+                    "quantitySold" INTEGER DEFAULT 0,
+                    "revenueGenerated" DECIMAL DEFAULT 0,
+                    "startDate" TIMESTAMP NOT NULL,
+                    "endDate" TIMESTAMP NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
