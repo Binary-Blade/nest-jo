@@ -1,4 +1,5 @@
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class CreateOrderDto {
@@ -34,4 +35,7 @@ export class CreateOrderDto {
 
   @IsEnum(PriceFormulaEnum)
   readonly priceFormula: PriceFormulaEnum;
+
+  @IsEnum(StatusReservation)
+  readonly statusPayment: StatusReservation;
 }
