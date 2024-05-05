@@ -1,4 +1,4 @@
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { IsEnum, IsInt, IsNotEmpty, Min } from 'class-validator';
 
 export class CreateCartItemDto {
@@ -12,6 +12,6 @@ export class CreateCartItemDto {
   readonly quantity: number;
 
   @IsNotEmpty()
-  @IsEnum(TypeEvent)
-  readonly ticketType: TypeEvent;
+  @IsEnum(PriceFormulaEnum)
+  readonly priceFormula: PriceFormulaEnum;
 }

@@ -1,4 +1,4 @@
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
 import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
 /**
@@ -29,4 +29,16 @@ export class CreateEventDto {
   @IsNotEmpty()
   @IsNumber()
   readonly quantityAvailable: number;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly startDate: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly endDate: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly categoryType: CategoryEventTypeEnum;
 }
