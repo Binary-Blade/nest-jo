@@ -1,7 +1,8 @@
 import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
-import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { EventPrice } from './event-price.entity';
+import { Order } from '@modules/orders/entities/order.entity';
 
 @Entity('events')
 export class Event {
@@ -17,7 +18,7 @@ export class Event {
   @Column()
   categoryType: CategoryEventTypeEnum;
 
-  @Column('int')
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   basePrice: number;
 
   @Column('date')
@@ -29,8 +30,17 @@ export class Event {
   @Column({ type: 'int', default: 1 })
   quantityAvailable: number;
 
+  @Column({ type: 'int', default: 0 })
+  quantitySold: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  revenueGenerated: number;
+
   @OneToMany(() => EventPrice, price => price.event, { eager: true })
   prices: EventPrice[];
+
+  @OneToMany(() => Order, order => order.event)
+  orders: Order[];
 
   @OneToMany(() => CartItem, cartItem => cartItem.event)
   cartItems: CartItem[];

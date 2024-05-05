@@ -4,9 +4,9 @@ import { Event } from '@modules/events/entities/event.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 
-@Entity()
+@Entity('orders')
 export class Order {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   orderId: number;
 
   @OneToOne(() => Reservation, reservation => reservation.order)
@@ -22,6 +22,9 @@ export class Order {
 
   @Column()
   priceFormula: PriceFormulaEnum;
+
+  @Column()
+  paymentId: number;
 
   @Column()
   title: string;

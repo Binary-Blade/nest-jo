@@ -1,5 +1,5 @@
-import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
+import { Order } from '@modules/orders/entities/order.entity';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { User } from '@modules/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
@@ -13,6 +13,10 @@ export class Reservation {
   @JoinColumn({ name: 'userId' })
   user: User;
 
+  @OneToOne(() => Order, order => order.reservation)
+  @JoinColumn({ name: 'orderId' })
+  order: Order;
+
   @ManyToOne(() => CartItem, cartItem => cartItem.reservations)
   @JoinColumn({ name: 'cartItemId' })
   cartItem: CartItem;
@@ -20,18 +24,6 @@ export class Reservation {
   @OneToOne(() => Ticket, ticket => ticket.reservation)
   @JoinColumn({ name: 'ticketId' })
   ticket: Ticket;
-
-  @Column({ type: 'int', nullable: true })
-  ticketId?: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  totalPrice: number;
-
-  @Column({ type: 'int' })
-  paymentId: number;
-
-  @Column({ type: 'varchar', default: StatusReservation.PENDING })
-  status: StatusReservation;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
