@@ -57,10 +57,11 @@ export class EventsService {
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAll(): Promise<Event[]> {
-    const result = await this.eventRepository.find({
-      relations: ['prices']
-    });
-    return result;
+    return this.fetchCachedData('events_all', () =>
+      this.eventRepository.find({
+        relations: ['prices']
+      })
+    );
   }
 
   /**
