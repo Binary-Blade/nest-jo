@@ -5,7 +5,7 @@ import { CartItem } from './entities/cartitems.entity';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from '@modules/carts/carts.service';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { EventPricesService } from '@modules/event-prices/event-prices.service';
 
 // TODO: Improve the documentation
 /**
@@ -17,19 +17,10 @@ export class CartItemsService {
   constructor(
     @InjectRepository(CartItem) private readonly cartItemRepository: Repository<CartItem>,
     @InjectRepository(Event) private readonly eventRepository: Repository<Event>,
-    private readonly cartsService: CartsService
+    private readonly cartsService: CartsService,
+    private readonly eventPricesService: EventPricesService
   ) {}
 
-  /**
-   * Adds an item to the cart.
-   *
-   * @param userId The ID of the user adding the item to the cart.
-   * @param createCartItemDto The item to add to the cart.
-   * @returns The created cart item.
-   * @throws NotFoundException if the event does not exist.
-   * @throws NotFoundException if the quantity is not available.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
     const event = await this.eventRepository.findOneBy({ eventId: createCartItemDto.eventId });
@@ -39,23 +30,14 @@ export class CartItemsService {
       throw new NotFoundException('Not enough tickets available');
     }
 
-    const totalTicketPrice = this.calculateTotalTicketPrice(createCartItemDto, event);
-    await this.eventRepository.save(event); // Save the event updates
+    const ticketPrice = await this.eventPricesService.getPriceByEventAndType(
+      createCartItemDto.eventId,
+      createCartItemDto.priceFormula
+    );
+    const totalTicketPrice = ticketPrice * createCartItemDto.quantity;
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto, totalTicketPrice);
   }
 
-  /**
-   * Creates a new cart item or updates an existing one.
-   *
-   * @param cartId The cart ID.
-   * @param createCartItemDto The item to add to the cart.
-   * @param ticketPrice The price of the ticket.
-   * @returns The created or updated cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws NotFoundException if the cart does not exist.
-   * @throws NotFoundException if the event does not exist.
-   * @throws NotFoundException if the quantity is not available.
-   */
   private async getOrCreateCartItem(
     cartId: number,
     createCartItemDto: CreateCartItemDto,
@@ -65,14 +47,15 @@ export class CartItemsService {
       where: {
         cart: { cartId },
         event: { eventId: createCartItemDto.eventId },
-        ticketType: createCartItemDto.ticketType
+        priceFormula: createCartItemDto.priceFormula
       },
       relations: ['cart', 'event']
     });
 
     if (existingCartItem) {
       existingCartItem.quantity += createCartItemDto.quantity;
-      existingCartItem.price += ticketPrice;
+      existingCartItem.price += ticketPrice * createCartItemDto.quantity; // Update total price
+      return await this.cartItemRepository.save(existingCartItem);
     } else {
       const cartItem = this.cartItemRepository.create({
         ...createCartItemDto,
@@ -82,43 +65,8 @@ export class CartItemsService {
       });
       return await this.cartItemRepository.save(cartItem);
     }
-
-    return await this.cartItemRepository.save(existingCartItem);
   }
 
-  /**
-   * Calculates the total price of the ticket.
-   *
-   * @param createCartItemDto The item to add to the cart.
-   * @param event The event to calculate the ticket price for.
-   * @returns The total price of the ticket.
-   */
-  private calculateTotalTicketPrice(createCartItemDto: CreateCartItemDto, event: Event): number {
-    let ticketPrice = 0;
-    switch (createCartItemDto.ticketType) {
-      case TypeEvent.SOLO:
-        ticketPrice = event.soloPrice;
-        break;
-      case TypeEvent.DUO:
-        ticketPrice = event.duoPrice;
-        break;
-      case TypeEvent.FAMILY:
-        ticketPrice = event.familyPrice;
-        break;
-    }
-    return ticketPrice * createCartItemDto.quantity;
-  }
-
-  /**
-   * Finds a cart item in the cart.
-   *
-   * @param userId The user ID.
-   * @param cartId The cart ID.
-   * @param cartItemId The cart item ID.
-   * @returns The found cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws NotFoundException if the cart does not exist.
-   */
   async findOneItemInCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
     await this.cartsService.findCart(userId, cartId);
     const cartItem = await this.cartItemRepository.findOne({
@@ -136,15 +84,6 @@ export class CartItemsService {
     return cartItem;
   }
 
-  /**
-   * Finds all items in the cart.
-   *
-   * @param userId The user ID.
-   * @param cartId The cart ID.
-   * @returns The found cart items.
-   * @throws NotFoundException if the cart does not exist.
-   * @throws NotFoundException if the cart items do not exist.
-   */
   async findAllItemsInCart(userId: number, cartId: number): Promise<CartItem[]> {
     await this.cartsService.findCart(userId, cartId);
     return this.cartItemRepository.find({
@@ -153,18 +92,6 @@ export class CartItemsService {
     });
   }
 
-  /**
-   * Updates the quantity of an item in the cart.
-   *
-   * @param userId The user ID.
-   * @param cartId The cart ID.
-   * @param cartItemId The cart item ID.
-   * @param quantity The new quantity.
-   * @returns The updated cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws NotFoundException if the cart does not exist.
-   * @throws NotFoundException if the event does not exist.
-   */
   async updateQuantityInCart(
     userId: number,
     cartId: number,
@@ -172,55 +99,29 @@ export class CartItemsService {
     quantity: number
   ): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
-    const event = await this.eventRepository.findOneBy({
-      eventId: cartItem.event.eventId
-    });
-    const eventId = cartItem.event.eventId;
-    if (!eventId) throw new NotFoundException('Event not found');
+    if (!cartItem) throw new NotFoundException('Cart item not found');
 
-    if (quantity > event.quantityAvailable) {
+    const ticketPrice = await this.eventPricesService.getPriceByEventAndType(
+      cartItem.event.eventId,
+      cartItem.priceFormula
+    );
+    if (quantity > cartItem.event.quantityAvailable) {
       throw new NotFoundException('Quantity not available');
     }
-    // Update the available quantity in the event
-    event.quantityAvailable -= quantity - cartItem.quantity;
-
-    // Recalculate the total price for the new quantity and ticket type
-    const createCartItemDto = {
-      quantity: quantity,
-      ticketType: cartItem.ticketType, // Assuming cartItem includes ticketType
-      eventId: event.eventId // Assuming you have access to eventId here, else adjust accordingly
-    };
-    cartItem.price = this.calculateTotalTicketPrice(createCartItemDto, event);
-
-    // Update the cart item quantity
+    cartItem.event.quantityAvailable -= quantity - cartItem.quantity;
     cartItem.quantity = quantity;
+    cartItem.price = ticketPrice * quantity; // Recalculate the total price
 
-    // Save the updated event and cart item
-    await this.eventRepository.save(event);
+    await this.eventRepository.save(cartItem.event);
     return await this.cartItemRepository.save(cartItem);
   }
 
-  /**
-   * Removes an item from the cart.
-   *
-   * @param userId The user ID.
-   * @param cartId The cart ID.
-   * @param cartItemId The cart item ID.
-   * @returns The removed cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   */
   async removeItemFromCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
     await this.cartItemRepository.remove(cartItem);
     return cartItem;
   }
 
-  /**
-   * Saves a cart item to the database.
-   *
-   * @param item The cart item to save.
-   * @returns A promise resolved with the saved cart item.
-   */
   async save(item: CartItem): Promise<CartItem> {
     return await this.cartItemRepository.save(item);
   }
