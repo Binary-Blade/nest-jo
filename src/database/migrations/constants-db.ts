@@ -3,11 +3,11 @@
  * These constants are used to create tables, columns, and constraints in the database.
  */
 
-export const DOES_ENUM_EVENT_TYPE_EXIST = `
+export const DOES_ENUM_PRICE_FORMULE_TYPE_EXIST = `
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'type_event_enum') THEN
-        CREATE TYPE "type_event_enum" AS ENUM('SOLO', 'DUO', 'FAMILY');
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'type_price_formule_enum') THEN
+        CREATE TYPE "type_price_formule_enum" AS ENUM('SOLO', 'DUO', 'FAMILY');
     END IF;
 END
 $$;
