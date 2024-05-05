@@ -20,10 +20,12 @@ import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { PaymentService } from '@libs/payment/payment.service';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
 import { EventPricesService } from '@modules/events/event-prices.service';
+import { OrdersService } from '@modules/orders/orders.service';
+import { Order } from '@modules/orders/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Cart, CartItem, Event, Ticket, Reservation, EventPrice]),
+    TypeOrmModule.forFeature([User, Cart, CartItem, Event, Ticket, Reservation, EventPrice, Order]),
     RedisModule
   ],
   controllers: [CartItemsController],
@@ -38,6 +40,7 @@ import { EventPricesService } from '@modules/events/event-prices.service';
     UsersService,
     ReservationsService,
     UtilsService,
+    OrdersService,
     PaymentService
   ]
 })

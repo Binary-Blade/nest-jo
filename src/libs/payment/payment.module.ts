@@ -15,13 +15,15 @@ import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { TicketsService } from '@modules/tickets/tickets.service';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
 import { EventPricesService } from '@modules/events/event-prices.service';
+import { OrdersService } from '@modules/orders/orders.service';
+import { Order } from '@modules/orders/entities/order.entity';
 
 /**
  * Module for handling payments.
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reservation, CartItem, Event, Cart, User, Ticket, EventPrice])
+    TypeOrmModule.forFeature([Reservation, CartItem, Event, Cart, User, Ticket, EventPrice, Order])
   ],
   providers: [
     PaymentService,
@@ -31,6 +33,7 @@ import { EventPricesService } from '@modules/events/event-prices.service';
     UsersService,
     EncryptionService,
     TicketsService,
+    OrdersService,
     EventPricesService
   ]
 })
