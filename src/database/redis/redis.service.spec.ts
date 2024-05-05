@@ -1,195 +1,137 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import Redis from 'ioredis';
 import { RedisService } from './redis.service';
-import { ConfigService } from '@nestjs/config';
-import { KeyValuePairs } from '@common/interfaces/key-value-redis.interface';
-
-jest.mock('ioredis', () => ({
-  default: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    get: jest.fn(),
-    del: jest.fn(),
-    pipeline: jest.fn().mockReturnThis(),
-    exec: jest.fn()
-  }))
-}));
+import Redis from 'ioredis';
+import { InternalServerErrorException } from '@nestjs/common';
 
 describe('RedisService', () => {
   let service: RedisService;
   let redisClient: Redis;
 
-  const setupModule = async (environment = 'development') => {
-    const prefix = environment === 'production' ? 'prod:' : 'dev:';
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RedisService,
         {
           provide: 'REDIS_CLIENT',
-          useClass: Redis
-        },
-        {
-          provide: ConfigService,
           useValue: {
-            get: jest.fn(key => {
-              if (key === 'NODE_ENV') return environment;
-              return prefix; // Simplify to always return prefix for non-NODE_ENV keys
-            })
+            set: jest.fn(),
+            get: jest.fn(),
+            del: jest.fn()
           }
         }
       ]
     }).compile();
 
-    return {
-      service: module.get<RedisService>(RedisService),
-      redisClient: module.get('REDIS_CLIENT'),
-      prefix
-    };
-  };
+    service = module.get<RedisService>(RedisService);
+    redisClient = module.get<Redis>('REDIS_CLIENT');
+  });
 
-  describe.each([
-    ['development', 'dev:'],
-    ['production', 'prod:']
-  ])('when environment is %s', (env, prefix) => {
-    beforeEach(async () => {
-      const setup = await setupModule(env);
-      service = setup.service;
-      redisClient = setup.redisClient;
+  describe('set', () => {
+    it('should set a value in Redis without TTL', async () => {
+      await service.set('testKey', 'testValue');
+      expect(redisClient.set).toHaveBeenCalledWith('testKey', 'testValue');
     });
 
-    // Test Definitions...
-
-    describe('set method', () => {
-      it('should call redis.set with correct parameters and prefix', async () => {
-        const key = 'testKey';
-        const value = 'testValue';
-        const ttl = 3600;
-        const expectedFullKey = `${prefix}${key}`;
-
-        await service.set(key, value, ttl);
-
-        expect(redisClient.set).toHaveBeenCalledWith(expectedFullKey, value, 'EX', ttl);
-      });
-
-      it('should throw an error if key is missing', async () => {
-        await expect(service.set('', 'value')).rejects.toThrow('Key is required');
-      });
-
-      it('should handle errors when setting a value fails', async () => {
-        const key = 'testKey';
-        const value = 'testValue';
-        (redisClient.set as jest.Mock).mockImplementation(() => {
-          throw new Error('Failed to set value');
-        });
-
-        await expect(service.set(key, value)).rejects.toThrow('Failed to set value');
-      });
+    it('should set a value in Redis with TTL', async () => {
+      await service.set('testKey', 'testValue', 3600);
+      expect(redisClient.set).toHaveBeenCalledWith('testKey', 'testValue', 'EX', 3600);
     });
 
-    describe('get method', () => {
-      it('should retrieve the correct value for a key including prefix', async () => {
-        const key = 'testKey';
-        const expectedValue = 'testValue';
-        const expectedFullKey = `${prefix}${key}`;
-        (redisClient.get as jest.Mock).mockResolvedValue(expectedValue);
-
-        const result = await service.get(key);
-
-        expect(result).toBe(expectedValue);
-        expect(redisClient.get).toHaveBeenCalledWith(expectedFullKey);
-      });
-
-      it('should return null when the key with prefix does not exist', async () => {
-        const key = 'nonexistentKey';
-        const expectedFullKey = `${prefix}${key}`;
-        (redisClient.get as jest.Mock).mockResolvedValue(null);
-
-        const result = await service.get(key);
-
-        expect(result).toBeNull();
-        expect(redisClient.get).toHaveBeenCalledWith(expectedFullKey);
-      });
-
-      it('should handle errors when getting a value fails', async () => {
-        const key = 'testKey';
-        (redisClient.get as jest.Mock).mockImplementation(() => {
-          throw new Error('Failed to get value');
-        });
-
-        await expect(service.get(key)).rejects.toThrow('Failed to get value');
-      });
+    it('should throw an error if no key is provided', async () => {
+      await expect(service.set('', 'testValue')).rejects.toThrow('Key is required');
     });
 
-    describe('del method', () => {
-      it('should delete a key including prefix and return a success message', async () => {
-        const key = 'testKey';
-        const expectedFullKey = `${prefix}${key}`;
-        (redisClient.del as jest.Mock).mockResolvedValue(1);
+    it('should set an object as a string', async () => {
+      const obj = { foo: 'bar' };
+      await service.set('testKey', obj);
+      expect(redisClient.set).toHaveBeenCalledWith('testKey', JSON.stringify(obj));
+    });
+  });
 
-        const result = await service.del(key);
+  describe('get', () => {
+    it('should get a value from Redis', async () => {
+      jest.spyOn(redisClient, 'get').mockResolvedValue('testValue');
 
-        expect(result).toBe(`Key deleted: ${expectedFullKey}`);
-        expect(redisClient.del).toHaveBeenCalledWith(expectedFullKey);
-      });
-
-      it('should return a not found message when trying to delete a nonexistent key', async () => {
-        const key = 'nonexistentKey';
-        const expectedFullKey = `${prefix}${key}`;
-        (redisClient.del as jest.Mock).mockResolvedValue(0);
-
-        const result = await service.del(key);
-
-        expect(result).toBe(`Key not found: ${expectedFullKey}`);
-      });
-
-      it('should handle errors when deletion fails', async () => {
-        const key = 'testKey';
-        (redisClient.del as jest.Mock).mockImplementation(() => {
-          throw new Error('Failed to delete key');
-        });
-
-        await expect(service.del(key)).rejects.toThrow('Failed to delete key');
-      });
+      const result = await service.get('testKey');
+      expect(result).toBe('testValue');
+      expect(redisClient.get).toHaveBeenCalledWith('testKey');
     });
 
-    describe('setMultiple method', () => {
-      it('should set multiple keys with their values using pipelines', async () => {
-        const keyValuePairs: [string, any][] = [
-          ['key1', 'value1'],
-          ['key2', { name: 'Test', age: 30 }]
-        ];
-        const ttl = 3600;
-        await service.setMultiple(keyValuePairs, ttl);
+    it('should return null if the key does not exist', async () => {
+      jest.spyOn(redisClient, 'get').mockResolvedValue(null);
 
-        expect(redisClient.pipeline().set).toHaveBeenNthCalledWith(
-          1,
-          `${prefix}key1`,
-          JSON.stringify('value1'), // Ajustez l'attente pour inclure les guillemets
-          'EX',
-          ttl
-        );
-        expect(redisClient.pipeline().set).toHaveBeenNthCalledWith(
-          2,
-          `${prefix}key2`,
-          JSON.stringify({ name: 'Test', age: 30 }), // L'objet est sérialisé en JSON
-          'EX',
-          ttl
-        );
-
-        expect(redisClient.pipeline().exec).toHaveBeenCalled();
-      });
-
-      it('should handle errors in pipeline execution', async () => {
-        const keyValuePairs: KeyValuePairs = [['key1', 'value1']];
-        (redisClient.pipeline().exec as jest.Mock).mockImplementation(() => {
-          throw new Error('Pipeline execution failed');
-        });
-
-        await expect(service.setMultiple(keyValuePairs)).rejects.toThrow(
-          'Pipeline execution failed'
-        );
-      });
+      const result = await service.get('testKey');
+      expect(result).toBeNull();
     });
 
-    // Repeat for other methods
+    it('should throw an error if no key is provided', async () => {
+      await expect(service.get('')).rejects.toThrow('Key is required');
+    });
+
+    it('should throw an error if there is an error retrieving the key', async () => {
+      jest.spyOn(redisClient, 'get').mockRejectedValue(new Error('Error'));
+
+      await expect(service.get('testKey')).rejects.toThrow('Error');
+    });
+  });
+
+  describe('del', () => {
+    it('should delete a key from Redis', async () => {
+      jest.spyOn(redisClient, 'del').mockResolvedValue(1);
+
+      const result = await service.del('testKey');
+      expect(result).toBe('Key deleted: testKey');
+      expect(redisClient.del).toHaveBeenCalledWith('testKey');
+    });
+
+    it('should return a warning if the key does not exist', async () => {
+      jest.spyOn(redisClient, 'del').mockResolvedValue(0);
+
+      const result = await service.del('testKey');
+      expect(result).toBe('Key not found: testKey');
+    });
+
+    it('should throw an error if no key is provided', async () => {
+      await expect(service.del('')).rejects.toThrow('Key is required');
+    });
+  });
+
+  describe('fetchCachedData', () => {
+    it('should fetch data from cache if available', async () => {
+      jest.spyOn(service, 'get').mockResolvedValue(JSON.stringify({ foo: 'bar' }));
+
+      const result = await service.fetchCachedData('testKey', () => Promise.resolve({}), 3600);
+      expect(result).toEqual({ foo: 'bar' });
+    });
+
+    it('should fetch data from function and cache it if not available in cache', async () => {
+      jest.spyOn(service, 'get').mockResolvedValue(null);
+      jest.spyOn(service, 'set').mockResolvedValue('Success');
+
+      const fetchFn = () => Promise.resolve({ foo: 'bar' });
+
+      const result = await service.fetchCachedData('testKey', fetchFn, 3600);
+      expect(result).toEqual({ foo: 'bar' });
+      expect(service.set).toHaveBeenCalledWith('testKey', JSON.stringify({ foo: 'bar' }), 3600);
+    });
+
+    it('should throw an error if parsing fails', async () => {
+      jest.spyOn(service, 'get').mockResolvedValue('not-json');
+
+      await expect(
+        service.fetchCachedData('testKey', () => Promise.resolve({}), 3600)
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('safeParse', () => {
+    it('should safely parse a JSON string', () => {
+      const result = (service as any).safeParse('{"foo": "bar"}');
+      expect(result).toEqual({ foo: 'bar' });
+    });
+
+    it('should throw an error if parsing fails', () => {
+      expect(() => (service as any).safeParse('not-json')).toThrow(InternalServerErrorException);
+    });
   });
 });
