@@ -15,10 +15,12 @@ import { UsersService } from '@modules/users/users.service';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { TicketsService } from '@modules/tickets/tickets.service';
 import { TicketsModule } from '@modules/tickets/tickets.module';
+import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
+import { EventPricesService } from '@modules/event-prices/event-prices.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket]),
+    TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket, EventPrice]),
     forwardRef(() => TicketsModule)
   ],
   controllers: [ReservationsController],
@@ -27,6 +29,7 @@ import { TicketsModule } from '@modules/tickets/tickets.module';
     PaymentService,
     TicketsService,
     CartItemsService,
+    EventPricesService,
     CartsService,
     EncryptionService,
     UsersService
