@@ -15,8 +15,8 @@ import { UsersService } from '@modules/users/users.service';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { TicketsService } from '@modules/tickets/tickets.service';
 import { TicketsModule } from '@modules/tickets/tickets.module';
-import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
+import { EventPrice } from '@modules/events/entities/event-price.entity';
+import { EventPricesService } from '@modules/events/event-prices.service';
 
 @Module({
   imports: [
@@ -29,10 +29,10 @@ import { EventPricesService } from '@modules/event-prices/event-prices.service';
     PaymentService,
     TicketsService,
     CartItemsService,
-    EventPricesService,
     CartsService,
     EncryptionService,
-    UsersService
+    UsersService,
+    EventPricesService
   ],
   exports: [ReservationsService]
 })

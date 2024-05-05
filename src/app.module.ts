@@ -12,7 +12,6 @@ import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { AppController } from './app.controller';
 import { ThrollerModule } from '@security/throttler/throttler.module';
-import { EventPricesModule } from '@modules/event-prices/event-prices.module';
 /**
  *
  * Main application module
@@ -33,7 +32,6 @@ import { EventPricesModule } from '@modules/event-prices/event-prices.module';
     AuthModule,
     UsersModule,
     EventsModule,
-    EventPricesModule,
     CartsModule,
     CartItemsModule,
     ReservationsModule,

@@ -14,8 +14,8 @@ import { PaymentService } from '@libs/payment/payment.service';
 import { UsersService } from '@modules/users/users.service';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
-import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
+import { EventPricesService } from '@modules/events/event-prices.service';
+import { EventPrice } from '@modules/events/entities/event-price.entity';
 
 /**
  * Module for handling tickets.
@@ -36,6 +36,7 @@ import { EventPricesService } from '@modules/event-prices/event-prices.service';
     PaymentService,
     UsersService,
     CartItemsService,
+    EventPricesService,
     CartsService
   ],
   exports: [TicketsService]

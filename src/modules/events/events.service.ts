@@ -5,8 +5,8 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
 import { UtilsService } from '@common/utils/utils.service';
+import { EventPricesService } from './event-prices.service';
 
 /**
  * Service responsible for handling CRUD operations for events

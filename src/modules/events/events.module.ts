@@ -5,9 +5,9 @@ import { RedisModule } from '@database/redis/redis.module';
 import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
 import { EventsController } from './events.controller';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
-import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
 import { UtilsService } from '@common/utils/utils.service';
+import { EventPrice } from './entities/event-price.entity';
+import { EventPricesService } from './event-prices.service';
 
 /**
  * Module responsible for handling events

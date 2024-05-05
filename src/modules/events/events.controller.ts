@@ -5,8 +5,8 @@ import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventsService } from './events.service';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
+import { EventPricesService } from './event-prices.service';
 
 /**
  * Controller responsible for handling requests to the /events route

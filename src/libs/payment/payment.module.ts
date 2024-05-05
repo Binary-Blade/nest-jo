@@ -13,8 +13,8 @@ import { User } from '@modules/users/entities/user.entity';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
 import { TicketsService } from '@modules/tickets/tickets.service';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
-import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
+import { EventPrice } from '@modules/events/entities/event-price.entity';
+import { EventPricesService } from '@modules/events/event-prices.service';
 
 /**
  * Module for handling payments.
@@ -29,9 +29,9 @@ import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
     CartItemsService,
     CartsService,
     UsersService,
-    EventPricesService,
     EncryptionService,
-    TicketsService
+    TicketsService,
+    EventPricesService
   ]
 })
 export class PaymentModule {}

@@ -5,7 +5,7 @@ import { CartItem } from './entities/cartitems.entity';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from '@modules/carts/carts.service';
-import { EventPricesService } from '@modules/event-prices/event-prices.service';
+import { EventPricesService } from '@modules/events/event-prices.service';
 
 // TODO: Improve the documentation
 /**
