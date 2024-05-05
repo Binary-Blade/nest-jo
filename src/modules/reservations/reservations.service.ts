@@ -10,6 +10,7 @@ import { Reservation } from './entities/reservation.entity';
 import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { TicketsService } from '@modules/tickets/tickets.service';
 import { PaymentService } from '@libs/payment/payment.service';
+import { OrdersService } from '@modules/orders/orders.service';
 
 /**
  * Service responsible for handling reservations.
@@ -22,18 +23,11 @@ export class ReservationsService {
     private readonly usersService: UsersService,
     private readonly cartService: CartsService,
     private readonly cartItemsService: CartItemsService,
-    private readonly paymentService: PaymentService
+    private readonly paymentService: PaymentService,
+    private readonly ordersService: OrdersService
   ) {}
 
-  /**
-   * Creates a reservation for each item in the cart.
-   *
-   * @param userId The ID of the user creating the reservation.
-   * @param cartId The ID of the cart.
-   * @returns A promise resolved with the list of created reservations.
-   * @throws Error if the reservation already exists for an item in the cart.
-   */
-  async createReservations(userId: number, cartId: number): Promise<Reservation[]> {
+  async createReservations(userId: number, cartId: number) {
     const user = await this.usersService.verifyUserOneBy(userId);
     const cartItems = await this.cartItemsService.findAllItemsInCart(userId, cartId);
     await this.cartService.verifyCartRelation(cartId, 'cartItem');
@@ -42,18 +36,36 @@ export class ReservationsService {
 
     let createdReservations: Reservation[] = [];
     for (const item of cartItems) {
-      await this.preventDuplicateReservation(item, user);
-      item.cart.cartId = null;
+      await this.verifyIfReservationExists(item, user);
 
-      await this.cartItemsService.save(item);
+      const newReservation = this.reservationRepository.create({
+        user,
+        cartItem: item
+        // Initially, status might be set to 'PENDING' or removed entirely
+      });
+
       // Create a new reservation for each item in the cart
-      const newReservation = await this.addReservation(user, item, paymentResult.status);
-      //await this.issueTicketsForApprovedReservations();
-      createdReservations.push(newReservation);
+      const savedReservation = await this.reservationRepository.save(newReservation);
+      createdReservations.push(savedReservation);
+      const newOrder = await this.ordersService.createOrder({
+        reservationId: savedReservation.reservationId,
+        eventId: item.event.eventId, // Correctly referencing event ID
+        paymentId: Math.floor(Math.random() * 1000),
+        title: item.event.title,
+        description: item.event.description,
+        statusPayment: paymentResult.status,
+        quantity: item.quantity,
+        totalPrice: cartTotal,
+        priceFormula: item.priceFormula // Assuming cartItem includes priceFormula
+      });
+      savedReservation.order = newOrder;
+      await this.reservationRepository.save(savedReservation);
     }
     if (paymentResult.status === StatusReservation.APPROVED) {
       await this.issueTicketsForApprovedReservations(createdReservations);
     }
+
+    await this.cartItemsService.removeAllItemFromCart(userId, cartId);
     await this.cartService.deleteCart(cartId);
     await this.cartService.getOrCreateCart(user.userId);
     return createdReservations;
@@ -97,7 +109,6 @@ export class ReservationsService {
       relations: ['ticket', 'user'],
       select: {
         reservationId: true,
-        status: true,
         ticket: {
           ticketId: true,
           qrCode: true
@@ -120,7 +131,8 @@ export class ReservationsService {
    */
   async issueTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
     for (const reservation of reservations) {
-      if (reservation.status === StatusReservation.APPROVED) {
+      const order = await this.ordersService.findOrderByReservationId(reservation.reservationId);
+      if (order && order.statusPayment === 'APPROVED') {
         await this.ticketService.createTickets(reservation.reservationId, reservation.user.userId);
       }
     }
@@ -135,17 +147,10 @@ export class ReservationsService {
    * @returns A promise resolved with the created reservation.
    * @throws Error if the reservation already exists for the item.
    */
-  private async addReservation(
-    user: User,
-    item: CartItem,
-    status: StatusReservation
-  ): Promise<Reservation> {
+  private async addReservation(user: User, item: CartItem): Promise<Reservation> {
     const reservation = this.reservationRepository.create({
       user,
-      cartItem: item,
-      status,
-      paymentId: Math.floor(Math.random() * 1000),
-      totalPrice: item.price
+      cartItem: item
     });
     return await this.saveReservation(reservation);
   }
@@ -158,7 +163,7 @@ export class ReservationsService {
    * @returns A promise resolved with void.
    * @throws Error if the reservation already exists for the item.
    */
-  private async preventDuplicateReservation(item: CartItem, user: User): Promise<void> {
+  private async verifyIfReservationExists(item: CartItem, user: User): Promise<void> {
     const existingReservation = await this.reservationRepository.findOne({
       where: { cartItem: item, user }
     });
