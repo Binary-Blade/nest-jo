@@ -5,13 +5,16 @@ import { RedisModule } from '@database/redis/redis.module';
 import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
 import { EventsController } from './events.controller';
+import { EventPricesService } from '@modules/event-prices/event-prices.service';
+import { EventPrice } from '@modules/event-prices/entities/event-price.entity';
+import { UtilsService } from '@common/utils/utils.service';
 
 /**
  * Module responsible for handling events
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Event]), RedisModule], // Import the event entity and the Redis module
+  imports: [TypeOrmModule.forFeature([Event, EventPrice]), RedisModule], // Import the event entity and the Redis module
   controllers: [EventsController], // Declare the events controller
-  providers: [EventsService, RedisService] // Declare the events service and the Redis service
+  providers: [EventsService, RedisService, EventPricesService, UtilsService] // Declare the events service and the Redis service
 })
 export class EventsModule {}

@@ -10,7 +10,8 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { EventPricesService } from '@modules/event-prices/event-prices.service';
+import { UtilsService } from '@common/utils/utils.service';
 
 /**
  * Service responsible for handling CRUD operations for events
@@ -22,7 +23,9 @@ export class EventsService {
 
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
+    private readonly eventPricesService: EventPricesService,
+    private readonly utilsService: UtilsService
   ) {}
 
   /**
@@ -33,16 +36,16 @@ export class EventsService {
    * @throws ConflictException if an event with the same title already exists
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
+    const startDate = this.utilsService.convertDateStringToDate(createEventDto.startDate);
+    const endDate = this.utilsService.convertDateStringToDate(createEventDto.endDate);
     await this.ensureTitleUnique(createEventDto.title);
     const event: Event = this.eventRepository.create({
       ...createEventDto,
-      basePrice: createEventDto.basePrice,
-      soloPrice: createEventDto.basePrice,
-      duoPrice: createEventDto.basePrice * 1.3,
-      familyPrice: createEventDto.basePrice * 1.8
+      startDate,
+      endDate
     });
-
     await this.eventRepository.save(event);
+    await this.eventPricesService.createEventPrices(event.eventId, event.basePrice);
     await this.clearCacheEvent();
     return event;
   }
@@ -54,7 +57,10 @@ export class EventsService {
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAll(): Promise<Event[]> {
-    return this.fetchCachedData('events_all', () => this.eventRepository.find());
+    const result = await this.eventRepository.find({
+      relations: ['prices']
+    });
+    return result;
   }
 
   /**
@@ -85,9 +91,19 @@ export class EventsService {
     const event = await this.findOne(id);
     await this.ensureTitleUnique(updateEventDto.title, id);
 
-    Object.assign(event, updateEventDto, { updatedAt: new Date() });
+    // Check if basePrice has changed and needs updating
+    const isBasePriceUpdated =
+      updateEventDto.basePrice && updateEventDto.basePrice !== event.basePrice;
 
+    // Update event with new data
+    Object.assign(event, updateEventDto, { updatedAt: new Date() });
     await this.eventRepository.save(event);
+
+    // If basePrice has changed, update related prices
+    if (isBasePriceUpdated) {
+      await this.eventPricesService.updateEventPrices(id, updateEventDto.basePrice);
+    }
+
     await this.clearCacheEvent(id);
     return event;
   }
@@ -103,50 +119,11 @@ export class EventsService {
     const event = await this.findOne(id);
     if (!event) throw new NotFoundException(`Event with id ${id} not found`);
 
+    await this.eventPricesService.deleteEventPrices(id);
+
     await this.eventRepository.remove(event);
     await this.clearCacheEvent(id);
     return 'Event deleted successfully.';
-  }
-
-  /**
-   * Get the price for a ticket type for a specific event
-   *
-   * @param eventId - The ID of the event
-   * @param ticketType - The type of ticket
-   * @returns - The price for the ticket type
-   * @throws NotFoundException if the event with the given ID does not exist
-   **/
-  async getPriceByType(eventId: number, ticketType: string): Promise<number> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) {
-      throw new NotFoundException(`Event with id ${eventId} not found`);
-    }
-    switch (ticketType) {
-      case TypeEvent.SOLO:
-        return event.soloPrice;
-      case TypeEvent.DUO:
-        return event.duoPrice;
-      case TypeEvent.FAMILY:
-        return event.familyPrice;
-      default:
-        throw new NotFoundException(`Invalid ticket type provided`);
-    }
-  }
-
-  /**
-   * Ensure that an event with the given title does not already exist
-   *
-   * @private - This method should not be exposed to the controller
-   * @param title - The title to check
-   * @param excludeId - The ID of the event to exclude from the check
-   * @returns - Promise that resolves if the title is unique
-   * @throws ConflictException if an event with the same title already exists
-   */
-  private async ensureTitleUnique(title: string, excludeId?: number): Promise<void> {
-    const existingEvent = await this.eventRepository.findOneBy({ title });
-    if (existingEvent && existingEvent.eventId !== excludeId) {
-      throw new ConflictException('An event with this title already exists.');
-    }
   }
 
   /**
@@ -183,6 +160,22 @@ export class EventsService {
     } catch (error) {
       console.error('Error parsing JSON', error);
       throw new InternalServerErrorException('Error parsing data');
+    }
+  }
+
+  /**
+   * Ensure that an event with the given title does not already exist
+   *
+   * @private - This method should not be exposed to the controller
+   * @param title - The title to check
+   * @param excludeId - The ID of the event to exclude from the check
+   * @returns - Promise that resolves if the title is unique
+   * @throws ConflictException if an event with the same title already exists
+   */
+  private async ensureTitleUnique(title: string, excludeId?: number): Promise<void> {
+    const existingEvent = await this.eventRepository.findOneBy({ title });
+    if (existingEvent && existingEvent.eventId !== excludeId) {
+      throw new ConflictException('An event with this title already exists.');
     }
   }
 
