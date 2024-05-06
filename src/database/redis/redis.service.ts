@@ -107,7 +107,6 @@ export class RedisService {
     try {
       return JSON.parse(jsonString) as T;
     } catch (error) {
-      console.error('Error parsing JSON', error);
       throw new InternalServerErrorException('Error parsing data');
     }
   }
