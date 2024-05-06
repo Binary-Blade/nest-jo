@@ -33,7 +33,7 @@ export class TicketsService {
    * @returns A promise resolved with the created ticket.
    * @throws Error if the reservation is not approved.
    */
-  async createTickets(reservationId: number, userId: number): Promise<Ticket> {
+  async generatedTickets(reservationId: number, userId: number): Promise<Ticket> {
     const reservation = await this.reservationService.findOne(reservationId, userId);
     const order = await this.ordersService.findOrderByReservationId(reservationId); // Fetch the linked order
 
@@ -43,7 +43,7 @@ export class TicketsService {
     }
 
     const user = await this.usersService.verifyUserOneBy(userId);
-    const ticket = await this.createTicketForReservation(user, reservation);
+    const ticket = await this.newTicket(user, reservation);
 
     reservation.ticket = ticket;
 
@@ -58,7 +58,7 @@ export class TicketsService {
    * @param reservation The reservation for which the ticket is created.
    * @returns A promise resolved with the created ticket.
    */
-  private async createTicketForReservation(user: User, reservation: Reservation): Promise<Ticket> {
+  private async newTicket(user: User, reservation: Reservation): Promise<Ticket> {
     const purchaseKey = await this.encryptionService.generatedKeyUuid();
     const secureKey = await this.encryptionService.generatedSecureKey(user);
     const qrCode = await this.encryptionService.generatedQRCode(secureKey);
