@@ -10,6 +10,7 @@ import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { UserRole } from '@common/enums/user-role.enum';
 import { RoleGuard } from '@security/guards';
 import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
+import { Context } from 'vm';
 
 describe('EventsController', () => {
   let controller: EventsController;
@@ -40,7 +41,7 @@ describe('EventsController', () => {
     })
       .overrideGuard(RoleGuard)
       .useValue({
-        canActivate: context => {
+        canActivate: (context: Context) => {
           const request = context.switchToHttp().getRequest();
           const user = request.user;
           return user && user.role === UserRole.ADMIN;

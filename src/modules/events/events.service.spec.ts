@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
-import { EventPrice } from './entities/event-price.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
 import { UtilsService } from '@common/utils/utils.service';
