@@ -20,7 +20,7 @@ export class Order {
   @Column({ type: 'varchar', default: StatusReservation.PENDING })
   statusPayment: StatusReservation;
 
-  @Column()
+  @Column({ type: 'enum', enum: PriceFormulaEnum })
   priceFormula: PriceFormulaEnum;
 
   @Column()
