@@ -53,6 +53,7 @@ export class TicketsService {
   /**
    * Creates a ticket for a reservation.
    *
+   * @private This method is private and should not be accessed from outside the service.
    * @param user The user creating the ticket.
    * @param reservation The reservation for which the ticket is created.
    * @returns A promise resolved with the created ticket.

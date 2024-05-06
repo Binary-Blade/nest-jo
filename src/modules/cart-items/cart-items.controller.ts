@@ -5,6 +5,10 @@ import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { AccessTokenGuard } from '@security/guards';
 import { CartItemsService } from './cart-items.service';
 
+//  TODO:
+// SEE HOW TO IMPLEMENT THE LOGIC WITH FRONTEND FOR LOCALSTORAGE
+// BECAUSE CLIENT CAN ADD ITEMS TO CART WITHOUT BEING LOGGED IN BUT WHEN IT LOGS IN IT SHOULD BE ABLE TO RETRIEVE THE CART ITEMS
+
 /**
  * Controller responsible for handling requests to the /carts route
  * This controller is used to manage cart items, including adding, updating, and removing items from a cart.

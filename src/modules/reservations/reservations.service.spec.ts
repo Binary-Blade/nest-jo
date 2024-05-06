@@ -18,6 +18,7 @@ import { Order } from '@modules/orders/entities/order.entity';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { Event } from '@modules/events/entities/event.entity';
 
+// FIX: Update the test suite
 describe('ReservationsService', () => {
   let service: ReservationsService;
   let reservationRepository: Repository<Reservation>;

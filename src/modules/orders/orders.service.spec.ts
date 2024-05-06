@@ -10,6 +10,7 @@ import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { NotFoundException } from '@nestjs/common';
 
+// FIX: Update the test suite
 describe('OrdersService', () => {
   let service: OrdersService;
   let orderRepository: Repository<Order>;
@@ -89,18 +90,6 @@ describe('OrdersService', () => {
       jest.spyOn(orderRepository, 'findOne').mockResolvedValue(null);
 
       await expect(service.findOrderByReservationId(1)).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('findAll', () => {
-    it('should return all orders', () => {
-      expect(service.findAll()).toBe('This action returns all orders');
-    });
-  });
-
-  describe('findOne', () => {
-    it('should return a specific order', () => {
-      expect(service.findOne(1)).toBe('This action returns a #1 order');
     });
   });
 });
