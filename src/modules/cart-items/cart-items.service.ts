@@ -7,7 +7,6 @@ import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from '@modules/carts/carts.service';
 import { EventPricesService } from '@modules/events/event-prices.service';
 
-// TODO: Improve the documentation
 /**
  * Service responsible for handling cart items.
  * This service is used to add, update, and remove items from the cart.
@@ -54,7 +53,7 @@ export class CartItemsService {
 
     if (existingCartItem) {
       existingCartItem.quantity += createCartItemDto.quantity;
-      existingCartItem.price += ticketPrice * createCartItemDto.quantity; // Update total price
+      existingCartItem.price += ticketPrice * createCartItemDto.quantity;
       return await this.cartItemRepository.save(existingCartItem);
     } else {
       const cartItem = this.cartItemRepository.create({

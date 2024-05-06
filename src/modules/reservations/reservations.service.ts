@@ -96,7 +96,10 @@ export class ReservationsService {
     for (const reservation of reservations) {
       const order = await this.ordersService.findOrderByReservationId(reservation.reservationId);
       if (order && order.statusPayment === 'APPROVED') {
-        await this.ticketService.createTickets(reservation.reservationId, reservation.user.userId);
+        await this.ticketService.generatedTickets(
+          reservation.reservationId,
+          reservation.user.userId
+        );
       }
     }
   }

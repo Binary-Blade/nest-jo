@@ -86,7 +86,6 @@ export class CartItemsController {
       updateCartItemDto.quantity
     );
   }
-
   /**
    * Removes an item from a cart.
    *
