@@ -1,6 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-//import { CreateEventPriceDto } from './dto/create-event-price.dto';
-//import { UpdateEventPriceDto } from './dto/update-event-price.dto';
 import { EventPrice } from './entities/event-price.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -71,54 +69,4 @@ export class EventPricesService {
       await this.eventPriceRepository.remove(price);
     }
   }
-
-  findAll() {
-    return `This action returns all eventPrices`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} eventPrice`;
-  }
-  //
-  // update(id: number, updateEventPriceDto: UpdateEventPriceDto) {
-  //   return `This action updates a #${id} eventPrice`;
-  // }
-  //
-  // remove(id: number) {
-  //   return `This action removes a #${id} eventPrice`;
-  // }
-
-  // private calculateTotalTicketPrice(createCartItemDto: CreateCartItemDto, event: Event): number {
-  //   let ticketPrice = 0;
-  //   switch (createCartItemDto.priceFormula) {
-  //     case PriceFormulaEnum.SOLO:
-  //       ticketPrice = event.soloPrice;
-  //       break;
-  //     case PriceFormulaEnum.DUO:
-  //       ticketPrice = event.duoPrice;
-  //       break;
-  //     case PriceFormulaEnum.FAMILY:
-  //       ticketPrice = event.familyPrice;
-  //       break;
-  //   }
-  //   return ticketPrice * createCartItemDto.quantity;
-  // }
-  //
-  //
-  // async getPriceByType(eventId: number, ticketType: string): Promise<number> {
-  //   const event = await this.eventRepository.findOneBy({ eventId });
-  //   if (!event) {
-  //     throw new NotFoundException(`Event with id ${eventId} not found`);
-  //   }
-  //   switch (ticketType) {
-  //     case PriceFormulaEnum.SOLO:
-  //       return event.soloPrice;
-  //     case PriceFormulaEnum.DUO:
-  //       return event.duoPrice;
-  //     case PriceFormulaEnum.FAMILY:
-  //       return event.familyPrice;
-  //     default:
-  //       throw new NotFoundException(`Invalid ticket type provided`);
-  //   }
-  // }
 }
