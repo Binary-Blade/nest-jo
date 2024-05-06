@@ -1,21 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartsService } from './carts.service';
 import { Cart } from './entities/cart.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 
 describe('CartsService', () => {
   let service: CartsService;
-  let repository: Repository<Cart>;
-
-  const mockRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    findOne: jest.fn(),
-    findOneBy: jest.fn(),
-    remove: jest.fn()
-  };
+  let cartRepository: Repository<Cart>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,77 +15,123 @@ describe('CartsService', () => {
         CartsService,
         {
           provide: getRepositoryToken(Cart),
-          useValue: mockRepository
+          useClass: Repository
         }
       ]
     }).compile();
 
     service = module.get<CartsService>(CartsService);
-    repository = module.get<Repository<Cart>>(getRepositoryToken(Cart));
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('createCart', () => {
-    it('should successfully create a cart', async () => {
-      const userId = 1;
-      const expectedCart = { userId, id: 1 };
-      mockRepository.create.mockReturnValue(expectedCart);
-      mockRepository.save.mockResolvedValue(expectedCart);
-
-      const result = await service.createCart(userId);
-      expect(result).toEqual(expectedCart);
-      expect(mockRepository.create).toHaveBeenCalledWith({ user: { userId } });
-      expect(mockRepository.save).toHaveBeenCalledWith(expectedCart);
-    });
+    cartRepository = module.get<Repository<Cart>>(getRepositoryToken(Cart));
   });
 
   describe('findCart', () => {
-    it('should return a cart if found', async () => {
-      const cart = { id: 1, user: { userId: 1 } };
-      mockRepository.findOne.mockResolvedValue(cart);
+    it('should find a cart successfully', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(cart);
 
       const result = await service.findCart(1, 1);
-      expect(result).toEqual(cart);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(result).toBe(cart);
+      expect(cartRepository.findOne).toHaveBeenCalledWith({
         where: { cartId: 1, user: { userId: 1 } }
       });
     });
 
-    it('should throw a NotFoundException if the cart is not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
+    it('should throw NotFoundException if the cart does not exist', async () => {
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(null);
 
       await expect(service.findCart(1, 1)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('getOrCreateCart', () => {
-    it('should get an existing cart', async () => {
-      const userId = 1;
-      const cart = { id: 1, user: { userId } };
-      mockRepository.findOne.mockResolvedValue(cart);
+    it('should return an existing cart', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(cart);
 
-      const result = await service.getOrCreateCart(userId);
-      expect(result).toEqual(cart);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { user: { userId } },
+      const result = await service.getOrCreateCart(1);
+      expect(result).toBe(cart);
+      expect(cartRepository.findOne).toHaveBeenCalledWith({
+        where: { user: { userId: 1 } },
         relations: ['cartItem']
       });
     });
 
-    it('should create a new cart if none exists', async () => {
-      const userId = 1;
-      const newCart = { user: { userId } };
-      mockRepository.findOne.mockResolvedValue(null);
-      mockRepository.create.mockReturnValue(newCart);
-      mockRepository.save.mockResolvedValue(newCart);
+    it('should create a new cart if it does not exist', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(null);
+      jest.spyOn(cartRepository, 'create').mockReturnValue(cart);
+      jest.spyOn(cartRepository, 'save').mockResolvedValue(cart);
 
-      const result = await service.getOrCreateCart(userId);
-      expect(result).toEqual(newCart);
-      expect(mockRepository.create).toHaveBeenCalledWith({ user: { userId } });
-      expect(mockRepository.save).toHaveBeenCalledWith(newCart);
+      const result = await service.getOrCreateCart(1);
+      expect(result).toBe(cart);
+      expect(cartRepository.create).toHaveBeenCalledWith({ user: { userId: 1 } });
+      expect(cartRepository.save).toHaveBeenCalledWith(cart);
+    });
+  });
+
+  describe('verifyCartOneBy', () => {
+    it('should find a cart by ID', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'findOneBy').mockResolvedValue(cart);
+
+      const result = await service.verifyCartOneBy(1);
+      expect(result).toBe(cart);
+      expect(cartRepository.findOneBy).toHaveBeenCalledWith({ cartId: 1 });
+    });
+
+    it('should throw NotFoundException if the cart does not exist', async () => {
+      jest.spyOn(cartRepository, 'findOneBy').mockResolvedValue(null);
+
+      await expect(service.verifyCartOneBy(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('verifyCartRelation', () => {
+    it('should find a cart by ID with specified relations', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(cart);
+
+      const result = await service.verifyCartRelation(1, 'cartItem');
+      expect(result).toBe(cart);
+      expect(cartRepository.findOne).toHaveBeenCalledWith({
+        where: { cartId: 1 },
+        relations: ['cartItem']
+      });
+    });
+
+    it('should throw NotFoundException if the cart does not exist', async () => {
+      jest.spyOn(cartRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(service.verifyCartRelation(1, 'cartItem')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('save', () => {
+    it('should save a cart successfully', async () => {
+      const cart = {} as Cart;
+      jest.spyOn(cartRepository, 'save').mockResolvedValue(cart);
+
+      const result = await service.save(cart);
+      expect(result).toBe(cart);
+      expect(cartRepository.save).toHaveBeenCalledWith(cart);
+    });
+  });
+
+  describe('deleteCart', () => {
+    it('should delete a cart successfully', async () => {
+      const cart = { cartId: 1 } as Cart;
+      jest.spyOn(service, 'verifyCartOneBy').mockResolvedValue(cart);
+      jest.spyOn(cartRepository, 'remove').mockResolvedValue(cart);
+
+      await service.deleteCart(1);
+      expect(service.verifyCartOneBy).toHaveBeenCalledWith(1);
+      expect(cartRepository.remove).toHaveBeenCalledWith(cart);
+    });
+
+    it('should throw NotFoundException if the cart does not exist', async () => {
+      jest.spyOn(service, 'verifyCartOneBy').mockRejectedValue(new NotFoundException());
+
+      await expect(service.deleteCart(1)).rejects.toThrow(NotFoundException);
     });
   });
 });
