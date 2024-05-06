@@ -163,7 +163,7 @@ describe('CartItemsService', () => {
       const cartItem = {} as CartItem;
       jest.spyOn(service, 'findOneItemInCart').mockResolvedValue(cartItem);
       jest.spyOn(cartItemRepository, 'remove').mockResolvedValue(cartItem);
-      const result = await service.removeItemFromCart(1, 1, 1);
+      const result = await service.removeOneItemFromCart(1, 1, 1);
       expect(result).toBe(cartItem);
     });
   });

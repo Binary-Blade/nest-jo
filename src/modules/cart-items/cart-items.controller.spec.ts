@@ -146,21 +146,21 @@ describe('CartItemsController', () => {
     it('should remove an item from the cart successfully', async () => {
       const cartItem = {} as CartItem;
 
-      jest.spyOn(service, 'removeItemFromCart').mockResolvedValue(cartItem);
+      jest.spyOn(service, 'removeOneItemFromCart').mockResolvedValue(cartItem);
 
       const result = await controller.remove(1, '1', '1');
       expect(result).toBe(cartItem);
-      expect(service.removeItemFromCart).toHaveBeenCalledWith(1, 1, 1);
+      expect(service.removeOneItemFromCart).toHaveBeenCalledWith(1, 1, 1);
     });
 
     it('should throw NotFoundException if the cart item does not exist', async () => {
-      jest.spyOn(service, 'removeItemFromCart').mockRejectedValue(new NotFoundException());
+      jest.spyOn(service, 'removeOneItemFromCart').mockRejectedValue(new NotFoundException());
 
       await expect(controller.remove(1, '1', '1')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if the user is not authorized to remove the cart item', async () => {
-      jest.spyOn(service, 'removeItemFromCart').mockRejectedValue(new ForbiddenException());
+      jest.spyOn(service, 'removeOneItemFromCart').mockRejectedValue(new ForbiddenException());
 
       await expect(controller.remove(1, '1', '1')).rejects.toThrow(ForbiddenException);
     });

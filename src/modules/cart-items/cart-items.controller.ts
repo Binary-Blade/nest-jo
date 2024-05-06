@@ -102,6 +102,6 @@ export class CartItemsController {
     @Param('cartId') cartId: string,
     @Param('cartItemId') cartItemId: string
   ) {
-    return this.cartItemsService.removeItemFromCart(userId, +cartId, +cartItemId);
+    return this.cartItemsService.removeOneItemFromCart(userId, +cartId, +cartItemId);
   }
 }
