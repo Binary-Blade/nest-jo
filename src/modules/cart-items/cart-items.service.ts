@@ -20,6 +20,15 @@ export class CartItemsService {
     private readonly eventPricesService: EventPricesService
   ) {}
 
+  /**
+   * Add an item to the cart.
+   *
+   * @param userId - The ID of the user adding the item to the cart
+   * @param createCartItemDto - The item to add to the cart
+   * @returns - The created cart item
+   * @throws NotFoundException if the event does not exist
+   * @throws NotFoundException if there are not enough tickets available
+   */
   async addItemToCart(userId: number, createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const cart = await this.cartsService.getOrCreateCart(userId);
     const event = await this.eventRepository.findOneBy({ eventId: createCartItemDto.eventId });
@@ -37,6 +46,15 @@ export class CartItemsService {
     return this.getOrCreateCartItem(cart.cartId, createCartItemDto, totalTicketPrice);
   }
 
+  /**
+   * Get or create a cart item. If the item already exists in the cart, update the quantity and price.
+   * Otherwise, create a new cart item.
+   *
+   * @param cartId - The ID of the cart to add the item to
+   * @param createCartItemDto - The item to add to the cart
+   * @param ticketPrice - The price of the ticket
+   * @returns - The created or updated cart item
+   */
   private async getOrCreateCartItem(
     cartId: number,
     createCartItemDto: CreateCartItemDto,
@@ -66,6 +84,15 @@ export class CartItemsService {
     }
   }
 
+  /**
+   * Find a single item in the cart.
+   *
+   * @param userId - The ID of the user to find the cart item for
+   * @param cartId - The ID of the cart to find the item in
+   * @param cartItemId - The ID of the item to find
+   * @returns - The requested cart item
+   * @throws NotFoundException if the cart item does not exist in the cart
+   */
   async findOneItemInCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
     await this.cartsService.findCart(userId, cartId);
     const cartItem = await this.cartItemRepository.findOne({
@@ -83,6 +110,13 @@ export class CartItemsService {
     return cartItem;
   }
 
+  /**
+   * Find all items in the cart.
+   *
+   * @param userId - The ID of the user to find the cart items for
+   * @param cartId - The ID of the cart to find the items in
+   * @returns - A list of cart items
+   */
   async findAllItemsInCart(userId: number, cartId: number): Promise<CartItem[]> {
     await this.cartsService.findCart(userId, cartId);
     return this.cartItemRepository.find({
@@ -91,6 +125,17 @@ export class CartItemsService {
     });
   }
 
+  /**
+   * Update the quantity of an item in the cart.
+   *
+   * @param userId - The ID of the user updating the cart item
+   * @param cartId - The ID of the cart to update the item in
+   * @param cartItemId - The ID of the item to update
+   * @param quantity - The updated quantity
+   * @returns - The updated cart item
+   * @throws NotFoundException if the cart item does not exist in the cart
+   * @throws NotFoundException if the quantity is not available
+   */
   async updateQuantityInCart(
     userId: number,
     cartId: number,
@@ -115,18 +160,42 @@ export class CartItemsService {
     return await this.cartItemRepository.save(cartItem);
   }
 
-  async removeItemFromCart(userId: number, cartId: number, cartItemId: number): Promise<CartItem> {
+  /**
+   * Remove an item from the cart.
+   *
+   * @param userId - The ID of the user removing the item from the cart
+   * @param cartId - The ID of the cart to remove the item from
+   * @param cartItemId - The ID of the item to remove
+   * @returns - The removed cart item
+   */
+  async removeOneItemFromCart(
+    userId: number,
+    cartId: number,
+    cartItemId: number
+  ): Promise<CartItem> {
     const cartItem = await this.findOneItemInCart(userId, cartId, cartItemId);
     await this.cartItemRepository.remove(cartItem);
     return cartItem;
   }
 
-  // remove all item from cart
+  /**
+   * Remove all items from the cart.
+   *
+   * @param userId - The ID of the user removing the items from the cart
+   * @param cartId - The ID of the cart to remove the items from
+   * @returns - The removed cart items
+   */
   async removeAllItemFromCart(userId: number, cartId: number): Promise<void> {
     await this.cartsService.findCart(userId, cartId);
     await this.cartItemRepository.delete({ cart: { cartId } });
   }
 
+  /**
+   * Save a cart item.
+   *
+   * @param item - The cart item to save
+   * @returns - The saved cart item
+   */
   async save(item: CartItem): Promise<CartItem> {
     return await this.cartItemRepository.save(item);
   }

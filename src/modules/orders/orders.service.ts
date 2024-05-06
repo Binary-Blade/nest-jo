@@ -1,6 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { Repository } from 'typeorm';
@@ -12,12 +11,24 @@ import { PaymentResult } from '@common/interfaces/payment.interface';
 export class OrdersService {
   constructor(@InjectRepository(Order) private orderRepository: Repository<Order>) {}
 
+  /**
+   * Create an order from a reservation.
+   *
+   * @param reservation - The reservation to create the order from
+   * @param cartItem - The cart item to create the order from
+   * @param paymentResult - The payment result
+   * @param totalPrice - The total price of the order
+   * @returns - The created order
+   * @throws NotFoundException if the reservation ID or event ID is not found
+   * @throws NotFoundException if the event is not found
+   */
   async createOrderFromReservation(
     reservation: Reservation,
     cartItem: CartItem,
     paymentResult: PaymentResult,
     totalPrice: number
   ): Promise<Order> {
+    if (!cartItem.event) throw new NotFoundException('Event not found');
     const createOrderDto: CreateOrderDto = {
       paymentId: Math.floor(Math.random() * 1000),
       title: cartItem.event.title,
@@ -27,6 +38,10 @@ export class OrdersService {
       totalPrice: totalPrice,
       priceFormula: cartItem.priceFormula
     };
+
+    if (!reservation.reservationId) throw new NotFoundException('Reservation ID not found');
+    if (!cartItem.event.eventId) throw new NotFoundException('Event ID not found');
+
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
       event: { eventId: cartItem.event.eventId },
@@ -35,6 +50,13 @@ export class OrdersService {
     return this.orderRepository.save(newOrder);
   }
 
+  /**
+   * Find an order by reservation ID.
+   *
+   * @param reservationId - The reservation ID to find the order by
+   * @returns - The found order
+   * @throws NotFoundException if the order is not found
+   */
   async findOrderByReservationId(reservationId: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { reservation: { reservationId } },
@@ -46,13 +68,5 @@ export class OrdersService {
     }
 
     return order;
-  }
-
-  findAll() {
-    return `This action returns all orders`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
   }
 }
