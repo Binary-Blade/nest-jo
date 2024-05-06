@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { ReservationsService } from '@modules/reservations/reservations.service';
 import { UsersService } from '@modules/users/users.service';
-import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { User } from '@modules/users/entities/user.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { OrdersService } from '@modules/orders/orders.service';
