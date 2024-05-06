@@ -5,11 +5,11 @@ import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Min } from 'class-valida
 export class CreateOrderDto {
   @IsNotEmpty()
   @IsInt()
-  readonly reservationId: number;
+  readonly reservationId?: number;
 
   @IsNotEmpty()
   @IsInt()
-  readonly eventId: number;
+  readonly eventId?: number;
 
   @IsNotEmpty()
   @IsInt()

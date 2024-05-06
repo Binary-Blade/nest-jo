@@ -4,24 +4,35 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { Repository } from 'typeorm';
+import { Reservation } from '@modules/reservations/entities/reservation.entity';
+import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
+import { PaymentResult } from '@common/interfaces/payment.interface';
 
 @Injectable()
 export class OrdersService {
   constructor(@InjectRepository(Order) private orderRepository: Repository<Order>) {}
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    try {
-      const order = this.orderRepository.create({
-        ...createOrderDto,
-        event: { eventId: createOrderDto.eventId },
-        reservation: { reservationId: createOrderDto.reservationId }
-      });
-      const savedOrder = await this.orderRepository.save(order);
-      return savedOrder;
-    } catch (error) {
-      console.error('Error saving order:', error);
-      throw new Error('Failed to save order. ' + error.message);
-    }
+  async createOrderFromReservation(
+    reservation: Reservation,
+    cartItem: CartItem,
+    paymentResult: PaymentResult,
+    totalPrice: number
+  ): Promise<Order> {
+    const createOrderDto: CreateOrderDto = {
+      paymentId: Math.floor(Math.random() * 1000),
+      title: cartItem.event.title,
+      description: cartItem.event.description,
+      statusPayment: paymentResult.status,
+      quantity: cartItem.quantity,
+      totalPrice: totalPrice,
+      priceFormula: cartItem.priceFormula
+    };
+    const newOrder = this.orderRepository.create({
+      ...createOrderDto,
+      event: { eventId: cartItem.event.eventId },
+      reservation: { reservationId: reservation.reservationId }
+    });
+    return this.orderRepository.save(newOrder);
   }
 
   async findOrderByReservationId(reservationId: number): Promise<Order> {
