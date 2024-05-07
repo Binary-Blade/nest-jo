@@ -4,14 +4,10 @@ import { TicketsController } from './tickets.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
-import { EncryptionService } from '@security/encryption/encryption.service';
 import { Cart } from '@modules/carts/entities/cart.entity';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
-import { User } from '@modules/users/entities/user.entity';
 import { Event } from '@modules/events/entities/event.entity';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
-import { PaymentService } from '@libs/payment/payment.service';
-import { UsersService } from '@modules/users/users.service';
 import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
 import { EventPricesService } from '@modules/events/event-prices.service';
@@ -20,6 +16,7 @@ import { ReservationDetails } from '@modules/reservation-details/entities/reserv
 import { ReservationDetailsService } from '@modules/reservation-details/reservation-details.service';
 import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { TransactionsService } from '@modules/transactions/transactions.service';
+import { CommonModule } from '@modules/commom.module';
 
 /**
  * Module for handling tickets.
@@ -34,21 +31,18 @@ import { TransactionsService } from '@modules/transactions/transactions.service'
       Reservation,
       Cart,
       CartItem,
-      User,
       Event,
       EventPrice,
       ReservationDetails,
       Transaction
     ]),
-    forwardRef(() => ReservationsModule) // Import the ReservationsModule with forwardRef
+    forwardRef(() => ReservationsModule), // Import the ReservationsModule with forwardRef
+    CommonModule
   ],
   controllers: [TicketsController],
   providers: [
     TicketsService,
-    EncryptionService,
     EventPricesService,
-    PaymentService,
-    UsersService,
     CartItemsService,
     ReservationDetailsService,
     EventPricesService,
