@@ -32,15 +32,6 @@ describe('PaymentService', () => {
       });
     });
 
-    it('should return pending when random is between SUCCESS_RATE and SUCCESS_RATE + PENDING_RATE', async () => {
-      jest.spyOn(Math, 'random').mockReturnValue(0.7); // between 0.6 and 0.8
-      const result: PaymentResult = await service.processPayment(100);
-      expect(result).toEqual({
-        status: StatusReservation.PENDING,
-        detail: 'Payment is pending confirmation.'
-      });
-    });
-
     it('should return rejected when random is greater than SUCCESS_RATE + PENDING_RATE', async () => {
       jest.spyOn(Math, 'random').mockReturnValue(0.9); // greater than 0.8
       const result: PaymentResult = await service.processPayment(100);

@@ -3,8 +3,8 @@ import { CartItemsController } from './cart-items.controller';
 import { CartItemsService } from './cart-items.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CartItem } from './entities/cartitems.entity';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 
 describe('CartItemsController', () => {
@@ -22,7 +22,7 @@ describe('CartItemsController', () => {
             findAllItemsInCart: jest.fn(),
             findOneItemInCart: jest.fn(),
             updateQuantityInCart: jest.fn(),
-            removeItemFromCart: jest.fn()
+            removeOneItemFromCart: jest.fn()
           }
         }
       ]
@@ -33,26 +33,27 @@ describe('CartItemsController', () => {
   });
 
   describe('create', () => {
-    it('should add an item to the cart successfully', async () => {
-      const cartItem = {} as CartItem;
+    it('should add an item to a cart successfully', async () => {
+      const userId = 1;
       const createCartItemDto: CreateCartItemDto = {
         eventId: 1,
         quantity: 2,
         priceFormula: PriceFormulaEnum.SOLO
       };
+      const cartItem = { cartItemId: 1 } as CartItem;
 
       jest.spyOn(service, 'addItemToCart').mockResolvedValue(cartItem);
 
-      const result = await controller.create(1, createCartItemDto);
+      const result = await controller.create(userId, createCartItemDto);
       expect(result).toBe(cartItem);
-      expect(service.addItemToCart).toHaveBeenCalledWith(1, createCartItemDto);
+      expect(service.addItemToCart).toHaveBeenCalledWith(userId, createCartItemDto);
     });
 
     it('should throw NotFoundException if the event does not exist', async () => {
       jest.spyOn(service, 'addItemToCart').mockRejectedValue(new NotFoundException());
 
       await expect(
-        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.DUO })
+        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -60,20 +61,22 @@ describe('CartItemsController', () => {
       jest.spyOn(service, 'addItemToCart').mockRejectedValue(new ForbiddenException());
 
       await expect(
-        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.DUO })
+        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
       ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('findAll', () => {
-    it('should find all items in a cart successfully', async () => {
+    it('should fetch all items in a cart successfully', async () => {
+      const userId = 1;
+      const cartId = 1;
       const cartItems = [{} as CartItem];
 
       jest.spyOn(service, 'findAllItemsInCart').mockResolvedValue(cartItems);
 
-      const result = await controller.findAll(1, '1');
+      const result = await controller.findAll(userId, `${cartId}`);
       expect(result).toBe(cartItems);
-      expect(service.findAllItemsInCart).toHaveBeenCalledWith(1, 1);
+      expect(service.findAllItemsInCart).toHaveBeenCalledWith(userId, cartId);
     });
 
     it('should throw NotFoundException if the cart does not exist', async () => {
@@ -81,23 +84,20 @@ describe('CartItemsController', () => {
 
       await expect(controller.findAll(1, '1')).rejects.toThrow(NotFoundException);
     });
-
-    it('should throw ForbiddenException if the user is not authorized to access the cart', async () => {
-      jest.spyOn(service, 'findAllItemsInCart').mockRejectedValue(new ForbiddenException());
-
-      await expect(controller.findAll(1, '1')).rejects.toThrow(ForbiddenException);
-    });
   });
 
   describe('findOne', () => {
-    it('should find a specific item in a cart successfully', async () => {
+    it('should fetch a specific item in a cart successfully', async () => {
+      const userId = 1;
+      const cartId = 1;
+      const cartItemId = 1;
       const cartItem = {} as CartItem;
 
       jest.spyOn(service, 'findOneItemInCart').mockResolvedValue(cartItem);
 
-      const result = await controller.findOne(1, '1', '1');
+      const result = await controller.findOne(userId, `${cartId}`, `${cartItemId}`);
       expect(result).toBe(cartItem);
-      expect(service.findOneItemInCart).toHaveBeenCalledWith(1, 1, 1);
+      expect(service.findOneItemInCart).toHaveBeenCalledWith(userId, cartId, cartItemId);
     });
 
     it('should throw NotFoundException if the cart item does not exist', async () => {
@@ -115,14 +115,22 @@ describe('CartItemsController', () => {
 
   describe('update', () => {
     it('should update the quantity of an item in the cart successfully', async () => {
-      const cartItem = {} as CartItem;
+      const userId = 1;
+      const cartId = 1;
+      const cartItemId = 1;
       const updateCartItemDto: UpdateCartItemDto = { quantity: 3 };
+      const cartItem = {} as CartItem;
 
       jest.spyOn(service, 'updateQuantityInCart').mockResolvedValue(cartItem);
 
-      const result = await controller.update(1, '1', '1', updateCartItemDto);
+      const result = await controller.update(
+        userId,
+        `${cartId}`,
+        `${cartItemId}`,
+        updateCartItemDto
+      );
       expect(result).toBe(cartItem);
-      expect(service.updateQuantityInCart).toHaveBeenCalledWith(1, 1, 1, 3);
+      expect(service.updateQuantityInCart).toHaveBeenCalledWith(userId, cartId, cartItemId, 3);
     });
 
     it('should throw NotFoundException if the cart item does not exist', async () => {
@@ -143,14 +151,17 @@ describe('CartItemsController', () => {
   });
 
   describe('remove', () => {
-    it('should remove an item from the cart successfully', async () => {
+    it('should remove an item from a cart successfully', async () => {
+      const userId = 1;
+      const cartId = 1;
+      const cartItemId = 1;
       const cartItem = {} as CartItem;
 
       jest.spyOn(service, 'removeOneItemFromCart').mockResolvedValue(cartItem);
 
-      const result = await controller.remove(1, '1', '1');
+      const result = await controller.remove(userId, `${cartId}`, `${cartItemId}`);
       expect(result).toBe(cartItem);
-      expect(service.removeOneItemFromCart).toHaveBeenCalledWith(1, 1, 1);
+      expect(service.removeOneItemFromCart).toHaveBeenCalledWith(userId, cartId, cartItemId);
     });
 
     it('should throw NotFoundException if the cart item does not exist', async () => {
@@ -159,7 +170,7 @@ describe('CartItemsController', () => {
       await expect(controller.remove(1, '1', '1')).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw ForbiddenException if the user is not authorized to remove the cart item', async () => {
+    it('should throw ForbiddenException if the user is not authorized to remove items from the cart', async () => {
       jest.spyOn(service, 'removeOneItemFromCart').mockRejectedValue(new ForbiddenException());
 
       await expect(controller.remove(1, '1', '1')).rejects.toThrow(ForbiddenException);

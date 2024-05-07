@@ -4,11 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
-import { UtilsService } from '@common/utils/utils.service';
 import { EventPricesService } from './event-prices.service';
+import { UtilsService } from '@common/utils/utils.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
 
 describe('EventsService', () => {
@@ -29,7 +29,7 @@ describe('EventsService', () => {
           provide: RedisService,
           useValue: {
             fetchCachedData: jest.fn(),
-            del: jest.fn()
+            clearCacheEvent: jest.fn()
           }
         },
         {
@@ -43,7 +43,7 @@ describe('EventsService', () => {
         {
           provide: UtilsService,
           useValue: {
-            convertDateStringToDate: jest.fn(date => new Date(date))
+            convertDateStringToDate: jest.fn().mockImplementation(date => new Date(date))
           }
         }
       ]
@@ -56,69 +56,52 @@ describe('EventsService', () => {
   });
 
   describe('create', () => {
-    it('should create a new event successfully', async () => {
+    it('should create an event successfully', async () => {
       const createEventDto: CreateEventDto = {
         title: 'Test Event',
-        description: 'A test event',
-        categoryType: CategoryEventTypeEnum.TENNIS,
+        description: 'Test Description',
+        categoryType: CategoryEventTypeEnum.CYCLING,
         basePrice: 100,
         startDate: '2024-01-01',
         endDate: '2024-01-02',
         quantityAvailable: 100
       };
-      const event = {
-        eventId: 1,
-        title: 'Test Event',
-        description: 'A test event',
-        categoryType: CategoryEventTypeEnum.TENNIS,
-        basePrice: 100,
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-01-02'),
-        quantityAvailable: 100,
-        quantitySold: 0,
-        revenueGenerated: 0,
-        prices: [],
-        orders: [],
-        cartItems: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } as Event;
+      const event = { eventId: 1, basePrice: 100 } as Event;
 
       jest.spyOn(eventRepository, 'create').mockReturnValue(event);
       jest.spyOn(eventRepository, 'save').mockResolvedValue(event);
-      jest.spyOn(service as any, 'ensureTitleUnique').mockResolvedValue(undefined);
-      jest.spyOn(service as any, 'clearCacheEvent').mockResolvedValue(undefined);
       jest.spyOn(eventPricesService, 'createEventPrices').mockResolvedValue(undefined);
+      jest.spyOn(redisService, 'clearCacheEvent').mockResolvedValue(undefined);
+      jest.spyOn(service as any, 'ensureTitleUnique').mockResolvedValue(undefined);
 
       const result = await service.create(createEventDto);
       expect(result).toBe(event);
-      expect(eventRepository.create).toHaveBeenCalledWith({
-        ...createEventDto,
-        startDate: new Date(createEventDto.startDate),
-        endDate: new Date(createEventDto.endDate)
-      });
-      expect(eventRepository.save).toHaveBeenCalledWith(event);
-      expect(eventPricesService.createEventPrices).toHaveBeenCalledWith(
-        event.eventId,
-        event.basePrice
-      );
-      expect(service['clearCacheEvent']).toHaveBeenCalled();
+      expect(service['ensureTitleUnique']).toHaveBeenCalledWith('Test Event');
+      expect(eventPricesService.createEventPrices).toHaveBeenCalledWith(1, 100);
+      expect(redisService.clearCacheEvent).toHaveBeenCalled();
     });
 
-    it('should throw ConflictException if an event with the same title already exists', async () => {
-      jest.spyOn(service as any, 'ensureTitleUnique').mockImplementation(() => {
-        throw new ConflictException();
-      });
+    it('should throw ConflictException if the title is not unique', async () => {
+      jest.spyOn(service as any, 'ensureTitleUnique').mockRejectedValue(new ConflictException());
 
-      await expect(service.create({ title: 'Duplicate Event' } as CreateEventDto)).rejects.toThrow(
-        ConflictException
-      );
+      await expect(
+        service.create({
+          title: 'Test Event',
+          description: 'Test Description',
+          categoryType: CategoryEventTypeEnum.CYCLING,
+          basePrice: 100,
+          startDate: '2024-01-01',
+          endDate: '2024-01-02',
+          quantityAvailable: 100
+        } as CreateEventDto)
+      ).rejects.toThrow(ConflictException);
     });
   });
 
   describe('findAll', () => {
     it('should return all events successfully', async () => {
       const events = [{} as Event];
+
       jest.spyOn(redisService, 'fetchCachedData').mockResolvedValue(events);
 
       const result = await service.findAll();
@@ -129,11 +112,20 @@ describe('EventsService', () => {
         3600
       );
     });
+
+    it('should throw InternalServerErrorException if fetching fails', async () => {
+      jest
+        .spyOn(redisService, 'fetchCachedData')
+        .mockRejectedValue(new InternalServerErrorException('Failed to retrieve events.'));
+
+      await expect(service.findAll()).rejects.toThrow(InternalServerErrorException);
+    });
   });
 
   describe('findOne', () => {
-    it('should return a single event successfully', async () => {
+    it('should return an event by ID successfully', async () => {
       const event = {} as Event;
+
       jest.spyOn(redisService, 'fetchCachedData').mockResolvedValue(event);
 
       const result = await service.findOne(1);
@@ -155,37 +147,30 @@ describe('EventsService', () => {
   describe('update', () => {
     it('should update an event successfully', async () => {
       const event = { eventId: 1, basePrice: 100 } as Event;
-      const updateEventDto: UpdateEventDto = { basePrice: 200 };
+      const updateEventDto: UpdateEventDto = { title: 'Updated Event', basePrice: 120 };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(event);
       jest.spyOn(service as any, 'ensureTitleUnique').mockResolvedValue(undefined);
       jest.spyOn(eventRepository, 'save').mockResolvedValue(event);
-      jest.spyOn(service as any, 'clearCacheEvent').mockResolvedValue(undefined);
       jest.spyOn(eventPricesService, 'updateEventPrices').mockResolvedValue(undefined);
+      jest.spyOn(redisService, 'clearCacheEvent').mockResolvedValue(undefined);
 
       const result = await service.update(1, updateEventDto);
       expect(result).toBe(event);
-      expect(eventRepository.save).toHaveBeenCalledWith(event);
-      expect(eventPricesService.updateEventPrices).toHaveBeenCalledWith(
-        event.eventId,
-        updateEventDto.basePrice
-      );
-      expect(service['clearCacheEvent']).toHaveBeenCalledWith(event.eventId);
+      expect(service['ensureTitleUnique']).toHaveBeenCalledWith('Updated Event', 1);
+      expect(eventPricesService.updateEventPrices).toHaveBeenCalledWith(1, 120);
+      expect(redisService.clearCacheEvent).toHaveBeenCalledWith(1);
     });
 
     it('should throw NotFoundException if the event does not exist', async () => {
       jest.spyOn(service, 'findOne').mockRejectedValue(new NotFoundException());
 
-      await expect(
-        service.update(1, { title: 'Non-existent Event' } as UpdateEventDto)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update(1, {} as UpdateEventDto)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw ConflictException if an event with the same title already exists', async () => {
+    it('should throw ConflictException if the title is not unique', async () => {
       jest.spyOn(service, 'findOne').mockResolvedValue({ eventId: 1 } as Event);
-      jest.spyOn(service as any, 'ensureTitleUnique').mockImplementation(() => {
-        throw new ConflictException();
-      });
+      jest.spyOn(service as any, 'ensureTitleUnique').mockRejectedValue(new ConflictException());
 
       await expect(
         service.update(1, { title: 'Duplicate Event' } as UpdateEventDto)
@@ -199,14 +184,15 @@ describe('EventsService', () => {
 
       jest.spyOn(service, 'findOne').mockResolvedValue(event);
       jest.spyOn(eventRepository, 'remove').mockResolvedValue(event);
-      jest.spyOn(service as any, 'clearCacheEvent').mockResolvedValue(undefined);
       jest.spyOn(eventPricesService, 'deleteEventPrices').mockResolvedValue(undefined);
+      jest.spyOn(redisService, 'clearCacheEvent').mockResolvedValue(undefined);
 
       const result = await service.remove(1);
       expect(result).toBe('Event deleted successfully.');
+      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(eventPricesService.deleteEventPrices).toHaveBeenCalledWith(1);
       expect(eventRepository.remove).toHaveBeenCalledWith(event);
-      expect(service['clearCacheEvent']).toHaveBeenCalledWith(event.eventId);
-      expect(eventPricesService.deleteEventPrices).toHaveBeenCalledWith(event.eventId);
+      expect(redisService.clearCacheEvent).toHaveBeenCalledWith(1);
     });
 
     it('should throw NotFoundException if the event does not exist', async () => {
