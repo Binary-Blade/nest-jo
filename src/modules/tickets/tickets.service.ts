@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { Repository } from 'typeorm';
@@ -7,7 +7,8 @@ import { ReservationsService } from '@modules/reservations/reservations.service'
 import { UsersService } from '@modules/users/users.service';
 import { User } from '@modules/users/entities/user.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
-import { OrdersService } from '@modules/orders/orders.service';
+import { TransactionsService } from '@modules/transactions/transactions.service';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 
 /**
  * Service responsible for handling tickets.
@@ -21,35 +22,40 @@ export class TicketsService {
     private usersService: UsersService,
     @Inject(forwardRef(() => ReservationsService)) // Inject the ReservationsService with forwardRef
     private reservationService: ReservationsService,
-    private ordersService: OrdersService
+    private transactionService: TransactionsService
   ) {}
 
-  /**
-   * Creates a ticket for a reservation.
-   *
-   * @param reservationId The ID of the reservation.
-   * @param userId The ID of the user creating the ticket.
-   * @returns A promise resolved with the created ticket.
-   * @throws Error if the reservation is not approved.
-   */
-  async generatedTickets(reservationId: number, userId: number): Promise<Ticket> {
-    const reservation = await this.reservationService.findOne(reservationId, userId);
-    const order = await this.ordersService.findOrderByReservationId(reservationId); // Fetch the linked order
-
-    // Check if the order status is APPROVED
-    if (order.statusPayment !== 'APPROVED') {
-      throw new Error('Reservation order is not approved.');
+  async generateTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
+    for (const reservation of reservations) {
+      const transaction = await this.transactionService.findTransactionByReservationId(
+        reservation.reservationId
+      );
+      if (transaction && transaction.statusPayment === StatusReservation.APPROVED) {
+        await this.generateTicketsForReservation(
+          reservation.reservationId,
+          reservation.user.userId
+        );
+      }
     }
+  }
+
+  private async generateTicketsForReservation(
+    reservationId: number,
+    userId: number
+  ): Promise<Ticket[]> {
+    const reservation = await this.reservationService.findOne(reservationId, userId);
+    if (!reservation) throw new NotFoundException('Reservation not found');
 
     const user = await this.usersService.verifyUserOneBy(userId);
-    const ticket = await this.newTicket(user, reservation);
+    const ticket = await this.createNewTicket(user, reservation);
 
+    // Attach the ticket to the reservation and save it
     reservation.ticket = ticket;
-
     await this.reservationService.saveReservation(reservation);
 
-    return ticket;
+    return [ticket]; // Return the created ticket in an array for consistency
   }
+
   /**
    * Creates a ticket for a reservation.
    *
@@ -58,7 +64,7 @@ export class TicketsService {
    * @param reservation The reservation for which the ticket is created.
    * @returns A promise resolved with the created ticket.
    */
-  private async newTicket(user: User, reservation: Reservation): Promise<Ticket> {
+  private async createNewTicket(user: User, reservation: Reservation): Promise<Ticket> {
     const purchaseKey = await this.encryptionService.generatedKeyUuid();
     const secureKey = await this.encryptionService.generatedSecureKey(user);
     const qrCode = await this.encryptionService.generatedQRCode(secureKey);
