@@ -16,6 +16,7 @@ import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { TransactionsService } from '@modules/transactions/transactions.service';
 import { EventsModule } from '@modules/events/events.module';
 import { CommonModule } from '@modules/commom.module';
+import { ReservationsProcessorService } from '@modules/reservations/reservations-processor.service';
 
 /**
  * Module for handling payments.
@@ -41,7 +42,8 @@ import { CommonModule } from '@modules/commom.module';
     CartItemsService,
     CartsService,
     TicketsService,
-    ReservationDetailsService
+    ReservationDetailsService,
+    ReservationsProcessorService
   ]
 })
 export class PaymentModule {}
