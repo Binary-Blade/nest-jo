@@ -1,6 +1,7 @@
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
-import { Order } from '@modules/orders/entities/order.entity';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { User } from '@modules/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 
@@ -13,9 +14,13 @@ export class Reservation {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @OneToOne(() => Order, order => order.reservation)
-  @JoinColumn({ name: 'orderId' })
-  order: Order;
+  @OneToOne(() => ReservationDetails, reservationDetails => reservationDetails.reservation)
+  @JoinColumn({ name: 'reservationDetailsId' })
+  reservationDetails: ReservationDetails;
+
+  @ManyToOne(() => Transaction, transaction => transaction.reservation)
+  @JoinColumn({ name: 'transactionId' })
+  transaction: Transaction;
 
   @ManyToOne(() => CartItem, cartItem => cartItem.reservations)
   @JoinColumn({ name: 'cartItemId' })
