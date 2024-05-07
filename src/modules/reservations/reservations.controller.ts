@@ -4,7 +4,6 @@ import { UserId } from '@common/decorators/user-id.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { Role } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
-import { Reservation } from './entities/reservation.entity';
 
 @UseGuards(AccessTokenGuard)
 @Controller('reservations')
@@ -25,8 +24,8 @@ export class ReservationsController {
     @UserId() userId: number,
     @Param('cartId')
     cartId: number
-  ): Promise<Reservation[]> {
-    return this.reservationsService.createReservations(userId, cartId);
+  ) {
+    return this.reservationsService.processBookingReservations(userId, cartId);
   }
 
   /**
