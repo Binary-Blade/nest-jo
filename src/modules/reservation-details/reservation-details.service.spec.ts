@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrdersService } from './orders.service';
-import { Order } from './entities/order.entity';
+import { ReservationDetailsService } from './reservation-details.service';
+import { ReservationDetails } from './entities/reservation-details.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
@@ -12,22 +12,24 @@ import { NotFoundException } from '@nestjs/common';
 
 // FIX: Update the test suite
 describe('OrdersService', () => {
-  let service: OrdersService;
-  let orderRepository: Repository<Order>;
+  let service: ReservationDetailsService;
+  let orderRepository: Repository<ReservationDetails>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        OrdersService,
+        ReservationDetailsService,
         {
-          provide: getRepositoryToken(Order),
+          provide: getRepositoryToken(ReservationDetails),
           useClass: Repository
         }
       ]
     }).compile();
 
-    service = module.get<OrdersService>(OrdersService);
-    orderRepository = module.get<Repository<Order>>(getRepositoryToken(Order));
+    service = module.get<ReservationDetailsService>(ReservationDetailsService);
+    orderRepository = module.get<Repository<ReservationDetails>>(
+      getRepositoryToken(ReservationDetails)
+    );
   });
 
   describe('createOrderFromReservation', () => {
@@ -46,7 +48,7 @@ describe('OrdersService', () => {
         status: StatusReservation.APPROVED,
         detail: 'Payment successful'
       };
-      const order = {} as Order;
+      const order = {} as ReservationDetails;
 
       jest.spyOn(orderRepository, 'create').mockReturnValue(order);
       jest.spyOn(orderRepository, 'save').mockResolvedValue(order);
@@ -75,7 +77,7 @@ describe('OrdersService', () => {
 
   describe('findOrderByReservationId', () => {
     it('should return an order by reservation ID', async () => {
-      const order = {} as Order;
+      const order = {} as ReservationDetails;
       jest.spyOn(orderRepository, 'findOne').mockResolvedValue(order);
 
       const result = await service.findOrderByReservationId(1);
