@@ -38,12 +38,11 @@ export class CartItemsService {
       throw new NotFoundException('Not enough tickets available');
     }
 
-    const ticketPrice = await this.eventPricesService.getPriceByEventAndType(
+    const unitPrice = await this.eventPricesService.getPriceByEventAndType(
       createCartItemDto.eventId,
       createCartItemDto.priceFormula
     );
-    const totalTicketPrice = ticketPrice * createCartItemDto.quantity;
-    return this.getOrCreateCartItem(cart.cartId, createCartItemDto, totalTicketPrice);
+    return this.getOrCreateCartItem(cart.cartId, createCartItemDto, unitPrice);
   }
 
   /**
@@ -58,7 +57,7 @@ export class CartItemsService {
   private async getOrCreateCartItem(
     cartId: number,
     createCartItemDto: CreateCartItemDto,
-    ticketPrice: number
+    unitPrice: number
   ): Promise<CartItem> {
     const existingCartItem = await this.cartItemRepository.findOne({
       where: {
@@ -71,12 +70,12 @@ export class CartItemsService {
 
     if (existingCartItem) {
       existingCartItem.quantity += createCartItemDto.quantity;
-      existingCartItem.price += ticketPrice * createCartItemDto.quantity;
+      existingCartItem.price = unitPrice;
       return await this.cartItemRepository.save(existingCartItem);
     } else {
       const cartItem = this.cartItemRepository.create({
         ...createCartItemDto,
-        price: ticketPrice,
+        price: unitPrice,
         cart: { cartId },
         event: { eventId: createCartItemDto.eventId }
       });
@@ -149,14 +148,13 @@ export class CartItemsService {
       cartItem.event.eventId,
       cartItem.priceFormula
     );
+
     if (quantity > cartItem.event.quantityAvailable) {
       throw new NotFoundException('Quantity not available');
     }
-    cartItem.event.quantityAvailable -= quantity - cartItem.quantity;
     cartItem.quantity = quantity;
     cartItem.price = ticketPrice * quantity; // Recalculate the total price
 
-    await this.eventRepository.save(cartItem.event);
     return await this.cartItemRepository.save(cartItem);
   }
 
