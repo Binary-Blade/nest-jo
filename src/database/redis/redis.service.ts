@@ -110,4 +110,18 @@ export class RedisService {
       throw new InternalServerErrorException('Error parsing data');
     }
   }
+
+  /**
+   * Clear cache for a specific event or all events
+   *
+   * @param eventId - The ID of the event to clear cache for
+   * @returns - Promise that resolves when the cache is cleared
+   * @throws InternalServerErrorException if there is an error clearing the cache
+   */
+  async clearCacheEvent(eventId?: number): Promise<void> {
+    if (eventId) {
+      await this.del(`event_${eventId}`);
+    }
+    await this.del('events_all');
+  }
 }
