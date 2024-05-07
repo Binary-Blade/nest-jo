@@ -142,6 +142,13 @@ export class EventsService {
     }
   }
 
+  /**
+   * Find an event by ID
+   *
+   * @param eventId - The ID of the event
+   * @returns - The event with the given ID
+   * @throws NotFoundException if the event with the given ID does not exist
+   */
   async findEventById(eventId: number): Promise<Event> {
     const event = await this.eventRepository.findOneBy({ eventId });
     if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);

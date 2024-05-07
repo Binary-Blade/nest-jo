@@ -99,6 +99,7 @@ export class RedisService {
   /**
    * Safely parse JSON data
    *
+   * @private Helper method to parse JSON data
    * @param jsonString - The JSON string to parse
    * @returns - The parsed data
    * @throws InternalServerErrorException if there is an error parsing the data

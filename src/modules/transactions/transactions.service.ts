@@ -12,6 +12,14 @@ export class TransactionsService {
     @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>
   ) {}
 
+  /**
+   * Create a transaction for a user's cart
+   *
+   * @param user - The user making the transaction
+   * @param total - The total amount of the transaction
+   * @param paymentResult - The result of the payment
+   * @returns - The created transaction
+   */
   async createTransaction(
     user: User,
     total: number,
@@ -26,6 +34,13 @@ export class TransactionsService {
     return this.transactionRepository.save(transaction);
   }
 
+  /**
+   * Find a transaction by reservation ID
+   *
+   * @param reservationId - The ID of the reservation to find the transaction for
+   * @returns - The transaction
+   * @throws NotFoundException if the transaction is not found
+   */
   async findTransactionByReservationId(reservationId: number): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
       where: { reservation: { reservationId } },
@@ -53,4 +68,6 @@ export class TransactionsService {
   findAll() {
     return this.transactionRepository.find();
   }
+
+  // TODO: Implement new methods here
 }

@@ -10,6 +10,7 @@ import { RedisService } from '@database/redis/redis.service';
 
 /**
  * Module for common services.
+ * This module is used to import and export common services used throughout the application.
  */
 @Global()
 @Module({

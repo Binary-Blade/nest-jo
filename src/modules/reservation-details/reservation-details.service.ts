@@ -14,14 +14,11 @@ export class ReservationDetailsService {
   ) {}
 
   /**
-   * Create an order from a reservation.
+   * Create a new reservation details from a reservation and a cart item.
    *
-   * @param reservation - The reservation to create the order from
-   * @param cartItem - The cart item to create the order from
-   * @param paymentResult - The payment result
-   * @param totalPrice - The total price of the order
-   * @returns - The created order
-   * @throws NotFoundException if the reservation ID or event ID is not found
+   * @param reservation - The reservation to create the details for
+   * @param cartItem - The cart item to create the details from
+   * @returns - The created reservation details
    * @throws NotFoundException if the event is not found
    */
   async createReservationDetailsFromReservation(
@@ -48,6 +45,13 @@ export class ReservationDetailsService {
     return await this.reservationDetailsRepository.save(newReservationDetails);
   }
 
+  /**
+   * Find a reservation details by ID.
+   *
+   * @param id - The ID of the reservation details to find
+   * @returns - The reservation details
+   * @throws NotFoundException if the reservation details is not found
+   */
   async findOne(id: number): Promise<ReservationDetails> {
     const reservationDetails = await this.reservationDetailsRepository.findOne({
       where: { reservationDetailsId: id }
