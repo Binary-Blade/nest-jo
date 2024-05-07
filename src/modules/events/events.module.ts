@@ -8,12 +8,13 @@ import { EventsController } from './events.controller';
 import { UtilsService } from '@common/utils/utils.service';
 import { EventPrice } from './entities/event-price.entity';
 import { EventPricesService } from './event-prices.service';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
 
 /**
  * Module responsible for handling events
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, EventPrice]), RedisModule], // Import the event entity and the Redis module
+  imports: [TypeOrmModule.forFeature([Event, EventPrice, ReservationDetails]), RedisModule], // Import the event entity and the Redis module
   controllers: [EventsController], // Declare the events controller
   providers: [EventsService, RedisService, EventPricesService, UtilsService] // Declare the events service and the Redis service
 })

@@ -17,25 +17,44 @@ import { TicketsService } from '@modules/tickets/tickets.service';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
 import { EventPricesService } from '@modules/events/event-prices.service';
-import { Order } from '@modules/orders/entities/order.entity';
-import { OrdersService } from '@modules/orders/orders.service';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
+import { ReservationDetailsService } from '@modules/reservation-details/reservation-details.service';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
+import { TransactionsService } from '@modules/transactions/transactions.service';
+import { EventsService } from '@modules/events/events.service';
+import { RedisModule } from '@database/redis/redis.module';
+import { UtilsService } from '@common/utils/utils.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Reservation, CartItem, Cart, Event, User, Ticket, EventPrice, Order]),
-    forwardRef(() => TicketsModule)
+    TypeOrmModule.forFeature([
+      Reservation,
+      CartItem,
+      Cart,
+      Event,
+      User,
+      Ticket,
+      EventPrice,
+      ReservationDetails,
+      Transaction
+    ]),
+    forwardRef(() => TicketsModule),
+    RedisModule
   ],
   controllers: [ReservationsController],
   providers: [
     ReservationsService,
     PaymentService,
     TicketsService,
+    EventsService,
     CartItemsService,
+    UtilsService,
     CartsService,
     EncryptionService,
+    TransactionsService,
     UsersService,
     EventPricesService,
-    OrdersService
+    ReservationDetailsService
   ],
   exports: [ReservationsService]
 })

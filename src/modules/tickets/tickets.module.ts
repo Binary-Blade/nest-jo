@@ -16,8 +16,10 @@ import { CartItemsService } from '@modules/cart-items/cart-items.service';
 import { CartsService } from '@modules/carts/carts.service';
 import { EventPricesService } from '@modules/events/event-prices.service';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
-import { Order } from '@modules/orders/entities/order.entity';
-import { OrdersService } from '@modules/orders/orders.service';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
+import { ReservationDetailsService } from '@modules/reservation-details/reservation-details.service';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
+import { TransactionsService } from '@modules/transactions/transactions.service';
 
 /**
  * Module for handling tickets.
@@ -27,7 +29,17 @@ import { OrdersService } from '@modules/orders/orders.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Ticket, Reservation, Cart, CartItem, User, Event, EventPrice, Order]),
+    TypeOrmModule.forFeature([
+      Ticket,
+      Reservation,
+      Cart,
+      CartItem,
+      User,
+      Event,
+      EventPrice,
+      ReservationDetails,
+      Transaction
+    ]),
     forwardRef(() => ReservationsModule) // Import the ReservationsModule with forwardRef
   ],
   controllers: [TicketsController],
@@ -38,9 +50,10 @@ import { OrdersService } from '@modules/orders/orders.service';
     PaymentService,
     UsersService,
     CartItemsService,
-    OrdersService,
+    ReservationDetailsService,
     EventPricesService,
-    CartsService
+    CartsService,
+    TransactionsService
   ],
   exports: [TicketsService]
 })

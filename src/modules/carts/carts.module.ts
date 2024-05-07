@@ -10,9 +10,13 @@ import { CartsService } from './carts.service';
 import { UtilsService } from '@common/utils/utils.service';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
 import { EventPricesService } from '@modules/events/event-prices.service';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Cart, Event, EventPrice]), RedisModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Cart, Event, EventPrice, ReservationDetails]),
+    RedisModule
+  ],
   providers: [CartsService, RedisService, EventsService, UtilsService, EventPricesService]
 })
 export class CartsModule {}

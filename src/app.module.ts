@@ -12,6 +12,7 @@ import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { AppController } from './app.controller';
 import { ThrollerModule } from '@security/throttler/throttler.module';
+import { TransactionsModule } from '@modules/transactions/transactions.module';
 /**
  *
  * Main application module
@@ -37,6 +38,7 @@ import { ThrollerModule } from '@security/throttler/throttler.module';
     ReservationsModule,
     PaymentModule,
     TicketsModule,
+    TransactionsModule,
     ThrollerModule
   ],
   controllers: [AppController]
