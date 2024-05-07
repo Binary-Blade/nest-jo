@@ -35,6 +35,8 @@ export class InitialMigration1711085051379 implements MigrationInterface {
                     "accountKey" VARCHAR UNIQUE,
                     "role" "user_role_enum" DEFAULT 'USER',
                     "tokenVersion" INTEGER DEFAULT 1,
+                    "transactionsCount" INTEGER DEFAULT 0,
+                    "totalSpent" DECIMAL DEFAULT 0,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "lastLogin" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
