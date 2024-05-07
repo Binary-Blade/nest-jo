@@ -3,8 +3,8 @@ import { EventPrice } from './entities/event-price.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
-import { Event } from '@modules/events/entities/event.entity';
 import { PRICES_FORMULA } from '@common/constants';
+import { EventsService } from './events.service';
 
 /**
  * Service responsible for managing event prices.
@@ -16,8 +16,7 @@ export class EventPricesService {
   constructor(
     @InjectRepository(EventPrice)
     private readonly eventPriceRepository: Repository<EventPrice>,
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>
+    private readonly eventsService: EventsService
   ) {}
 
   /**
@@ -29,7 +28,7 @@ export class EventPricesService {
    * @returns - void
    */
   async createEventPrices(eventId: number, basePrice: number): Promise<void> {
-    await this.findEventById(eventId);
+    await this.eventsService.findEventById(eventId);
 
     for (const formula of PRICES_FORMULA) {
       const price = this.eventPriceRepository.create({
@@ -72,7 +71,7 @@ export class EventPricesService {
    * @returns - void
    */
   async updateEventPrices(eventId: number, newBasePrice: number): Promise<void> {
-    await this.findEventById(eventId);
+    await this.eventsService.findEventById(eventId);
     const eventPrices = await this.eventPriceRepository.find({
       where: { event: { eventId } }
     });
@@ -95,7 +94,7 @@ export class EventPricesService {
    * @returns - void
    */
   async deleteEventPrices(eventId: number): Promise<void> {
-    await this.findEventById(eventId);
+    await this.eventsService.findEventById(eventId);
     const prices = await this.eventPriceRepository.find({
       where: { event: { eventId: eventId } }
     });
@@ -103,19 +102,5 @@ export class EventPricesService {
     for (const price of prices) {
       await this.eventPriceRepository.remove(price);
     }
-  }
-
-  /**
-   * Find an event by ID
-   *
-   * @private - This method should only be used internally
-   * @param eventId - The ID of the event to find
-   * @returns - The event
-   * @throws NotFoundException if the event does not exist
-   */
-  private async findEventById(eventId: number): Promise<Event> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);
-    return event;
   }
 }

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
+import { EventsService } from './events.service';
 
 @Injectable()
 export class EventSalesService {
@@ -15,7 +16,8 @@ export class EventSalesService {
 
   constructor(
     @InjectRepository(Event)
-    private eventRepository: Repository<Event>
+    private eventRepository: Repository<Event>,
+    private readonly eventsService: EventsService
   ) {}
 
   async processEventTicketsAndRevenue(items: CartItem[]): Promise<void> {
@@ -30,7 +32,7 @@ export class EventSalesService {
   }
 
   private async updateRevenue(eventId: number, additionalRevenue: number): Promise<void> {
-    const event = await this.findEventById(eventId);
+    const event = await this.eventsService.findEventById(eventId);
     event.revenueGenerated += additionalRevenue;
     await this.eventRepository.save(event);
   }
@@ -40,7 +42,7 @@ export class EventSalesService {
     priceFormula: string,
     quantity: number
   ): Promise<void> {
-    const event = await this.findEventById(eventId);
+    const event = await this.eventsService.findEventById(eventId);
     const quantityToDeduct = this.quantityPerFormula(priceFormula) * quantity;
     if (quantityToDeduct > event.quantityAvailable) {
       throw new NotFoundException('Not enough tickets available');
@@ -52,11 +54,5 @@ export class EventSalesService {
 
   private quantityPerFormula(priceFormula: string): number {
     return this.deductionMap[priceFormula] || 1;
-  }
-
-  private async findEventById(eventId: number): Promise<Event> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) throw new NotFoundException(`Event with id ${eventId} not found`);
-    return event;
   }
 }

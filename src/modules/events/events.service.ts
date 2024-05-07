@@ -141,4 +141,10 @@ export class EventsService {
       throw new ConflictException('An event with this title already exists.');
     }
   }
+
+  async findEventById(eventId: number): Promise<Event> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);
+    return event;
+  }
 }
