@@ -15,6 +15,14 @@ export class ReservationsService {
     private readonly reservationProcessorService: ReservationsProcessorService
   ) {}
 
+  /**
+   * Generate a reservation for a user
+   *
+   * @param userId - The ID of the user to generate a reservation for
+   * @param cartId - The ID of the cart to generate a reservation from
+   * @returns - A list of reservations created
+   * @throws Error if the reservation cannot be generated
+   */
   async generateReservation(userId: number, cartId: number): Promise<Reservation[]> {
     return await this.reservationProcessorService.processUserReservation(userId, cartId);
   }
@@ -65,7 +73,6 @@ export class ReservationsService {
         }
       }
     });
-    // Make sure the reservation belongs to the user
     if (!reservation || reservation.user.userId !== userId) {
       throw new NotFoundException(`Reservation with ID ${reservationId} not found.`);
     }

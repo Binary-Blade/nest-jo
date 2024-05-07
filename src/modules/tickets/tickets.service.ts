@@ -25,6 +25,12 @@ export class TicketsService {
     private transactionService: TransactionsService
   ) {}
 
+  /**
+   * Generate tickets for all approved reservations.
+   *
+   * @param reservations - The reservations to generate tickets for
+   * @returns A promise that resolves when all tickets are generated
+   */
   async generateTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
     for (const reservation of reservations) {
       const transaction = await this.transactionService.findTransactionByReservationId(
@@ -39,6 +45,15 @@ export class TicketsService {
     }
   }
 
+  /**
+   * Generate tickets for a reservation.
+   *
+   * @private This method is private and should not be accessed from outside the service.
+   * @param reservationId - The ID of the reservation to generate tickets for
+   * @param userId - The ID of the user making the request
+   * @returns - A list of tickets created
+   * @throws NotFoundException if the reservation does not exist
+   */
   private async generateTicketsForReservation(
     reservationId: number,
     userId: number
