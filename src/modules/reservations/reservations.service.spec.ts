@@ -1,33 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationsService } from './reservations.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '@modules/users/entities/user.entity';
-import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { Reservation } from './entities/reservation.entity';
-import { UsersService } from '@modules/users/users.service';
-import { CartsService } from '@modules/carts/carts.service';
-import { CartItemsService } from '@modules/cart-items/cart-items.service';
-import { TicketsService } from '@modules/tickets/tickets.service';
-import { PaymentService } from '@libs/payment/payment.service';
-import { OrdersService } from '@modules/orders/orders.service';
 import { Repository } from 'typeorm';
-import { StatusReservation } from '@common/enums/status-reservation.enum';
+import { ReservationsProcessorService } from './reservations-processor.service';
 import { NotFoundException } from '@nestjs/common';
-import { PaymentResult } from '@common/interfaces/payment.interface';
-import { Order } from '@modules/orders/entities/order.entity';
-import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
-import { Event } from '@modules/events/entities/event.entity';
 
-// FIX: Update the test suite
 describe('ReservationsService', () => {
   let service: ReservationsService;
   let reservationRepository: Repository<Reservation>;
-  let usersService: UsersService;
-  let cartItemsService: CartItemsService;
-  let cartService: CartsService;
-  let paymentService: PaymentService;
-  let ticketsService: TicketsService;
-  let ordersService: OrdersService;
+  let reservationsProcessorService: ReservationsProcessorService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,43 +20,9 @@ describe('ReservationsService', () => {
           useClass: Repository
         },
         {
-          provide: UsersService,
+          provide: ReservationsProcessorService,
           useValue: {
-            verifyUserOneBy: jest.fn()
-          }
-        },
-        {
-          provide: CartsService,
-          useValue: {
-            verifyCartRelation: jest.fn(),
-            getOrCreateCart: jest.fn(),
-            deleteCart: jest.fn()
-          }
-        },
-        {
-          provide: CartItemsService,
-          useValue: {
-            findAllItemsInCart: jest.fn(),
-            removeAllItemFromCart: jest.fn()
-          }
-        },
-        {
-          provide: PaymentService,
-          useValue: {
-            processPayment: jest.fn()
-          }
-        },
-        {
-          provide: TicketsService,
-          useValue: {
-            generatedTickets: jest.fn()
-          }
-        },
-        {
-          provide: OrdersService,
-          useValue: {
-            createOrderFromReservation: jest.fn(),
-            findOrderByReservationId: jest.fn()
+            processUserReservation: jest.fn()
           }
         }
       ]
@@ -82,136 +30,110 @@ describe('ReservationsService', () => {
 
     service = module.get<ReservationsService>(ReservationsService);
     reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
-    usersService = module.get<UsersService>(UsersService);
-    cartItemsService = module.get<CartItemsService>(CartItemsService);
-    cartService = module.get<CartsService>(CartsService);
-    paymentService = module.get<PaymentService>(PaymentService);
-    ticketsService = module.get<TicketsService>(TicketsService);
-    ordersService = module.get<OrdersService>(OrdersService);
+    reservationsProcessorService = module.get<ReservationsProcessorService>(
+      ReservationsProcessorService
+    );
   });
 
-  describe('createReservations', () => {
-    it('should create reservations successfully', async () => {
-      const user = new User();
-      user.userId = 1;
+  describe('generateReservation', () => {
+    it('should generate a reservation successfully', async () => {
+      const userId = 1;
       const cartId = 1;
-      const cartItems: CartItem[] = [{ cartItemId: 1, price: 100 } as CartItem];
-      const paymentResult: PaymentResult = {
-        status: StatusReservation.APPROVED,
-        detail: 'Payment successful'
-      };
-      const order: Order = {
-        orderId: 1,
-        reservation: {} as Reservation,
-        event: {} as Event,
-        priceFormula: PriceFormulaEnum.SOLO,
-        totalPrice: 100,
-        statusPayment: StatusReservation.APPROVED,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        paymentId: 3,
-        title: 'Test Order',
-        description: 'Order for testing',
-        quantity: 1
-      };
+      const reservations = [{} as Reservation];
 
-      jest.spyOn(usersService, 'verifyUserOneBy').mockResolvedValue(user);
-      jest.spyOn(cartItemsService, 'findAllItemsInCart').mockResolvedValue(cartItems);
-      jest.spyOn(cartService, 'verifyCartRelation').mockResolvedValue(undefined);
-      jest.spyOn(paymentService, 'processPayment').mockResolvedValue(paymentResult);
-      jest.spyOn(reservationRepository, 'create').mockImplementation(dto => dto as Reservation);
-      jest.spyOn(reservationRepository, 'save').mockResolvedValue({} as Reservation);
-      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(null);
-      jest.spyOn(ordersService, 'createOrderFromReservation').mockResolvedValue(order);
-      jest.spyOn(service as any, 'cleanUpAfterPayment').mockResolvedValue(undefined);
-
-      const result = await service.createReservations(user.userId, cartId);
-      expect(result).toHaveLength(cartItems.length);
-      expect(service['cleanUpAfterPayment']).toHaveBeenCalledWith(cartId, user.userId);
-    });
-
-    it('should handle errors gracefully when creating reservations', async () => {
-      jest.spyOn(paymentService, 'processPayment').mockResolvedValue({
-        status: StatusReservation.REJECTED,
-        detail: 'Payment failed'
-      });
-      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue({
-        cartItem: { cartItemId: 1 },
-        user: { userId: 1 }
-      } as Reservation);
       jest
-        .spyOn(cartItemsService, 'findAllItemsInCart')
-        .mockResolvedValue([{ cartItemId: 1, price: 100 } as CartItem]);
+        .spyOn(reservationsProcessorService, 'processUserReservation')
+        .mockResolvedValue(reservations);
 
-      await expect(service.createReservations(1, 1)).rejects.toThrow(
-        `Reservation already exists for item with ID 1.`
+      const result = await service.generateReservation(userId, cartId);
+      expect(result).toBe(reservations);
+      expect(reservationsProcessorService.processUserReservation).toHaveBeenCalledWith(
+        userId,
+        cartId
       );
     });
   });
 
-  describe('issueTicketsForApprovedReservations', () => {
-    it('should issue tickets for approved reservations', async () => {
-      const reservations: Reservation[] = [
-        {
-          reservationId: 1,
-          order: { statusPayment: StatusReservation.APPROVED },
-          user: { userId: 1 }
-        } as Reservation
-      ];
+  describe('findAll', () => {
+    it('should find all reservations for a user', async () => {
+      const userId = 1;
+      const reservations = [{} as Reservation];
 
-      jest.spyOn(ordersService, 'findOrderByReservationId').mockResolvedValue({
-        statusPayment: StatusReservation.APPROVED
-      } as Order);
-      jest.spyOn(ticketsService, 'generatedTickets').mockResolvedValue(undefined);
+      jest.spyOn(reservationRepository, 'find').mockResolvedValue(reservations);
 
-      await service.issueTicketsForApprovedReservations(reservations);
-      expect(ticketsService.generatedTickets).toHaveBeenCalledWith(1, 1);
+      const result = await service.findAll(userId);
+      expect(result).toBe(reservations);
+      expect(reservationRepository.find).toHaveBeenCalledWith({
+        where: { user: { userId } },
+        relations: ['user', 'reservationDetails']
+      });
     });
 
-    it('should skip issuing tickets for non-approved reservations', async () => {
-      const reservations: Reservation[] = [
-        {
-          reservationId: 1,
-          order: { statusPayment: StatusReservation.PENDING },
-          user: { userId: 1 }
-        } as Reservation
-      ];
+    it('should throw NotFoundException if no reservations are found', async () => {
+      jest.spyOn(reservationRepository, 'find').mockResolvedValue([]);
 
-      jest.spyOn(ordersService, 'findOrderByReservationId').mockResolvedValue({
-        statusPayment: StatusReservation.PENDING
-      } as Order);
+      const result = await service.findAll(1);
+      expect(result).toEqual([]);
+    });
+  });
 
-      await service.issueTicketsForApprovedReservations(reservations);
-      expect(ticketsService.generatedTickets).not.toHaveBeenCalled();
+  describe('findAllAdmin', () => {
+    it('should find all reservations for an admin', async () => {
+      const reservations = [{} as Reservation];
+
+      jest.spyOn(reservationRepository, 'find').mockResolvedValue(reservations);
+
+      const result = await service.findAllAdmin();
+      expect(result).toBe(reservations);
+      expect(reservationRepository.find).toHaveBeenCalledWith();
     });
   });
 
   describe('findOne', () => {
-    it('should find a reservation by ID and user ID', async () => {
-      const reservation = {
-        reservationId: 1,
-        user: { userId: 1 },
-        ticket: { ticketId: 1, qrCode: 'code' }
-      } as Reservation;
+    it('should find a single reservation by ID and user ID', async () => {
+      const reservation = { reservationId: 1, user: { userId: 1 } } as Reservation;
+
       jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(reservation);
 
       const result = await service.findOne(1, 1);
       expect(result).toBe(reservation);
+      expect(reservationRepository.findOne).toHaveBeenCalledWith({
+        where: { reservationId: 1 },
+        relations: ['ticket', 'user', 'cartItem.event', 'reservationDetails'],
+        select: {
+          reservationId: true,
+          ticket: {
+            ticketId: true,
+            qrCode: true
+          }
+        }
+      });
     });
 
-    it('should throw NotFoundException if reservation is not found or does not belong to the user', async () => {
+    it('should throw NotFoundException if the reservation does not belong to the user', async () => {
+      const reservation = { reservationId: 1, user: { userId: 2 } } as Reservation;
+
+      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(reservation);
+
+      await expect(service.findOne(1, 1)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if the reservation does not exist', async () => {
       jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(null);
+
       await expect(service.findOne(1, 1)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('saveReservation', () => {
-    it('should save a reservation', async () => {
-      const reservation = new Reservation();
+    it('should save a reservation successfully', async () => {
+      const reservation = {} as Reservation;
+
       jest.spyOn(reservationRepository, 'save').mockResolvedValue(reservation);
 
       const result = await service.saveReservation(reservation);
       expect(result).toBe(reservation);
+      expect(reservationRepository.save).toHaveBeenCalledWith(reservation);
     });
   });
 });

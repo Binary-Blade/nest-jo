@@ -15,7 +15,7 @@ describe('ReservationsController', () => {
         {
           provide: ReservationsService,
           useValue: {
-            createReservations: jest.fn(),
+            generateReservation: jest.fn(),
             findAll: jest.fn(),
             findAllAdmin: jest.fn(),
             findOne: jest.fn()
@@ -34,21 +34,21 @@ describe('ReservationsController', () => {
       const cartId = 1;
       const reservations = [{} as Reservation];
 
-      jest.spyOn(service, 'createReservations').mockResolvedValue(reservations);
+      jest.spyOn(service, 'generateReservation').mockResolvedValue(reservations);
 
       const result = await controller.createReservations(userId, cartId);
       expect(result).toBe(reservations);
-      expect(service.createReservations).toHaveBeenCalledWith(userId, cartId);
+      expect(service.generateReservation).toHaveBeenCalledWith(userId, cartId);
     });
 
     it('should throw a ForbiddenException if the user is not authorized to create a reservation', async () => {
-      jest.spyOn(service, 'createReservations').mockRejectedValue(new ForbiddenException());
+      jest.spyOn(service, 'generateReservation').mockRejectedValue(new ForbiddenException());
 
       await expect(controller.createReservations(1, 1)).rejects.toThrow(ForbiddenException);
     });
 
     it('should throw a NotFoundException if the cart does not exist', async () => {
-      jest.spyOn(service, 'createReservations').mockRejectedValue(new NotFoundException());
+      jest.spyOn(service, 'generateReservation').mockRejectedValue(new NotFoundException());
 
       await expect(controller.createReservations(1, 1)).rejects.toThrow(NotFoundException);
     });
