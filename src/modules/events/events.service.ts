@@ -7,6 +7,8 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { UtilsService } from '@common/utils/utils.service';
 import { EventPricesService } from './event-prices.service';
+import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
+import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 
 /**
  * Service responsible for handling CRUD operations for events
@@ -125,6 +127,50 @@ export class EventsService {
     await this.eventRepository.remove(event);
     await this.clearCacheEvent(id);
     return 'Event deleted successfully.';
+  }
+
+  private getTicketsToDeduct(priceFormula: string): number {
+    const deductionMap = {
+      [PriceFormulaEnum.SOLO]: 1,
+      [PriceFormulaEnum.DUO]: 2,
+      [PriceFormulaEnum.FAMILY]: 4
+    };
+    return deductionMap[priceFormula] || 1;
+  }
+
+  async deductTickets(eventId: number, priceFormula: string, quantity: number): Promise<void> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) throw new NotFoundException('Event not found');
+
+    const ticketsToDeduct = this.getTicketsToDeduct(priceFormula) * quantity;
+    if (ticketsToDeduct > event.quantityAvailable) {
+      throw new NotFoundException('Not enough tickets available');
+    }
+    event.quantityAvailable -= ticketsToDeduct;
+    event.quantitySold += ticketsToDeduct;
+
+    await this.eventRepository.save(event);
+  }
+
+  async updateRevenue(eventId: number, additionalRevenue: number): Promise<void> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${eventId} not found`);
+    }
+
+    event.revenueGenerated += additionalRevenue;
+    await this.eventRepository.save(event);
+  }
+
+  async processEventTicketsAndRevenue(items: CartItem[]): Promise<void> {
+    let totalNewRevenue = 0;
+    for (const item of items) {
+      await this.deductTickets(item.event.eventId, item.priceFormula, item.quantity);
+      totalNewRevenue += item.price * item.quantity;
+    }
+    if (items.length > 0) {
+      await this.updateRevenue(items[0].event.eventId, totalNewRevenue);
+    }
   }
   /**
    * Ensure that an event with the given title does not already exist
