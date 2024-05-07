@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
@@ -7,8 +12,6 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { UtilsService } from '@common/utils/utils.service';
 import { EventPricesService } from './event-prices.service';
-import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
-import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 
 /**
  * Service responsible for handling CRUD operations for events
@@ -16,7 +19,7 @@ import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 @Injectable()
 export class EventsService {
   // Time to live for cache in seconds - 1 hour
-  private readonly TTL_OneHour: number = 3600;
+  private static readonly CACHE_TTL_ONE_HOUR: number = 3600;
 
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
@@ -43,7 +46,7 @@ export class EventsService {
     });
     await this.eventRepository.save(event);
     await this.eventPricesService.createEventPrices(event.eventId, event.basePrice);
-    await this.clearCacheEvent();
+    await this.redisService.clearCacheEvent();
     return event;
   }
 
@@ -54,14 +57,18 @@ export class EventsService {
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAll(): Promise<Event[]> {
-    return this.redisService.fetchCachedData(
-      'events_all',
-      () =>
-        this.eventRepository.find({
-          relations: ['prices']
-        }),
-      this.TTL_OneHour
-    );
+    try {
+      return this.redisService.fetchCachedData(
+        'events_all',
+        () =>
+          this.eventRepository.find({
+            relations: ['prices']
+          }),
+        EventsService.CACHE_TTL_ONE_HOUR
+      );
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve events.');
+    }
   }
 
   /**
@@ -75,7 +82,7 @@ export class EventsService {
     const event = await this.redisService.fetchCachedData(
       `event_${id}`,
       () => this.eventRepository.findOneBy({ eventId: id }),
-      this.TTL_OneHour
+      EventsService.CACHE_TTL_ONE_HOUR
     );
     if (!event) throw new NotFoundException(`Event with id ${id} not found`);
     return event;
@@ -94,20 +101,13 @@ export class EventsService {
     const event = await this.findOne(id);
     await this.ensureTitleUnique(updateEventDto.title, id);
 
-    // Check if basePrice has changed and needs updating
-    const isBasePriceUpdated =
-      updateEventDto.basePrice && updateEventDto.basePrice !== event.basePrice;
-
-    // Update event with new data
-    Object.assign(event, updateEventDto, { updatedAt: new Date() });
-    await this.eventRepository.save(event);
-
-    // If basePrice has changed, update related prices
-    if (isBasePriceUpdated) {
-      await this.eventPricesService.updateEventPrices(id, updateEventDto.basePrice);
+    if (updateEventDto.basePrice !== undefined && updateEventDto.basePrice !== event.basePrice) {
+      await this.eventPricesService.updateEventPrices(event.eventId, updateEventDto.basePrice);
     }
 
-    await this.clearCacheEvent(id);
+    Object.assign(event, updateEventDto, { updatedAt: new Date() });
+    await this.eventRepository.save(event);
+    await this.redisService.clearCacheEvent(id);
     return event;
   }
 
@@ -120,58 +120,12 @@ export class EventsService {
    */
   async remove(id: number): Promise<string> {
     const event = await this.findOne(id);
-    if (!event) throw new NotFoundException(`Event with id ${id} not found`);
-
     await this.eventPricesService.deleteEventPrices(id);
-
     await this.eventRepository.remove(event);
-    await this.clearCacheEvent(id);
+    await this.redisService.clearCacheEvent(id);
     return 'Event deleted successfully.';
   }
 
-  private getTicketsToDeduct(priceFormula: string): number {
-    const deductionMap = {
-      [PriceFormulaEnum.SOLO]: 1,
-      [PriceFormulaEnum.DUO]: 2,
-      [PriceFormulaEnum.FAMILY]: 4
-    };
-    return deductionMap[priceFormula] || 1;
-  }
-
-  async deductTickets(eventId: number, priceFormula: string, quantity: number): Promise<void> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) throw new NotFoundException('Event not found');
-
-    const ticketsToDeduct = this.getTicketsToDeduct(priceFormula) * quantity;
-    if (ticketsToDeduct > event.quantityAvailable) {
-      throw new NotFoundException('Not enough tickets available');
-    }
-    event.quantityAvailable -= ticketsToDeduct;
-    event.quantitySold += ticketsToDeduct;
-
-    await this.eventRepository.save(event);
-  }
-
-  async updateRevenue(eventId: number, additionalRevenue: number): Promise<void> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) {
-      throw new NotFoundException(`Event with ID ${eventId} not found`);
-    }
-
-    event.revenueGenerated += additionalRevenue;
-    await this.eventRepository.save(event);
-  }
-
-  async processEventTicketsAndRevenue(items: CartItem[]): Promise<void> {
-    let totalNewRevenue = 0;
-    for (const item of items) {
-      await this.deductTickets(item.event.eventId, item.priceFormula, item.quantity);
-      totalNewRevenue += item.price * item.quantity;
-    }
-    if (items.length > 0) {
-      await this.updateRevenue(items[0].event.eventId, totalNewRevenue);
-    }
-  }
   /**
    * Ensure that an event with the given title does not already exist
    *
@@ -186,20 +140,5 @@ export class EventsService {
     if (existingEvent && existingEvent.eventId !== excludeId) {
       throw new ConflictException('An event with this title already exists.');
     }
-  }
-
-  /**
-   * Clear cache for a specific event or all events
-   *
-   * @private - This method should not be exposed to the controller
-   * @param eventId - The ID of the event to clear cache for
-   * @returns - Promise that resolves when the cache is cleared
-   * @throws InternalServerErrorException if there is an error clearing the cache
-   */
-  private async clearCacheEvent(eventId?: number): Promise<void> {
-    if (eventId) {
-      await this.redisService.del(`event_${eventId}`);
-    }
-    await this.redisService.del('events_all');
   }
 }

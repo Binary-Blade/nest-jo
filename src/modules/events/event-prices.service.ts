@@ -29,8 +29,7 @@ export class EventPricesService {
    * @returns - void
    */
   async createEventPrices(eventId: number, basePrice: number): Promise<void> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);
+    await this.findEventById(eventId);
 
     for (const formula of PRICES_FORMULA) {
       const price = this.eventPriceRepository.create({
@@ -73,19 +72,20 @@ export class EventPricesService {
    * @returns - void
    */
   async updateEventPrices(eventId: number, newBasePrice: number): Promise<void> {
-    PRICES_FORMULA.forEach(async formula => {
-      const priceRecord = await this.eventPriceRepository.findOne({
-        where: {
-          event: { eventId: eventId },
-          priceFormula: formula.type
-        }
-      });
-
-      if (priceRecord) {
-        priceRecord.price = Math.round(newBasePrice * formula.multiplier);
-        await this.eventPriceRepository.save(priceRecord);
-      }
+    await this.findEventById(eventId);
+    const eventPrices = await this.eventPriceRepository.find({
+      where: { event: { eventId } }
     });
+
+    const updatedPrices = eventPrices.map(priceRecord => {
+      const formula = PRICES_FORMULA.find(f => f.type === priceRecord.priceFormula);
+      if (formula) {
+        priceRecord.price = Math.round(newBasePrice * formula.multiplier);
+      }
+      return priceRecord;
+    });
+
+    await this.eventPriceRepository.save(updatedPrices);
   }
 
   /**
@@ -95,6 +95,7 @@ export class EventPricesService {
    * @returns - void
    */
   async deleteEventPrices(eventId: number): Promise<void> {
+    await this.findEventById(eventId);
     const prices = await this.eventPriceRepository.find({
       where: { event: { eventId: eventId } }
     });
@@ -102,5 +103,19 @@ export class EventPricesService {
     for (const price of prices) {
       await this.eventPriceRepository.remove(price);
     }
+  }
+
+  /**
+   * Find an event by ID
+   *
+   * @private - This method should only be used internally
+   * @param eventId - The ID of the event to find
+   * @returns - The event
+   * @throws NotFoundException if the event does not exist
+   */
+  private async findEventById(eventId: number): Promise<Event> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);
+    return event;
   }
 }
