@@ -25,7 +25,7 @@ export class ReservationsController {
     @Param('cartId')
     cartId: number
   ) {
-    return this.reservationsService.processBookingReservations(userId, cartId);
+    return this.reservationsService.generateReservation(userId, cartId);
   }
 
   /**

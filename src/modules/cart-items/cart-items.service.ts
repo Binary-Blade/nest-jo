@@ -118,10 +118,14 @@ export class CartItemsService {
    */
   async findAllItemsInCart(userId: number, cartId: number): Promise<CartItem[]> {
     await this.cartsService.findCart(userId, cartId);
-    return this.cartItemRepository.find({
+    const cartItems = this.cartItemRepository.find({
       where: { cart: { cartId } },
       relations: ['event', 'cart']
     });
+    if (!cartItems) {
+      throw new NotFoundException('Cart items not found');
+    }
+    return cartItems;
   }
 
   /**
