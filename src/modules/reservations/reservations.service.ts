@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
@@ -15,8 +10,10 @@ import { Reservation } from './entities/reservation.entity';
 import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { TicketsService } from '@modules/tickets/tickets.service';
 import { PaymentService } from '@libs/payment/payment.service';
-import { OrdersService } from '@modules/orders/orders.service';
-import { PaymentResult } from '@common/interfaces/payment.interface';
+import { ReservationDetailsService } from '@modules/reservation-details/reservation-details.service';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
+import { TransactionsService } from '@modules/transactions/transactions.service';
+import { EventsService } from '@modules/events/events.service';
 
 /**
  * Service responsible for handling reservations.
@@ -27,111 +24,91 @@ export class ReservationsService {
   constructor(
     @InjectRepository(Reservation) private reservationRepository: Repository<Reservation>,
     private readonly ticketService: TicketsService,
+    private readonly eventsService: EventsService,
+    private readonly transactionService: TransactionsService,
     private readonly usersService: UsersService,
     private readonly cartService: CartsService,
     private readonly cartItemsService: CartItemsService,
     private readonly paymentService: PaymentService,
-    private readonly ordersService: OrdersService
+    private readonly reservationDetailsService: ReservationDetailsService
   ) {}
 
-  /**
-   * Create a new reservation
-   *
-   * @param userId - The ID of the user making the reservation
-   * @param cartId - The ID of the cart to create the reservation from
-   * @returns - The created reservation
-   * @throws ForbiddenException if the user is not authorized to create the reservation
-   * @throws NotFoundException if the cart does not exist
-   * @throws Error if a reservation already exists for the item
-   */
-  async createReservations(userId: number, cartId: number): Promise<Reservation[]> {
+  async processBookingReservations(userId: number, cartId: number): Promise<Reservation[]> {
     const user = await this.usersService.verifyUserOneBy(userId);
     const cartItems = await this.cartItemsService.findAllItemsInCart(userId, cartId);
-    if (!cartItems.length) {
-      throw new BadRequestException('No items found in the cart.');
-    }
-    await this.cartService.verifyCartRelation(cartId, 'cartItem');
-    const cartTotalPrice = this.calculateCartTotal(cartItems);
+    if (!cartItems.length) throw new BadRequestException('No items found in the cart.');
+
+    // Verify the cart and calculate the total price
+    const cartTotalPrice = this.transactionService.calculateCartTotal(cartItems);
+    // Process the payment
     const paymentResult = await this.paymentService.processPayment(cartTotalPrice);
 
-    let createdReservations: Reservation[] = [];
-    for (const item of cartItems) {
-      await this.generateOrderAndReservation(
-        item,
-        user,
-        paymentResult,
-        cartTotalPrice,
-        createdReservations
-      );
-    }
+    // Create a transaction for the payment
+    const transaction = await this.transactionService.createTransaction(
+      user,
+      cartTotalPrice,
+      paymentResult
+    );
+    let reservations = await this.processCartItems(cartItems, user, transaction);
     if (paymentResult.status === StatusReservation.APPROVED) {
-      await this.issueTicketsForApprovedReservations(createdReservations);
+      await this.finalizeBooking(cartItems, reservations);
     }
-
     await this.cleanUpAfterPayment(cartId, userId);
-    await this.cartService.getOrCreateCart(user.userId);
-    return createdReservations;
+    return reservations;
   }
 
-  /**
-   * Generate an order and reservation for a cart item
-   *
-   * @private - This method is only used internally by the service
-   * @param item - The item to generate the order and reservation for
-   * @param user - The user making the reservation
-   * @param paymentResult - The result of the payment
-   * @param cartTotalPrice - The total price of the cart
-   * @param createdReservations - The list of reservations created so far
-   * @throws InternalServerErrorException if the reservation or order cannot be created
-   * @returns - A promise that resolves when the order and reservation are created
-   */
-  private async generateOrderAndReservation(
+  private async processCartItems(
+    cartItems: CartItem[],
+    user: User,
+    transaction: Transaction
+  ): Promise<Reservation[]> {
+    let reservations = [];
+    for (const item of cartItems) {
+      reservations.push(...(await this.createReservationsForItem(item, user, transaction)));
+    }
+    return reservations;
+  }
+
+  private async createReservationsForItem(
     item: CartItem,
     user: User,
-    paymentResult: PaymentResult,
-    cartTotalPrice: number,
-    createdReservations: Reservation[]
-  ) {
-    await this.ensureNoDuplicateReservation(item, user);
-    const newReservation = this.reservationRepository.create({
+    transaction: Transaction
+  ): Promise<Reservation[]> {
+    let reservations = [];
+    for (let i = 0; i < item.quantity; i++) {
+      let reservation = await this.createReservation(user, item, transaction);
+      const reservationDetail =
+        await this.reservationDetailsService.createReservationDetailsFromReservation(
+          reservation,
+          item
+        );
+      reservation.reservationDetails = reservationDetail;
+      reservation = await this.reservationRepository.save(reservation);
+      reservations.push(reservation);
+    }
+    return reservations;
+  }
+  private async createReservation(
+    user: User,
+    cartItem: CartItem,
+    transaction: Transaction
+  ): Promise<Reservation> {
+    const reservation = this.reservationRepository.create({
       user,
-      cartItem: item
+      cartItem,
+      transaction
     });
-
-    const savedReservation = await this.reservationRepository.save(newReservation);
-    // Create a new reservation for each item in the cart
-    if (savedReservation) {
-      createdReservations.push(savedReservation);
-    } else {
-      throw new InternalServerErrorException('Failed to create reservation.');
-    }
-
-    // Create an order for the reservation if the payment is approved
-    const newOrder = await this.ordersService.createOrderFromReservation(
-      savedReservation,
-      item,
-      paymentResult,
-      cartTotalPrice
-    );
-    if (!newOrder) {
-      throw new InternalServerErrorException('Failed to create order from reservation.');
-    }
-
-    savedReservation.order = newOrder;
-    await this.reservationRepository.save(savedReservation);
+    return this.reservationRepository.save(reservation);
   }
 
-  /**
-   * Calculate the total price of a cart
-   *
-   * @private - This method is only used internally by the service
-   * @param cartItems - The items in the cart
-   * @returns - The total price of the cart
-   */
-  private calculateCartTotal(cartItems: CartItem[]): number {
-    return cartItems.reduce((sum, item) => sum + item.price, 0);
+  private async finalizeBooking(cartItems: CartItem[], reservations: Reservation[]): Promise<void> {
+    const eventIds = new Set(cartItems.map(item => item.event.eventId));
+    for (const eventId of eventIds) {
+      const itemsForEvent = cartItems.filter(item => item.event.eventId === eventId);
+      await this.eventsService.processEventTicketsAndRevenue(itemsForEvent);
+    }
+    await this.ticketService.generateTicketsForApprovedReservations(reservations);
   }
-
   /**
    * Clean up after a payment
    *
@@ -147,27 +124,6 @@ export class ReservationsService {
   }
 
   /**
-   * Issue tickets for approved reservations
-   *
-   * @private - This method is only used internally by the service
-   * @param reservations - The reservations to issue tickets for
-   * @returns - A promise that resolves when the tickets are issued
-   * @throws Error if the ticket generation fails
-   * @throws NotFoundException if the order is not found
-   */
-  private async issueTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
-    for (const reservation of reservations) {
-      const order = await this.ordersService.findOrderByReservationId(reservation.reservationId);
-      if (order && order.statusPayment === 'APPROVED') {
-        await this.ticketService.generatedTickets(
-          reservation.reservationId,
-          reservation.user.userId
-        );
-      }
-    }
-  }
-
-  /**
    * Ensure that a reservation does not already exist for an item
    *
    * @private - This method is only used internally by the service
@@ -176,14 +132,14 @@ export class ReservationsService {
    * @throws Error if a reservation already exists for the item
    * @returns - A promise that resolves if there are no duplicate reservations
    */
-  private async ensureNoDuplicateReservation(item: CartItem, user: User): Promise<void> {
-    const existingReservation = await this.reservationRepository.findOne({
-      where: { cartItem: item, user }
-    });
-    if (existingReservation) {
-      throw new Error(`Reservation already exists for item with ID ${item.cartItemId}.`);
-    }
-  }
+  // private async ensureNoDuplicateReservation(item: CartItem, user: User): Promise<void> {
+  //   const existingReservation = await this.reservationRepository.findOne({
+  //     where: { cartItem: item, user }
+  //   });
+  //   if (existingReservation) {
+  //     throw new Error(`Reservation already exists for item with ID ${item.cartItemId}.`);
+  //   }
+  // }
 
   /**
    * Find all reservations for a user
@@ -195,7 +151,7 @@ export class ReservationsService {
   async findAll(userId: number) {
     return await this.reservationRepository.find({
       where: { user: { userId } },
-      relations: ['user', 'order'] // Include the cartItem and event relations
+      relations: ['user', 'reservationDetails'] // Include the cartItem and event relations
     });
   }
 
@@ -222,7 +178,7 @@ export class ReservationsService {
   async findOne(reservationId: number, userId: number): Promise<Reservation> {
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId },
-      relations: ['ticket', 'user', 'order'],
+      relations: ['ticket', 'user', 'cartItem.event', 'reservationDetails'],
       select: {
         reservationId: true,
         ticket: {
