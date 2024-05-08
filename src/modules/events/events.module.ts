@@ -1,11 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisService } from '@database/redis/redis.service';
-import { RedisModule } from '@database/redis/redis.module';
 import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
 import { EventsController } from './events.controller';
-import { UtilsService } from '@common/utils/utils.service';
 import { EventPrice } from './entities/event-price.entity';
 import { EventPricesService } from './event-prices.service';
 import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
