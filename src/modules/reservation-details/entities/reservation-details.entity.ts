@@ -1,13 +1,22 @@
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { Event } from '@modules/events/entities/event.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+  Index
+} from 'typeorm';
 
 @Entity('reservation_details')
 export class ReservationDetails {
   @PrimaryGeneratedColumn('increment')
   reservationDetailsId: number;
 
+  @Index()
   @OneToOne(() => Reservation, reservation => reservation.reservationDetails)
   @JoinColumn({ name: 'reservationId' })
   reservation: Reservation;

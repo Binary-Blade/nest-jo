@@ -1,6 +1,6 @@
 import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
 import { EventPrice } from './event-price.entity';
 import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
 
@@ -9,6 +9,7 @@ export class Event {
   @PrimaryGeneratedColumn('increment')
   eventId: number;
 
+  @Index()
   @Column({ unique: true, type: 'varchar' })
   title: string;
 
