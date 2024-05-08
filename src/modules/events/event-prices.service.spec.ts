@@ -3,7 +3,6 @@ import { EventPricesService } from './event-prices.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventPrice } from './entities/event-price.entity';
 import { Repository } from 'typeorm';
-import { EventsService } from './events.service';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { NotFoundException } from '@nestjs/common';
 import { Event } from './entities/event.entity';
@@ -12,7 +11,7 @@ import { PRICES_FORMULA } from '@common/constants';
 describe('EventPricesService', () => {
   let service: EventPricesService;
   let eventPriceRepository: Repository<EventPrice>;
-  let eventsService: EventsService;
+  let eventRepository: Repository<Event>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,9 +22,9 @@ describe('EventPricesService', () => {
           useClass: Repository
         },
         {
-          provide: EventsService,
+          provide: getRepositoryToken(Event),
           useValue: {
-            findEventById: jest.fn()
+            findOneBy: jest.fn()
           }
         }
       ]
@@ -33,25 +32,25 @@ describe('EventPricesService', () => {
 
     service = module.get<EventPricesService>(EventPricesService);
     eventPriceRepository = module.get<Repository<EventPrice>>(getRepositoryToken(EventPrice));
-    eventsService = module.get<EventsService>(EventsService);
+    eventRepository = module.get<Repository<Event>>(getRepositoryToken(Event));
   });
 
   describe('createEventPrices', () => {
     it('should create event prices successfully', async () => {
       const event = { eventId: 1 } as Event;
-      jest.spyOn(eventsService, 'findEventById').mockResolvedValue(event);
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
       jest.spyOn(eventPriceRepository, 'create').mockImplementation((dto: any) => dto);
       jest.spyOn(eventPriceRepository, 'save').mockImplementation(async (entity: any) => entity);
 
       await service.createEventPrices(1, 100);
 
-      expect(eventsService.findEventById).toHaveBeenCalledWith(1);
+      expect(eventRepository.findOneBy).toHaveBeenCalledWith(event);
       expect(eventPriceRepository.create).toHaveBeenCalledTimes(PRICES_FORMULA.length);
       expect(eventPriceRepository.save).toHaveBeenCalledTimes(PRICES_FORMULA.length);
     });
 
-    it('should throw NotFoundException if the event does not exist', async () => {
-      jest.spyOn(eventsService, 'findEventById').mockRejectedValue(new NotFoundException());
+    it('should throw a NotFoundException if the event does not exist', async () => {
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(null);
 
       await expect(service.createEventPrices(1, 100)).rejects.toThrow(NotFoundException);
     });
@@ -85,13 +84,13 @@ describe('EventPricesService', () => {
         { event: { eventId: 1 }, priceFormula: PriceFormulaEnum.SOLO, price: 100 } as EventPrice
       ];
 
-      jest.spyOn(eventsService, 'findEventById').mockResolvedValue(event);
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
       jest.spyOn(eventPriceRepository, 'find').mockResolvedValue(eventPrices);
       jest.spyOn(eventPriceRepository, 'save').mockResolvedValue(eventPrices[0]);
 
       await service.updateEventPrices(1, 100);
 
-      expect(eventsService.findEventById).toHaveBeenCalledWith(1);
+      expect(eventRepository.findOneBy).toHaveBeenCalledWith(event);
       expect(eventPriceRepository.find).toHaveBeenCalledWith({
         where: { event: { eventId: 1 } }
       });
@@ -104,9 +103,9 @@ describe('EventPricesService', () => {
     });
 
     it('should throw NotFoundException if the event does not exist', async () => {
-      jest.spyOn(eventsService, 'findEventById').mockRejectedValue(new NotFoundException());
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(null);
 
-      await expect(service.updateEventPrices(1, 100)).rejects.toThrow(NotFoundException);
+      await expect(service.updateEventPrices(1, 120)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -117,13 +116,13 @@ describe('EventPricesService', () => {
         { event: { eventId: 1 }, priceFormula: PriceFormulaEnum.SOLO } as EventPrice
       ];
 
-      jest.spyOn(eventsService, 'findEventById').mockResolvedValue(event);
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
       jest.spyOn(eventPriceRepository, 'find').mockResolvedValue(eventPrices);
       jest.spyOn(eventPriceRepository, 'remove').mockResolvedValue(eventPrices[0]);
 
       await service.deleteEventPrices(1);
 
-      expect(eventsService.findEventById).toHaveBeenCalledWith(1);
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
       expect(eventPriceRepository.find).toHaveBeenCalledWith({
         where: { event: { eventId: 1 } }
       });
@@ -131,7 +130,7 @@ describe('EventPricesService', () => {
     });
 
     it('should throw NotFoundException if the event does not exist', async () => {
-      jest.spyOn(eventsService, 'findEventById').mockRejectedValue(new NotFoundException());
+      jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(null);
 
       await expect(service.deleteEventPrices(1)).rejects.toThrow(NotFoundException);
     });
