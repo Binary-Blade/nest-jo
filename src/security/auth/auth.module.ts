@@ -13,6 +13,8 @@ import { User } from '@modules/users/entities/user.entity';
 import { TokenManagementService } from '@security/token/token-management.service';
 import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
+import { Cart } from '@modules/carts/entities/cart.entity';
+import { CartsService } from '@modules/carts/carts.service';
 
 /**
  * Module for handling authentication-related operations.
@@ -24,7 +26,7 @@ import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.ser
  *
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RedisModule], // Registers the User entity for TypeORM
+  imports: [TypeOrmModule.forFeature([User, Cart]), RedisModule], // Registers the User entity for TypeORM
   controllers: [AuthController], // The controllers that are part of this module
   providers: [
     AuthService, // The service responsible for handling authentication logic
@@ -36,7 +38,8 @@ import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.ser
     TokenManagementService, // A service for managing JWT tokens
     RefreshTokenStoreService, // A service for storing and verifying refresh tokens in Redis
     UtilsService, // A utility service for common tasks such as generating random strings
-    RedisService // A service for interacting with the Redis store
+    RedisService, // A service for interacting with the Redis store
+    CartsService // The service responsible for handling cart operations
   ]
 })
 export class AuthModule {}

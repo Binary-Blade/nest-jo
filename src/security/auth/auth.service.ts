@@ -10,6 +10,7 @@ import { UserRole } from '@common/enums/user-role.enum';
 import { Response } from 'express';
 import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
+import { CartsService } from '@modules/carts/carts.service';
 
 /**
  * Service providing authentication functionality.
@@ -18,6 +19,7 @@ import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.ser
 export class AuthService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>, // Repository for accessing User entity operations.
+    private cartService: CartsService, // Service for managing cart operations.
     private encryptionService: EncryptionService, // Service for hashing and verifying passwords.
     private tokenService: TokenService, // Service for managing JWT tokens, including creation and validation.
     private cookieService: CookieService,
@@ -72,6 +74,7 @@ export class AuthService {
     }
     user.lastLogin = new Date(); // Updates the last login timestamp.
     await this.usersRepository.save(user);
+    await this.cartService.getOrCreateCart(user.userId); // Create a cart for the user if it doesn't exist.
 
     const { accessToken, refreshToken } = await this.tokenService.getTokens(user);
 
