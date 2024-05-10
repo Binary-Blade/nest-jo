@@ -183,5 +183,6 @@ export class ReservationsProcessorService {
   private async cleanUpAfterPayment(cartId: number, userId: number) {
     await this.cartItemsService.removeAllItemFromCart(userId, cartId);
     await this.cartService.deleteCart(cartId);
+    await this.cartService.getOrCreateCart(userId);
   }
 }

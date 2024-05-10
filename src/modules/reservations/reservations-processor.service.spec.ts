@@ -65,7 +65,8 @@ describe('ReservationsProcessorService', () => {
         {
           provide: CartsService,
           useValue: {
-            deleteCart: jest.fn()
+            deleteCart: jest.fn(),
+            getOrCreateCart: jest.fn()
           }
         },
         {
@@ -275,6 +276,7 @@ describe('ReservationsProcessorService', () => {
       await service['cleanUpAfterPayment'](1, 1);
       expect(cartItemsService.removeAllItemFromCart).toHaveBeenCalledWith(1, 1);
       expect(cartsService.deleteCart).toHaveBeenCalledWith(1);
+      expect(cartsService.getOrCreateCart).toHaveBeenCalledWith(1);
     });
   });
 });
