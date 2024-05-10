@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { CreateReservationDetailsDto } from './dto/create-reservation-details.dto';
+import { Event } from '@modules/events/entities/event.entity';
 
 @Injectable()
 export class ReservationDetailsService {
   constructor(
     @InjectRepository(ReservationDetails)
-    private reservationDetailsRepository: Repository<ReservationDetails>
+    private reservationDetailsRepository: Repository<ReservationDetails>,
+    @InjectRepository(Event)
+    private eventRepository: Repository<Event>
   ) {}
 
   /**
@@ -26,12 +29,22 @@ export class ReservationDetailsService {
     cartItem: CartItem
   ): Promise<ReservationDetails> {
     if (!cartItem.event) {
+      throw new NotFoundException('Event ID is not found in CartItem');
+    }
+
+    // Fetch event using eventId from the cartItem
+    const event = await this.eventRepository.findOne({
+      where: { eventId: cartItem.event.eventId }
+    });
+
+    if (!event) {
       throw new NotFoundException('Event not found');
     }
 
+    // Create DTO from event details
     const createReservationDetailsDto: CreateReservationDetailsDto = {
-      title: cartItem.event.title,
-      description: cartItem.event.description,
+      title: event.title,
+      description: event.description,
       priceFormula: cartItem.priceFormula,
       price: cartItem.price
     };
@@ -54,7 +67,8 @@ export class ReservationDetailsService {
    */
   async findOne(id: number): Promise<ReservationDetails> {
     const reservationDetails = await this.reservationDetailsRepository.findOne({
-      where: { reservationDetailsId: id }
+      where: { reservationDetailsId: id },
+      relations: ['event', 'reservation']
     });
     if (!reservationDetails)
       throw new NotFoundException(`Reservation details with id ${id} not found`);

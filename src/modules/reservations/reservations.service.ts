@@ -37,7 +37,25 @@ export class ReservationsService {
   async findAll(userId: number) {
     return await this.reservationRepository.find({
       where: { user: { userId } },
-      relations: ['user', 'reservationDetails'] // Include the cartItem and event relations
+      relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
+      select: {
+        reservationId: true,
+        reservationDetails: {
+          title: true,
+          description: true,
+          price: true,
+          priceFormula: true,
+          event: {
+            eventId: true,
+            title: true,
+            description: true,
+            categoryType: true
+          }
+        },
+        transaction: {
+          statusPayment: true
+        }
+      }
     });
   }
 
@@ -64,12 +82,15 @@ export class ReservationsService {
   async findOne(reservationId: number, userId: number): Promise<Reservation> {
     const reservation = await this.reservationRepository.findOne({
       where: { reservationId },
-      relations: ['ticket', 'user', 'cartItem.event', 'reservationDetails'],
+      relations: ['ticket', 'user'],
       select: {
         reservationId: true,
         ticket: {
           ticketId: true,
           qrCode: true
+        },
+        user: {
+          userId: true
         }
       }
     });
