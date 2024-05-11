@@ -20,7 +20,7 @@ export class UtilsService {
    * @returns The Date object.
    */
   convertDateStringToDate(dateStr: string): Date {
-    const [day, month, year] = dateStr.split('/');
+    const [year, month, day] = dateStr.split('-');
     return new Date(+year, +month - 1, +day);
   }
 }
