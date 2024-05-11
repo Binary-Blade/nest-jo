@@ -49,11 +49,14 @@ export class ReservationsService {
             eventId: true,
             title: true,
             description: true,
-            categoryType: true
+            categoryType: true,
+            startDate: true,
+            endDate: true
           }
         },
         transaction: {
-          statusPayment: true
+          statusPayment: true,
+          paymentId: true
         }
       }
     });
