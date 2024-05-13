@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class UtilsService {
+export class ConvertUtilsService {
   /**
    * Converts a duration string in days to seconds.
    *
