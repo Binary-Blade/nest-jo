@@ -32,11 +32,9 @@ export class User {
   @Column({ type: 'varchar', nullable: false, name: 'passwordHash' })
   password: string;
 
-  @Exclude()
   @Column({ unique: true })
   accountKey: string;
 
-  @Exclude()
   @Column({ type: 'varchar', default: UserRole.USER })
   role: UserRole;
 

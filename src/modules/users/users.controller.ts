@@ -57,7 +57,6 @@ export class UsersController {
    *
    * @param id The ID of the user to delete.
    */
-  @UseGuards(IsCreatorGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
