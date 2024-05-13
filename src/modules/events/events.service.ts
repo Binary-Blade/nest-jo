@@ -10,7 +10,7 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { UtilsService } from '@common/utils/utils.service';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 import { EventPricesService } from './event-prices.service';
 
 /**
@@ -18,14 +18,13 @@ import { EventPricesService } from './event-prices.service';
  */
 @Injectable()
 export class EventsService {
-  // Time to live for cache in seconds - 1 hour
-  private static readonly CACHE_TTL_ONE_HOUR: number = 3600;
+  private static readonly CACHE_TTL_ONE_HOUR: number = 360; // TTL 360 seconds
 
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
     private readonly redisService: RedisService,
     private readonly eventPricesService: EventPricesService,
-    private readonly utilsService: UtilsService
+    private readonly convertUtilsService: ConvertUtilsService
   ) {}
 
   /**
@@ -36,8 +35,8 @@ export class EventsService {
    * @throws ConflictException if an event with the same title already exists
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
-    const startDate = this.utilsService.convertDateStringToDate(createEventDto.startDate);
-    const endDate = this.utilsService.convertDateStringToDate(createEventDto.endDate);
+    const startDate = this.convertUtilsService.convertDateStringToDate(createEventDto.startDate);
+    const endDate = this.convertUtilsService.convertDateStringToDate(createEventDto.endDate);
     await this.ensureTitleUnique(createEventDto.title);
     const event: Event = this.eventRepository.create({
       ...createEventDto,
@@ -99,15 +98,17 @@ export class EventsService {
    */
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
     const event = await this.findOne(id);
-    await this.ensureTitleUnique(updateEventDto.title, id);
-
+    if (updateEventDto.title && updateEventDto.title !== event.title) {
+      await this.ensureTitleUnique(updateEventDto.title, id);
+    }
     if (updateEventDto.basePrice !== undefined && updateEventDto.basePrice !== event.basePrice) {
       await this.eventPricesService.updateEventPrices(event.eventId, updateEventDto.basePrice);
     }
 
     Object.assign(event, updateEventDto, { updatedAt: new Date() });
-    await this.eventRepository.save(event);
+
     await this.redisService.clearCacheEvent(id);
+    await this.eventRepository.save(event);
     return event;
   }
 
