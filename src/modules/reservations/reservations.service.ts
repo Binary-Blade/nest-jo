@@ -69,8 +69,35 @@ export class ReservationsService {
    * @throws ForbiddenException if the user is not an admin
    * @throws NotFoundException if the user does not exist
    */
-  async findAllAdmin() {
-    return await this.reservationRepository.find();
+  async findAllAdmin(): Promise<Reservation[]> {
+    const reservations = await this.reservationRepository.find({
+      relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
+      select: {
+        reservationId: true,
+        user: {
+          userId: true,
+          email: true // Example, adjust based on the fields you want to expose
+        },
+        reservationDetails: {
+          title: true,
+          event: {
+            eventId: true
+          }
+        },
+        transaction: {
+          transactionId: true, // Assuming you want to include this as well
+          statusPayment: true,
+          paymentId: true,
+          totalAmount: true // Example, adjust based on your schema
+        }
+      }
+    });
+
+    if (!reservations.length) {
+      throw new NotFoundException('No reservations found.');
+    }
+
+    return reservations;
   }
 
   /**
