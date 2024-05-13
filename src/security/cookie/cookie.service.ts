@@ -1,7 +1,7 @@
-import { PROD_ENV } from '@common/constants';
-import { UtilsService } from '@common/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PROD_ENV } from '@utils/constants.env';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 import { CookieOptions, Request, Response } from 'express';
 
 /**
@@ -12,7 +12,7 @@ import { CookieOptions, Request, Response } from 'express';
 export class CookieService {
   constructor(
     private configService: ConfigService,
-    private utilsService: UtilsService
+    private convertUtilsService: ConvertUtilsService
   ) {}
 
   /**
@@ -40,7 +40,7 @@ export class CookieService {
       throw new Error('JWT_REFRESH_TOKEN_EXPIRATION is not configured.');
     }
 
-    const refreshTokenTTL = this.utilsService.convertDaysToSeconds(refreshTokenExpiration);
+    const refreshTokenTTL = this.convertUtilsService.convertDaysToSeconds(refreshTokenExpiration);
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === PROD_ENV,

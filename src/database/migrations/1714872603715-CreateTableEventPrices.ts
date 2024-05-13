@@ -1,5 +1,5 @@
+import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from '@utils/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from './constants-db';
 
 export class CreateTableEventPrices1714872603715 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

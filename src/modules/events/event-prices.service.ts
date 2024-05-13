@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { Event } from '@modules/events/entities/event.entity';
-import { PRICES_FORMULA } from '@common/constants';
+import { PRICES_FORMULA } from '@utils/constants.common';
 
 /**
  * Service responsible for managing event prices.

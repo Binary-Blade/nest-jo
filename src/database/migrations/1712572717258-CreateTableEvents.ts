@@ -1,5 +1,5 @@
+import { DOES_ENUM_CATEGORY_TYPE_EXIST } from '@utils/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { DOES_ENUM_CATEGORY_TYPE_EXIST } from './constants-db';
 
 /**
  * This migration creates the "events" table in the database.
@@ -18,7 +18,7 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
                     "title" VARCHAR NOT NULL UNIQUE,
                     "description" TEXT NOT NULL,
                     "categoryType" "category_type_enum" NOT NULL,
-                    "basePrice" DECIMAL NOT NULL,
+                    "basePrice" INTEGER NOT NULL DEFAULT 0,
                     "quantityAvailable" INTEGER DEFAULT 0,
                     "quantitySold" INTEGER DEFAULT 0,
                     "revenueGenerated" INTEGER DEFAULT 0,

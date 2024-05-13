@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CookieService } from './cookie.service';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from '@common/utils/utils.service';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 import { Request, Response } from 'express';
 
 describe('CookieService', () => {
   let service: CookieService;
   let configService: ConfigService;
-  let utilsService: UtilsService;
+  let convertUtilsService: ConvertUtilsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,7 +20,7 @@ describe('CookieService', () => {
           }
         },
         {
-          provide: UtilsService,
+          provide: ConvertUtilsService,
           useValue: {
             convertDaysToSeconds: jest.fn()
           }
@@ -30,7 +30,7 @@ describe('CookieService', () => {
 
     service = module.get<CookieService>(CookieService);
     configService = module.get<ConfigService>(ConfigService);
-    utilsService = module.get<UtilsService>(UtilsService);
+    convertUtilsService = module.get<ConvertUtilsService>(ConvertUtilsService);
   });
 
   describe('extractRefreshTokenCookie', () => {
@@ -49,7 +49,7 @@ describe('CookieService', () => {
         return null;
       });
 
-      jest.spyOn(utilsService, 'convertDaysToSeconds').mockReturnValue(86400);
+      jest.spyOn(convertUtilsService, 'convertDaysToSeconds').mockReturnValue(86400);
 
       const res = { cookie: jest.fn() } as unknown as Response;
       service.setRefreshTokenCookie(res, 'refresh_token');

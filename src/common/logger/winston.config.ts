@@ -1,4 +1,4 @@
-import { DEV_ENV, PROD_ENV } from '@common/constants';
+import { DEV_ENV, PROD_ENV } from '@utils/constants.env';
 import * as winston from 'winston';
 
 // Define custom levels if needed

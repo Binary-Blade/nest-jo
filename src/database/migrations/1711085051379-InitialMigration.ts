@@ -1,5 +1,5 @@
+import { DOES_ENUM_USER_ROLE_EXIST } from '@utils/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { DOES_ENUM_USER_ROLE_EXIST } from './constants-db';
 
 /**
  * Initial migration to create the "users" table in the database.
@@ -36,7 +36,7 @@ export class InitialMigration1711085051379 implements MigrationInterface {
                     "role" "user_role_enum" DEFAULT 'USER',
                     "tokenVersion" INTEGER DEFAULT 1,
                     "transactionsCount" INTEGER DEFAULT 0,
-                    "totalSpent" DECIMAL DEFAULT 0,
+                    "totalSpent" INTEGER DEFAULT 0,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "lastLogin" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );

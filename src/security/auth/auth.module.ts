@@ -4,7 +4,6 @@ import { RedisModule } from '@database/redis/redis.module';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@database/redis/redis.service';
-import { UtilsService } from '@common/utils/utils.service';
 import { UsersService } from '@modules/users/users.service';
 import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
@@ -15,6 +14,7 @@ import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
 import { Cart } from '@modules/carts/entities/cart.entity';
 import { CartsService } from '@modules/carts/carts.service';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 
 /**
  * Module for handling authentication-related operations.
@@ -37,7 +37,7 @@ import { CartsService } from '@modules/carts/carts.service';
     EncryptionService, // A service for handling common security tasks such as hashing
     TokenManagementService, // A service for managing JWT tokens
     RefreshTokenStoreService, // A service for storing and verifying refresh tokens in Redis
-    UtilsService, // A utility service for common tasks such as generating random strings
+    ConvertUtilsService,
     RedisService, // A service for interacting with the Redis store
     CartsService // The service responsible for handling cart operations
   ]

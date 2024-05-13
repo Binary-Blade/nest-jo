@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from '@common/utils/utils.service';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 
 /**
  * Service responsible for storing and verifying refresh tokens in Redis.
@@ -14,7 +14,7 @@ export class RefreshTokenStoreService {
 
   constructor(
     private readonly redisService: RedisService,
-    private readonly utilsService: UtilsService,
+    private readonly convertUtilsService: ConvertUtilsService,
     private readonly configService: ConfigService
   ) {}
 
@@ -27,7 +27,7 @@ export class RefreshTokenStoreService {
    * @throws An error if the token expiration time is not set in the configuration.
    */
   async storeRefreshTokenInRedis(userId: number, token: string): Promise<void> {
-    const ttl = this.utilsService.convertDaysToSeconds(
+    const ttl = this.convertUtilsService.convertDaysToSeconds(
       this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION')
     );
     await this.redisService.set(`refresh_token_${userId}`, token, ttl);

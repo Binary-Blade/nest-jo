@@ -100,7 +100,8 @@
       "^@config/(.*)$": "<rootDir>/config/$1",
       "^@database/(.*)$": "<rootDir>/database/$1",
       "^@security/(.*)$": "<rootDir>/security/$1",
-      "^@libs/(.*)$": "<rootDir>/libs/$1"
+      "^@libs/(.*)$": "<rootDir>/libs/$1",
+      "^@utils/(.*)$": "<rootDir>/utils/$1"
     },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {

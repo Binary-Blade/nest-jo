@@ -7,7 +7,7 @@ import { HttpExceptionFilter } from '@common/globals-filter/http-exceptions-filt
 import { WinstonLoggerService } from '@common/logger/winston.service';
 import { ConfigService } from '@nestjs/config';
 import { runMigrations } from '@database/migration-runner';
-import { PROD_ENV } from '@common/constants';
+import { PROD_ENV } from '@utils/constants.env';
 
 /**
  * Bootstrap the application

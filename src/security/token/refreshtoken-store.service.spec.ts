@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RefreshTokenStoreService } from './refreshtoken-store.service';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from '@common/utils/utils.service';
+import { ConvertUtilsService } from '@utils/convert-utils.service';
 import { Logger } from '@nestjs/common';
 
 describe('RefreshTokenStoreService', () => {
   let service: RefreshTokenStoreService;
   let redisService: RedisService;
-  let utilsService: UtilsService;
+  let convertUtilsService: ConvertUtilsService;
   let configService: ConfigService;
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe('RefreshTokenStoreService', () => {
           }
         },
         {
-          provide: UtilsService,
+          provide: ConvertUtilsService,
           useValue: {
             convertDaysToSeconds: jest.fn()
           }
@@ -46,7 +46,7 @@ describe('RefreshTokenStoreService', () => {
 
     service = module.get<RefreshTokenStoreService>(RefreshTokenStoreService);
     redisService = module.get<RedisService>(RedisService);
-    utilsService = module.get<UtilsService>(UtilsService);
+    convertUtilsService = module.get<ConvertUtilsService>(ConvertUtilsService);
     configService = module.get<ConfigService>(ConfigService);
   });
 
@@ -56,12 +56,12 @@ describe('RefreshTokenStoreService', () => {
       const token = 'testToken';
       const ttl = 86400; // 1 day in seconds
       jest.spyOn(configService, 'get').mockReturnValue('1d');
-      jest.spyOn(utilsService, 'convertDaysToSeconds').mockReturnValue(ttl);
+      jest.spyOn(convertUtilsService, 'convertDaysToSeconds').mockReturnValue(ttl);
 
       await service.storeRefreshTokenInRedis(userId, token);
 
       expect(configService.get).toHaveBeenCalledWith('JWT_REFRESH_TOKEN_EXPIRATION');
-      expect(utilsService.convertDaysToSeconds).toHaveBeenCalledWith('1d');
+      expect(convertUtilsService.convertDaysToSeconds).toHaveBeenCalledWith('1d');
       expect(redisService.set).toHaveBeenCalledWith(`refresh_token_${userId}`, token, ttl);
     });
   });

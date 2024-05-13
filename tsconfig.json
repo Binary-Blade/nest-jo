@@ -16,6 +16,7 @@
       "@security/*": ["src/security/*"],
       "@database/*": ["src/database/*"],
       "@libs/*": ["src/libs/*"],
+      "@utils/*": ["src/utils/*"],
       },
     "incremental": true,
     "skipLibCheck": true,

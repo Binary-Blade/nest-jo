@@ -1,6 +1,6 @@
-import { NODE_ENV, PROD_ENV } from '@common/constants';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NODE_ENV, PROD_ENV } from '@utils/constants.env';
 import { Request, Response } from 'express';
 
 /**
