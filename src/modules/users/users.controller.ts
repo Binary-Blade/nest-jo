@@ -1,9 +1,10 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role } from '@common/decorators/role.decorator';
 import { UpdateUserDto } from './dto';
 import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
 import { UserRole } from '@common/enums/user-role.enum';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**
  * Controller that manages user operations. It includes endpoints for fetching,
@@ -23,8 +24,15 @@ export class UsersController {
   @Role(UserRole.ADMIN)
   @UseGuards(RoleGuard)
   @Get('get-all')
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() paginationFilterDto: PaginationAndFilterDto) {
+    return this.usersService.findAll(paginationFilterDto);
+  }
+
+  @Role(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
+  @Get('get-all-values')
+  findAllValues() {
+    return this.usersService.findAllValues();
   }
 
   /**

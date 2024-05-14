@@ -6,9 +6,10 @@ import { User } from './entities/user.entity';
 import { RedisModule } from '@database/redis/redis.module';
 import { RedisService } from '@database/redis/redis.service';
 import { AccessTokenStrategy } from '@security/auth/strategies/access-token.strategy';
+import { Transaction } from '@modules/transactions/entities/transaction.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RedisModule], // Registers the User entity for TypeORM
+  imports: [TypeOrmModule.forFeature([User, Transaction]), RedisModule], // Registers the User entity for TypeORM
   controllers: [UsersController], // The controllers that are part of this module
   providers: [
     UsersService, // The service responsible for user-related operations

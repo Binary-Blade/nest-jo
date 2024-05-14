@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
 
 /**
  * Service providing user management functionality.
@@ -19,7 +21,38 @@ export class UsersService {
    *
    * @returns A promise resolved with the list of all user entities.
    */
-  findAll(): Promise<User[]> {
+  async findAll(
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ users: User[]; total: number }> {
+    const {
+      limit = DEFAULT_PAGE_SIZE.USER,
+      offset = 0,
+      sortBy,
+      sortOrder = 'ASC',
+      filterBy,
+      filterValue
+    } = paginationFilterDto;
+    let whereCondition: FindOptionsWhere<User> = {};
+
+    if (filterBy && filterValue && filterValue !== 'ALL') {
+      whereCondition = { [filterBy]: filterValue };
+    }
+
+    try {
+      const [users, total] = await this.usersRepository.findAndCount({
+        where: whereCondition,
+        order: sortBy ? { [sortBy]: sortOrder } : {},
+        skip: offset,
+        take: limit
+      });
+
+      return { users, total };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve events', error.message);
+    }
+  }
+
+  async findAllValues(): Promise<User[]> {
     return this.usersRepository.find();
   }
 

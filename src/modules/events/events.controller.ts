@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query
+} from '@nestjs/common';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Role } from '@common/decorators/role.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
@@ -7,6 +17,7 @@ import { EventsService } from './events.service';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { EventPricesService } from './event-prices.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**
  * Controller responsible for handling requests to the /events route
@@ -40,9 +51,14 @@ export class EventsController {
    * @returns - List of all events
    * @throws InternalServerErrorException if there is an error parsing the data
    */
-  @Get('get-all')
+  @Get('get-all-filtered')
+  findAllFiltered(@Query() paginationFilterDto: PaginationAndFilterDto) {
+    return this.eventsService.findAllFiltered(paginationFilterDto);
+  }
+
+  @Get('get-events-values')
   findAll() {
-    return this.eventsService.findAll();
+    return this.eventsService.findAllValues();
   }
 
   /**

@@ -5,13 +5,15 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ConvertUtilsService } from '@utils/convert-utils.service';
 import { EventPricesService } from './event-prices.service';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**
  * Service responsible for handling CRUD operations for events
@@ -55,21 +57,47 @@ export class EventsService {
    * @returns - List of all events
    * @throws InternalServerErrorException if there is an error parsing the data
    */
-  async findAll(): Promise<Event[]> {
-    try {
-      return this.redisService.fetchCachedData(
-        'events_all',
-        () =>
-          this.eventRepository.find({
-            relations: ['prices']
-          }),
-        EventsService.CACHE_TTL_ONE_HOUR
-      );
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve events.');
-    }
+  async findAllValues(): Promise<Event[]> {
+    return this.eventRepository.find({
+      select: {
+        quantityAvailable: true,
+        quantitySold: true,
+        revenueGenerated: true
+      }
+    });
   }
 
+  async findAllFiltered(
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ events: Event[]; total: number }> {
+    const {
+      limit = DEFAULT_PAGE_SIZE.EVENT,
+      offset = 0,
+      sortBy,
+      sortOrder = 'ASC',
+      filterBy,
+      filterValue
+    } = paginationFilterDto;
+
+    let whereCondition: FindOptionsWhere<Event> = {};
+
+    // Adjust the whereCondition based on filterValue
+    if (filterBy && filterValue && filterValue !== 'ALL') {
+      whereCondition = { [filterBy]: filterValue };
+    }
+    try {
+      const [events, total] = await this.eventRepository.findAndCount({
+        where: whereCondition,
+        order: sortBy ? { [sortBy]: sortOrder } : {},
+        skip: offset,
+        take: limit
+      });
+
+      return { events, total };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve events', error.message);
+    }
+  }
   /**
    * Get a single event by ID
    *
