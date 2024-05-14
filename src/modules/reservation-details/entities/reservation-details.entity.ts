@@ -11,6 +11,19 @@ import {
   Index
 } from 'typeorm';
 
+/**
+ * Entity for the reservation_details table.
+ *
+ * @property reservationDetailsId - The ID of the reservation details
+ * @property reservation - The reservation associated with the details
+ * @property event - The event associated with the details
+ * @property priceFormula - The price formula for the reservation
+ * @property title - The title of the reservation
+ * @property price - The price of the reservation
+ * @property description - The description of the reservation
+ * @property createdAt - The creation date of the reservation
+ * @property updatedAt - The last update date of the reservation
+ */
 @Entity('reservation_details')
 export class ReservationDetails {
   @PrimaryGeneratedColumn('increment')

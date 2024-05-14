@@ -1,11 +1,19 @@
+import { SortOrder } from '@common/enums/sort-order.enum';
 import { Type } from 'class-transformer';
 import { IsOptional, IsInt, Min, IsString, IsEnum } from 'class-validator';
 
-export enum SortOrder {
-  ASC = 'ASC',
-  DESC = 'DESC'
-}
-
+/**
+ * Data transfer object for pagination and filtering.
+ *
+ * @export PaginationAndFilterDto
+ * @class PaginationAndFilterDto
+ * @property {number} limit The maximum number of items to return
+ * @property {number} offset The number of items to skip
+ * @property {string} sortBy The field to sort by
+ * @property {SortOrder} sortOrder The sort order
+ * @property {string} filterBy The field to filter by
+ * @property {string | number} filterValue The value to filter by
+ */
 export class PaginationAndFilterDto {
   @IsOptional()
   @IsInt()

@@ -21,6 +21,6 @@ export class ConvertUtilsService {
    */
   convertDateStringToDate(dateStr: string): Date {
     const [year, month, day] = dateStr.split('-');
-    return new Date(+year, +month - 1, +day);
+    return new Date(Date.UTC(+year, +month - 1, +day));
   }
 }

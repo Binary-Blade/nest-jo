@@ -6,8 +6,18 @@ import { User } from '@modules/users/entities/user.entity';
 import { PaymentResult } from '@common/interfaces/payment.interface';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 
+/**
+ * Service responsible for handling transactions.
+ * This service is used to process transactions for a user's cart.
+ */
 @Injectable()
 export class TransactionsService {
+  /**
+   * Constructs the TransactionsService
+   *
+   * @param transactionRepository - The transaction repository
+   * @param userRepository - The user repository
+   */
   constructor(
     @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>,
     @InjectRepository(User)
@@ -20,7 +30,7 @@ export class TransactionsService {
    * @param user - The user making the transaction
    * @param total - The total amount of the transaction
    * @param paymentResult - The result of the payment
-   * @returns - The created transaction
+   * @returns Promise<Transaction> - The created transaction
    */
   async createTransaction(
     user: User,
@@ -47,7 +57,7 @@ export class TransactionsService {
    * Find a transaction by reservation ID
    *
    * @param reservationId - The ID of the reservation to find the transaction for
-   * @returns - The transaction
+   * @returns Promise<Transaction> - The transaction
    * @throws NotFoundException if the transaction is not found
    */
   async findTransactionByReservationId(reservationId: number): Promise<Transaction> {
@@ -68,15 +78,18 @@ export class TransactionsService {
    *
    * @private - This method is only used internally by the service
    * @param cartItems - The items in the cart
-   * @returns - The total price of the cart
+   * @returns number - The total price of the cart
    */
   calculateCartTotal(cartItems: CartItem[]): number {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  findAll() {
+  /**
+   * Find all transactions
+   *
+   * @returns Promise<Transaction[]> - The transactions
+   */
+  findAll(): Promise<Transaction[]> {
     return this.transactionRepository.find();
   }
-
-  // TODO: Implement new methods here
 }

@@ -1,9 +1,10 @@
 /**
  * Enum for status reservation
- * PENDING - The reservation is pending approval.
- * APPROVED - The reservation has been approved.
- * REJECTED - The reservation has been rejected.
- * CANCELLED - The reservation has been cancelled.
+ * @export StatusReservation
+ * @enum {string}
+ * @property {string} APPROVED = 'APPROVED'
+ * @property {string} REJECTED = 'REJECTED'
+ * @property {string} CANCELLED = 'CANCELLED'
  */
 export enum StatusReservation {
   APPROVED = 'APPROVED',

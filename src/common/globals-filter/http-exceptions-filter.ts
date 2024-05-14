@@ -16,8 +16,20 @@ import { Request, Response } from 'express';
  */
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(HttpExceptionFilter.name);
+  /**
+   * Logger instance for the HttpExceptionFilter.
+   *
+   * @private
+   * @type {Logger}
+   * @memberof HttpExceptionFilter
+   * @readonly
+   */
+  private readonly logger: Logger = new Logger(HttpExceptionFilter.name);
 
+  /**
+   * Constructor for the HttpExceptionFilter.
+   * @param configService - The configuration service
+   */
   constructor(private configService: ConfigService) {}
 
   /**
@@ -25,9 +37,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
    *
    * @param exception The caught HttpException.
    * @param host The arguments host containing information about the request context.
+   * @returns void
    */
-
-  // HACK: VERIFY IF ENVIRONMENT IS PPRODUCTION NOT SHOW ERROR DETAILS
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

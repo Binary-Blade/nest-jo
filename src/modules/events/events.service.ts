@@ -33,7 +33,7 @@ export class EventsService {
    * Create a new event
    *
    * @param createEventDto - DTO for creating an event
-   * @returns - The created event
+   * @return Promise<Event> - The created event
    * @throws ConflictException if an event with the same title already exists
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
@@ -54,7 +54,7 @@ export class EventsService {
   /**
    * Get all event
    *
-   * @returns - List of all events
+   * @returns Promise<Event[]> - The list of all events
    * @throws InternalServerErrorException if there is an error parsing the data
    */
   async findAllValues(): Promise<Event[]> {
@@ -67,6 +67,13 @@ export class EventsService {
     });
   }
 
+  /**
+   * Get all events with pagination and filtering
+   *
+   * @param paginationFilterDto - DTO for pagination and filtering
+   * @returns Promise<{ events: Event[]; total: number }> - The list of events and the total number of events
+   * @throws InternalServerErrorException if there is an error retrieving the events
+   */
   async findAllFiltered(
     paginationFilterDto: PaginationAndFilterDto
   ): Promise<{ events: Event[]; total: number }> {
@@ -98,11 +105,12 @@ export class EventsService {
       throw new InternalServerErrorException('Failed to retrieve events', error.message);
     }
   }
+
   /**
-   * Get a single event by ID
+   * Find an event by ID
    *
    * @param id - The ID of the event
-   * @returns - The event with the given ID
+   * @returns Promise<Event>- The event with the given ID
    * @throws NotFoundException if the event with the given ID does not exist
    */
   async findOne(id: number): Promise<Event> {

@@ -12,12 +12,23 @@ import { EventsService } from './events.service';
  */
 @Injectable()
 export class EventSalesService {
-  private readonly deductionMap = {
+  /**
+   * Map of price formulas to the quantity to deduct
+   * @private Do not expose this map to the controller
+   * @readonly
+   * @type {Record<string, number>}
+   */
+  private readonly deductionMap: Record<string, number> = {
     [PriceFormulaEnum.SOLO]: 1,
     [PriceFormulaEnum.DUO]: 2,
     [PriceFormulaEnum.FAMILY]: 4
   };
 
+  /**
+   * Constructor for the EventSalesService
+   * @param eventRepository - The event repository
+   * @param eventsService - The events service
+   */
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,

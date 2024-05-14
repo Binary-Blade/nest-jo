@@ -4,6 +4,25 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeor
 import { EventPrice } from './event-price.entity';
 import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
 
+/**
+ * Entity for the events table.
+ *
+ * @property eventId - The ID of the event
+ * @property title - The title of the event
+ * @property description - The description of the event
+ * @property categoryType - The category type of the event
+ * @property basePrice - The base price of the event
+ * @property startDate - The start date of the event
+ * @property endDate - The end date of the event
+ * @property quantityAvailable - The quantity of tickets available
+ * @property quantitySold - The quantity of tickets sold
+ * @property revenueGenerated - The revenue generated from the event
+ * @property prices - The prices for the event
+ * @property reservationsDetails - The reservation details for the event
+ * @property cartItems - The cart items for the event
+ * @property createdAt - The creation date of the event
+ * @property updatedAt - The last update date of the event
+ */
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn('increment')

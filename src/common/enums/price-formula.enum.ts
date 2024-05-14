@@ -1,8 +1,10 @@
 /**
  * Enum TypeEvent
- * SOLO - The event is for a single person.
- * DUO - The event is for two people.
- * FAMILY - The event is for a family.
+ * @export PriceFormulaEnum
+ * @enum {string}
+ * @property {string} SOLO = 'SOLO'
+ * @property {string} DUO = 'DUO'
+ * @property {string} FAMILY = 'FAMILY'
  */
 export enum PriceFormulaEnum {
   SOLO = 'SOLO',

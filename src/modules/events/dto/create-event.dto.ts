@@ -2,13 +2,17 @@ import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
 import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
 /**
- * DTO for creating an event
- * @param title - The title of the event
- * @param description - The description of the event
- * @param price - The price of the event
- * @param quantityAvailable - The quantity of the event available
- * @param type - The type of the event
- * @returns - The created event
+ * Data transfer object for creating an event.
+ *
+ * @export CreateEventDto
+ * @class CreateEventDto
+ * @property {string} title The title of the event
+ * @property {string} description The description of the event
+ * @property {number} basePrice The base price of the event
+ * @property {number} quantityAvailable The quantity of tickets available
+ * @property {string} startDate The start date of the event
+ * @property {string} endDate The end date of the event
+ * @property {CategoryEventTypeEnum} categoryType The category type of the event
  */
 export class CreateEventDto {
   @IsNotEmpty()
