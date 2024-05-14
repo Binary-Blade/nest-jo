@@ -45,7 +45,7 @@ export class User {
   @Column()
   transactionsCount: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column()
   totalSpent: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
