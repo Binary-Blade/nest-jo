@@ -7,6 +7,9 @@ export const PRICES_FORMULA = [
   { type: PriceFormulaEnum.FAMILY, multiplier: 1.8 }
 ] as const;
 
+// Pagination constants
 export const DEFAULT_PAGE_SIZE = {
-  USER: 10
+  USER: 9,
+  RESERVATION: 9,
+  EVENT: 9
 } as const satisfies Record<string, number>;
