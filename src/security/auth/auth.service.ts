@@ -79,7 +79,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.tokenService.getTokens(user);
 
     this.cookieService.setRefreshTokenCookie(res, refreshToken); // Set the HTTP only cookie for the refresh token
-    res.json({ accessToken });
+    res.json({ accessToken, userId: user.userId });
   }
 
   /**
