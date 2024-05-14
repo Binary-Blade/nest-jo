@@ -9,7 +9,9 @@ import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 @Injectable()
 export class TransactionsService {
   constructor(
-    @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>
+    @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>
   ) {}
 
   /**
@@ -31,7 +33,14 @@ export class TransactionsService {
       totalAmount: total,
       statusPayment: paymentResult.status
     });
-    return this.transactionRepository.save(transaction);
+    const savedTransaction = await this.transactionRepository.save(transaction);
+
+    await this.userRepository.update(user.userId, {
+      transactionsCount: user.transactionsCount + 1,
+      totalSpent: user.totalSpent + total
+    });
+
+    return savedTransaction;
   }
 
   /**

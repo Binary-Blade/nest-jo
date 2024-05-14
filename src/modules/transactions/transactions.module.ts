@@ -18,6 +18,7 @@ import { EventPrice } from '@modules/events/entities/event-price.entity';
 import { EventsModule } from '@modules/events/events.module';
 import { CommonModule } from '@modules/commom.module';
 import { ReservationsProcessorService } from '@modules/reservations/reservations-processor.service';
+import { User } from '@modules/users/entities/user.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { ReservationsProcessorService } from '@modules/reservations/reservations
       Event,
       Cart,
       ReservationDetails,
-      EventPrice
+      EventPrice,
+      User
     ]),
     EventsModule,
     CommonModule
