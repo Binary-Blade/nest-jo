@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ReservationDetailsService } from './reservation-details.service';
-import { ReservationDetailsController } from './reservation-details.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from '@modules/events/entities/event.entity';
 import { EventPrice } from '@modules/events/entities/event-price.entity';
@@ -13,7 +12,6 @@ import { CartsService } from '@modules/carts/carts.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event, EventPrice, ReservationDetails, CartItem, Cart])], // Import the event entity and the Redis module
-  controllers: [ReservationDetailsController],
   providers: [ReservationDetailsService, PaymentService, CartItemsService, CartsService]
 })
 export class ReservationDetailsModule {}

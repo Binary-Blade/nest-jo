@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { TransactionsController } from './transactions.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Ticket } from '@modules/tickets/entities/ticket.entity';
@@ -36,7 +35,6 @@ import { User } from '@modules/users/entities/user.entity';
     EventsModule,
     CommonModule
   ],
-  controllers: [TransactionsController],
   providers: [
     TransactionsService,
     TicketsService,
