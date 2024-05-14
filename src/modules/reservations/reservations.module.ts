@@ -19,6 +19,7 @@ import { TransactionsService } from '@modules/transactions/transactions.service'
 import { EventsModule } from '@modules/events/events.module';
 import { CommonModule } from '@modules/commom.module';
 import { ReservationsProcessorService } from './reservations-processor.service';
+import { User } from '@modules/users/entities/user.entity';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { ReservationsProcessorService } from './reservations-processor.service';
       Ticket,
       EventPrice,
       ReservationDetails,
-      Transaction
+      Transaction,
+      User
     ]),
     forwardRef(() => TicketsModule),
     EventsModule,

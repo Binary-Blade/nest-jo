@@ -17,6 +17,7 @@ import { ReservationDetailsService } from '@modules/reservation-details/reservat
 import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { TransactionsService } from '@modules/transactions/transactions.service';
 import { CommonModule } from '@modules/commom.module';
+import { User } from '@modules/users/entities/user.entity';
 
 /**
  * Module for handling tickets.
@@ -34,7 +35,8 @@ import { CommonModule } from '@modules/commom.module';
       Event,
       EventPrice,
       ReservationDetails,
-      Transaction
+      Transaction,
+      User
     ]),
     forwardRef(() => ReservationsModule), // Import the ReservationsModule with forwardRef
     CommonModule
