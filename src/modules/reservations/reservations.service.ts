@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationsProcessorService } from './reservations-processor.service';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**
  * Service responsible for handling reservations.
@@ -34,34 +36,60 @@ export class ReservationsService {
    * @returns - A list of reservations for the user
    * @throws NotFoundException if the user does not exist
    */
-  async findAll(userId: number) {
-    return await this.reservationRepository.find({
-      where: { user: { userId } },
-      relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-      select: {
-        reservationId: true,
-        reservationDetails: {
-          title: true,
-          description: true,
-          price: true,
-          priceFormula: true,
-          event: {
-            eventId: true,
+  async findAll(
+    userId: number,
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ reservations: Reservation[]; total: number }> {
+    const {
+      limit = DEFAULT_PAGE_SIZE.RESERVATION,
+      offset = 0,
+      sortBy,
+      sortOrder = 'ASC',
+      filterBy,
+      filterValue
+    } = paginationFilterDto;
+
+    // Construct the where condition based on user ID and any additional filters
+    const whereCondition: FindOptionsWhere<Reservation> = { user: { userId } };
+    if (filterBy && filterValue) {
+      whereCondition[filterBy] = filterValue;
+    }
+
+    try {
+      const [reservations, total] = await this.reservationRepository.findAndCount({
+        where: whereCondition,
+        relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
+        select: {
+          reservationId: true,
+          reservationDetails: {
             title: true,
             description: true,
-            categoryType: true,
-            startDate: true,
-            endDate: true
+            price: true,
+            priceFormula: true,
+            event: {
+              eventId: true,
+              title: true,
+              description: true,
+              categoryType: true,
+              startDate: true,
+              endDate: true
+            }
+          },
+          transaction: {
+            statusPayment: true,
+            paymentId: true
           }
         },
-        transaction: {
-          statusPayment: true,
-          paymentId: true
-        }
-      }
-    });
-  }
+        order: sortBy ? { [sortBy]: sortOrder } : {},
+        skip: offset,
+        take: limit
+      });
 
+      return { reservations, total };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve reservations.', error);
+    }
+  }
   /**
    * Find all reservations for an admin
    *
@@ -69,8 +97,11 @@ export class ReservationsService {
    * @throws ForbiddenException if the user is not an admin
    * @throws NotFoundException if the user does not exist
    */
-  async findAllAdmin(): Promise<Reservation[]> {
+  async findAllAdmin(paginationFilterDto: PaginationAndFilterDto): Promise<Reservation[]> {
+    const { limit, offset } = paginationFilterDto;
     const reservations = await this.reservationRepository.find({
+      skip: offset,
+      take: limit ?? DEFAULT_PAGE_SIZE.USER,
       relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
       select: {
         reservationId: true,
