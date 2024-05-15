@@ -12,6 +12,7 @@ import { UserRole } from '@common/enums/user-role.enum';
 import { InvalidCredentialsException } from '@common/exceptions/invalid-credentials.exception';
 import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
+import { CartsService } from '@modules/carts/carts.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -20,6 +21,7 @@ describe('AuthService', () => {
   let tokenService: TokenService;
   let cookieService: CookieService;
   let refreshTokenStoreService: RefreshTokenStoreService;
+  let cartService: CartsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -54,6 +56,12 @@ describe('AuthService', () => {
           useValue: {
             removeRefreshTokenRedis: jest.fn()
           }
+        },
+        {
+          provide: CartsService,
+          useValue: {
+            getOrCreateCart: jest.fn()
+          }
         }
       ]
     }).compile();
@@ -64,8 +72,8 @@ describe('AuthService', () => {
     tokenService = module.get<TokenService>(TokenService);
     cookieService = module.get<CookieService>(CookieService);
     refreshTokenStoreService = module.get<RefreshTokenStoreService>(RefreshTokenStoreService);
+    cartService = module.get<CartsService>(CartsService);
   });
-
   describe('signup', () => {
     it('should successfully sign up a new user', async () => {
       const createUserDto: CreateUserDto = {
@@ -109,11 +117,14 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should successfully login a user and set cookies', async () => {
+    it('should successfully login a user, create a cart, and set cookies', async () => {
       const email = 'test@example.com';
       const password = 'password123';
       const user = new User();
-      user.password = 'hashedPassword';
+      const response = {
+        json: jest.fn(),
+        clearCookie: jest.fn()
+      } as unknown as Response;
 
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(user);
       jest.spyOn(encryptionService, 'verifyPassword').mockResolvedValue(true);
@@ -121,20 +132,21 @@ describe('AuthService', () => {
         accessToken: 'accessToken',
         refreshToken: 'refreshToken'
       });
-      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
-      const response = {
-        json: jest.fn()
-      } as unknown as Response;
+      jest.spyOn(cartService, 'getOrCreateCart').mockResolvedValue(undefined);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(undefined);
 
       await authService.login(email, password, response);
 
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ email });
-      expect(encryptionService.verifyPassword).toHaveBeenCalledWith('hashedPassword', password);
+      expect(encryptionService.verifyPassword).toHaveBeenCalledWith(user.password, password);
+      expect(cartService.getOrCreateCart).toHaveBeenCalledWith(user.userId);
       expect(tokenService.getTokens).toHaveBeenCalledWith(user);
       expect(cookieService.setRefreshTokenCookie).toHaveBeenCalledWith(response, 'refreshToken');
-      expect(response.json).toHaveBeenCalledWith({ accessToken: 'accessToken' });
+      expect(response.json).toHaveBeenCalledWith({
+        accessToken: 'accessToken',
+        userId: user.userId
+      });
     });
-
     it('should throw InvalidCredentialsException if email does not exist', async () => {
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
 

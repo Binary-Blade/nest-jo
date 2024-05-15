@@ -4,6 +4,8 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
+import { ForbiddenException } from '@nestjs/common';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -17,6 +19,7 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             findAll: jest.fn(),
+            findAllValues: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
             remove: jest.fn()
@@ -46,38 +49,79 @@ describe('UsersController', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of users', async () => {
-      const result: User[] = [];
+    it('should return an array of users with pagination', async () => {
+      const result = { users: [new User()], total: 1 };
+      const paginationFilterDto: PaginationAndFilterDto = {
+        limit: 10,
+        offset: 0,
+        sortBy: null,
+        sortOrder: null,
+        filterBy: null,
+        filterValue: null
+      };
       jest.spyOn(service, 'findAll').mockImplementation(async () => result);
 
-      expect(await controller.findAll()).toBe(result);
+      expect(await controller.findAll(paginationFilterDto)).toBe(result);
+    });
+  });
+
+  describe('findAllValues', () => {
+    it('should return all user values', async () => {
+      const result: User[] = [];
+      jest.spyOn(service, 'findAllValues').mockImplementation(async () => result);
+
+      expect(await controller.findAllValues()).toBe(result);
     });
   });
 
   describe('findOne', () => {
-    it('should return a user', async () => {
-      const result: User = new User(); // Assume this has properties you'd expect
+    it('should return a user if found', async () => {
+      const result: User = new User();
       jest.spyOn(service, 'findOne').mockImplementation(async () => result);
 
       expect(await controller.findOne('1')).toBe(result);
+    });
+
+    it('should enforce creator or admin guard', async () => {
+      jest.spyOn(service, 'findOne').mockImplementation(async () => {
+        throw new ForbiddenException();
+      });
+
+      await expect(controller.findOne('1')).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('update', () => {
     it('should update and return a user', async () => {
-      const result: User = new User(); // Adjust based on your User entity
-      const updateUserDto: UpdateUserDto = { password: 'Updated' };
+      const result: User = new User();
+      const updateUserDto: UpdateUserDto = { firstName: 'UpdatedName' };
       jest.spyOn(service, 'update').mockImplementation(async () => result);
 
       expect(await controller.update('1', updateUserDto)).toBe(result);
     });
+
+    it('should enforce creator or admin guard during update', async () => {
+      jest.spyOn(service, 'update').mockImplementation(async () => {
+        throw new ForbiddenException();
+      });
+
+      await expect(controller.update('1', new UpdateUserDto())).rejects.toThrow(ForbiddenException);
+    });
   });
 
   describe('remove', () => {
-    it('should remove the user', async () => {
+    it('should remove a user', async () => {
       jest.spyOn(service, 'remove').mockImplementation(async () => undefined);
 
       await expect(controller.remove('1')).resolves.toBeUndefined();
+    });
+
+    it('should enforce creator or admin guard during removal', async () => {
+      jest.spyOn(service, 'remove').mockImplementation(async () => {
+        throw new ForbiddenException();
+      });
+
+      await expect(controller.remove('1')).rejects.toThrow(ForbiddenException);
     });
   });
 });

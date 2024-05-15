@@ -4,7 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundException } from '@nestjs/common';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { SortOrder } from '@common/enums/sort-order.enum';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -12,8 +14,9 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     mockUsersRepository = {
-      find: jest.fn(),
+      findAndCount: jest.fn(),
       findOneBy: jest.fn(),
+      findOne: jest.fn(),
       save: jest.fn(),
       merge: jest.fn(),
       remove: jest.fn()
@@ -37,12 +40,57 @@ describe('UsersService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of users', async () => {
-      mockUsersRepository.find.mockResolvedValue([]);
-      expect(await service.findAll()).toEqual([]);
+    it('should return a paginated array of users with default parameters', async () => {
+      const paginationFilterDto: PaginationAndFilterDto = {
+        limit: 10,
+        offset: 0,
+        sortBy: null,
+        sortOrder: SortOrder.ASC,
+        filterBy: null,
+        filterValue: null
+      };
+      const result = { users: [new User()], total: 1 };
+      mockUsersRepository.findAndCount.mockResolvedValue([[new User()], 1]);
+
+      const usersData = await service.findAll(paginationFilterDto);
+      expect(usersData).toEqual(result);
+      expect(mockUsersRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
+        order: {},
+        skip: 0,
+        take: 10
+      });
+    });
+
+    it('should handle filters and sorting', async () => {
+      const paginationFilterDto: PaginationAndFilterDto = {
+        limit: 5,
+        offset: 0,
+        sortBy: 'createdAt',
+        sortOrder: SortOrder.DESC,
+        filterBy: 'email',
+        filterValue: 'test@example.com'
+      };
+      const result = { users: [new User()], total: 1 };
+
+      mockUsersRepository.findAndCount.mockResolvedValue([[new User()], 1]);
+      const usersData = await service.findAll(paginationFilterDto);
+      expect(usersData).toEqual(result);
+      expect(mockUsersRepository.findAndCount).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' },
+        order: { createdAt: 'DESC' },
+        skip: 0,
+        take: 5
+      });
+    });
+
+    it('should throw InternalServerErrorException on failure', async () => {
+      mockUsersRepository.findAndCount.mockRejectedValue(new Error('Database error'));
+      await expect(service.findAll({} as PaginationAndFilterDto)).rejects.toThrow(
+        InternalServerErrorException
+      );
     });
   });
-
   describe('findOne', () => {
     it('should return a user', async () => {
       const userId = 1;
@@ -54,6 +102,39 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       mockUsersRepository.findOneBy.mockResolvedValue(undefined);
       await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('verifyUserOneBy', () => {
+    it('should return a user if found', async () => {
+      const user = new User();
+      mockUsersRepository.findOneBy.mockResolvedValue(user);
+      const result = await service.verifyUserOneBy(1);
+      expect(result).toEqual(user);
+      expect(mockUsersRepository.findOneBy).toHaveBeenCalledWith({ userId: 1 });
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUsersRepository.findOneBy.mockResolvedValue(undefined);
+      await expect(service.verifyUserOneBy(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('verifyUserOneRelation', () => {
+    it('should return a user with relations if found', async () => {
+      const user = new User();
+      mockUsersRepository.findOne.mockResolvedValue(user);
+      const result = await service.verifyUserOneRelation(1, 'orders');
+      expect(result).toEqual(user);
+      expect(mockUsersRepository.findOne).toHaveBeenCalledWith({
+        where: { userId: 1 },
+        relations: ['orders']
+      });
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUsersRepository.findOne.mockResolvedValue(undefined);
+      await expect(service.verifyUserOneRelation(1, 'orders')).rejects.toThrow(NotFoundException);
     });
   });
 
