@@ -24,7 +24,12 @@ export class CreateEventDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(255)
-  readonly description: string;
+  readonly shortDescription: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(500)
+  readonly longDescription: string;
 
   @IsNotEmpty()
   @IsNumber()

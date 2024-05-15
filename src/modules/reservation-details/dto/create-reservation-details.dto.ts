@@ -28,7 +28,7 @@ export class CreateReservationDetailsDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly description: string;
+  readonly shortDescription: string;
 
   @IsNotEmpty()
   @IsNumber()

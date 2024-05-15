@@ -9,8 +9,9 @@ import { ReservationDetails } from '@modules/reservation-details/entities/reserv
  *
  * @property eventId - The ID of the event
  * @property title - The title of the event
- * @property description - The description of the event
  * @property categoryType - The category type of the event
+ * @property shortDescription - The short description of the event
+ * @property longDescription - The long description of the event
  * @property basePrice - The base price of the event
  * @property startDate - The start date of the event
  * @property endDate - The end date of the event
@@ -33,7 +34,10 @@ export class Event {
   title: string;
 
   @Column('text')
-  description: string;
+  shortDescription: string;
+
+  @Column('text')
+  longDescription: string;
 
   @Column()
   categoryType: CategoryEventTypeEnum;

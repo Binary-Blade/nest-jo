@@ -63,13 +63,13 @@ export class ReservationsService {
           reservationId: true,
           reservationDetails: {
             title: true,
-            description: true,
+            shortDescription: true,
             price: true,
             priceFormula: true,
             event: {
               eventId: true,
               title: true,
-              description: true,
+              shortDescription: true,
               categoryType: true,
               startDate: true,
               endDate: true

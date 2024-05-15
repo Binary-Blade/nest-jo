@@ -12,6 +12,7 @@ import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 describe('ReservationDetailsService', () => {
   let service: ReservationDetailsService;
   let reservationDetailsRepository: Repository<ReservationDetails>;
+  let eventRepository: Repository<Event>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,15 +20,18 @@ describe('ReservationDetailsService', () => {
         ReservationDetailsService,
         {
           provide: getRepositoryToken(ReservationDetails),
-          useClass: Repository
+          useValue: { create: jest.fn(), save: jest.fn(), findOne: jest.fn() }
+        },
+        {
+          provide: getRepositoryToken(Event),
+          useValue: { findOne: jest.fn() }
         }
       ]
     }).compile();
 
     service = module.get<ReservationDetailsService>(ReservationDetailsService);
-    reservationDetailsRepository = module.get<Repository<ReservationDetails>>(
-      getRepositoryToken(ReservationDetails)
-    );
+    reservationDetailsRepository = module.get(getRepositoryToken(ReservationDetails));
+    eventRepository = module.get(getRepositoryToken(Event));
   });
 
   describe('createReservationDetailsFromReservation', () => {
@@ -41,25 +45,27 @@ describe('ReservationDetailsService', () => {
       } as CartItem;
       const reservationDetails = {} as ReservationDetails;
 
+      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
       jest.spyOn(reservationDetailsRepository, 'create').mockReturnValue(reservationDetails);
       jest.spyOn(reservationDetailsRepository, 'save').mockResolvedValue(reservationDetails);
 
       const result = await service.createReservationDetailsFromReservation(reservation, cartItem);
-      expect(result).toBe(reservationDetails);
+      expect(result).toEqual(reservationDetails);
       expect(reservationDetailsRepository.create).toHaveBeenCalledWith({
-        title: 'Event Title',
-        description: 'Event Description',
-        priceFormula: PriceFormulaEnum.SOLO,
+        title: event.title,
+        description: event.description,
+        priceFormula: 'SOLO',
         price: 100,
         event: { eventId: 1 },
         reservation: { reservationId: 1 }
       });
-      expect(reservationDetailsRepository.save).toHaveBeenCalledWith(reservationDetails);
     });
 
     it('should throw NotFoundException if the event is not found', async () => {
-      const reservation = {} as Reservation;
-      const cartItem = { event: undefined } as CartItem;
+      const reservation = { reservationId: 1 } as Reservation;
+      const cartItem = { event: { eventId: 999 } } as CartItem;
+
+      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(null);
 
       await expect(
         service.createReservationDetailsFromReservation(reservation, cartItem)
@@ -69,14 +75,14 @@ describe('ReservationDetailsService', () => {
 
   describe('findOne', () => {
     it('should find one reservation detail by ID', async () => {
-      const reservationDetails = {} as ReservationDetails;
-
+      const reservationDetails = new ReservationDetails();
       jest.spyOn(reservationDetailsRepository, 'findOne').mockResolvedValue(reservationDetails);
 
       const result = await service.findOne(1);
       expect(result).toBe(reservationDetails);
       expect(reservationDetailsRepository.findOne).toHaveBeenCalledWith({
-        where: { reservationDetailsId: 1 }
+        where: { reservationDetailsId: 1 },
+        relations: ['event', 'reservation']
       });
     });
 

@@ -56,45 +56,51 @@ describe('EventsService', () => {
   });
 
   describe('create', () => {
+    const createEventDto: CreateEventDto = {
+      title: 'Test Event',
+      description: 'Test Description',
+      categoryType: CategoryEventTypeEnum.CYCLING,
+      basePrice: 100,
+      startDate: '2024-01-01',
+      endDate: '2024-01-02',
+      quantityAvailable: 100
+    };
+
     it('should create an event successfully', async () => {
-      const createEventDto: CreateEventDto = {
-        title: 'Test Event',
-        description: 'Test Description',
-        categoryType: CategoryEventTypeEnum.CYCLING,
-        basePrice: 100,
-        startDate: '2024-01-01',
-        endDate: '2024-01-02',
-        quantityAvailable: 100
-      };
-      const event = { eventId: 1, basePrice: 100 } as Event;
+      const event = new Event();
+      event.eventId = 1;
+      event.basePrice = 100;
 
       jest.spyOn(eventRepository, 'create').mockReturnValue(event);
       jest.spyOn(eventRepository, 'save').mockResolvedValue(event);
       jest.spyOn(eventPricesService, 'createEventPrices').mockResolvedValue(undefined);
       jest.spyOn(redisService, 'clearCacheEvent').mockResolvedValue(undefined);
-      jest.spyOn(service as any, 'ensureTitleUnique').mockResolvedValue(undefined);
+      jest.spyOn(service, 'ensureTitleUnique').mockResolvedValue();
 
       const result = await service.create(createEventDto);
-      expect(result).toBe(event);
-      expect(service['ensureTitleUnique']).toHaveBeenCalledWith('Test Event');
-      expect(eventPricesService.createEventPrices).toHaveBeenCalledWith(1, 100);
+      expect(result).toEqual(event);
+      expect(eventRepository.create).toHaveBeenCalledWith(expect.objectContaining(createEventDto));
+      expect(eventRepository.save).toHaveBeenCalledWith(event);
+      expect(eventPricesService.createEventPrices).toHaveBeenCalledWith(
+        event.eventId,
+        event.basePrice
+      );
       expect(redisService.clearCacheEvent).toHaveBeenCalled();
     });
 
     it('should throw ConflictException if the title is not unique', async () => {
-      jest.spyOn(service as any, 'ensureTitleUnique').mockRejectedValue(new ConflictException());
+      jest
+        .spyOn(service, 'ensureTitleUnique')
+        .mockRejectedValue(new ConflictException('An event with this title already exists.'));
 
-      await expect(
-        service.create({
-          title: 'Test Event',
-          description: 'Test Description',
-          categoryType: CategoryEventTypeEnum.CYCLING,
-          basePrice: 100,
-          startDate: '2024-01-01',
-          endDate: '2024-01-02',
-          quantityAvailable: 100
-        } as CreateEventDto)
-      ).rejects.toThrow(ConflictException);
+      await expect(service.create(createEventDto)).rejects.toThrow(ConflictException);
+    });
+
+    it('should handle database errors during event creation', async () => {
+      jest.spyOn(eventRepository, 'save').mockRejectedValue(new InternalServerErrorException());
+      jest.spyOn(service, 'ensureTitleUnique').mockResolvedValue();
+
+      await expect(service.create(createEventDto)).rejects.toThrow(InternalServerErrorException);
     });
   });
 

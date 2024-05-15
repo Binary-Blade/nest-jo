@@ -44,7 +44,7 @@ export class ReservationDetailsService {
     // Create DTO from event details
     const createReservationDetailsDto: CreateReservationDetailsDto = {
       title: event.title,
-      description: event.description,
+      shortDescription: event.shortDescription,
       priceFormula: cartItem.priceFormula,
       price: cartItem.price
     };

@@ -58,7 +58,8 @@ describe('EventsController', () => {
     it('should create an event successfully', async () => {
       const createEventDto: CreateEventDto = {
         title: 'Test Event',
-        description: 'A test event',
+        shortDescription: 'A test event',
+        longDescription: 'A test event with a long description',
         categoryType: CategoryEventTypeEnum.TENNIS,
         basePrice: 100,
         startDate: '2024-01-01',

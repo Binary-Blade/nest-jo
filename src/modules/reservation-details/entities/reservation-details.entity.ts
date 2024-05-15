@@ -20,7 +20,8 @@ import {
  * @property priceFormula - The price formula for the reservation
  * @property title - The title of the reservation
  * @property price - The price of the reservation
- * @property description - The description of the reservation
+ * @property shortDescription - The short description of the reservation
+ * @property longDescription - The long description of the reservation
  * @property createdAt - The creation date of the reservation
  * @property updatedAt - The last update date of the reservation
  */
@@ -48,7 +49,7 @@ export class ReservationDetails {
   price: number;
 
   @Column('text')
-  description: string;
+  shortDescription: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
