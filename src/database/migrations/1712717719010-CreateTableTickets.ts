@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTableTickets1713117719010 implements MigrationInterface {
+export class CreateTableTickets1712717719010 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "reservation" table already exists in the database.
     const table = await queryRunner.getTable('tickets');

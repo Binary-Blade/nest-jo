@@ -16,7 +16,8 @@ export class CreateTableEvents1712572717258 implements MigrationInterface {
                 CREATE TABLE "events" (
                     "eventId" SERIAL PRIMARY KEY,
                     "title" VARCHAR NOT NULL UNIQUE,
-                    "description" TEXT NOT NULL,
+                    "shortDescription" TEXT NOT NULL,
+                    "longDescription" TEXT NOT NULL,
                     "categoryType" "category_type_enum" NOT NULL,
                     "basePrice" INTEGER NOT NULL DEFAULT 0,
                     "quantityAvailable" INTEGER DEFAULT 0,

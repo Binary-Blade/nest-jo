@@ -18,7 +18,9 @@ export class CreateTableCartItems1712661230450 implements MigrationInterface {
                     "price" INTEGER NOT NULL,
                     "quantity" INTEGER NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY ("cartId") REFERENCES "cart" ("cartId"),
+                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId") 
                 );
             `);
     }

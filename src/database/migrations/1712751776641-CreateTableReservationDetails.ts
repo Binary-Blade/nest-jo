@@ -1,7 +1,7 @@
 import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from '@utils/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTableReservationDetails1714895249686 implements MigrationInterface {
+export class CreateTableReservationDetails1712751776641 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "reservation" table already exists in the database.
     const table = await queryRunner.getTable('reservation_details');
@@ -18,9 +18,10 @@ export class CreateTableReservationDetails1714895249686 implements MigrationInte
                     "priceFormula" "type_price_formule_enum" NOT NULL,
                     "price" INT NOT NULL DEFAULT 0,
                     "title" VARCHAR NOT NULL,
-                    "description" TEXT NOT NULL,
+                    "shortDescription" TEXT NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId")
                 );
             `);
     }

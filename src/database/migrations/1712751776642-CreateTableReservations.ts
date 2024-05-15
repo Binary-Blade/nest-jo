@@ -11,12 +11,15 @@ export class CreateTableReservations1712751776642 implements MigrationInterface 
                 CREATE TABLE "reservations" (
                     "reservationId" SERIAL PRIMARY KEY,
                     "userId" INT NOT NULL,
-                    "cartItemId" INT NOT NULL,
+                    "cartItemId" INT NULL,
                     "transactionId" INT NULL,
                     "reservationDetailsId" INT NULL, 
                     "ticketId" INT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY ("userId") REFERENCES "users" ("userId"),
+                    FOREIGN KEY ("transactionId") REFERENCES "transactions" ("transactionId"),
+                    FOREIGN KEY ("cartItemId") REFERENCES "cart_items" ("cartItemId") ON DELETE SET NULL
                 );
             `);
     }

@@ -1,7 +1,7 @@
 import { DOES_ENUM_STATUS_RESERVATION_EXIST } from '@utils/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTableTransactions1714995568218 implements MigrationInterface {
+export class CreateTableTransactions1712661123450 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "reservation" table already exists in the database.
     const table = await queryRunner.getTable('transactions');
@@ -18,7 +18,8 @@ export class CreateTableTransactions1714995568218 implements MigrationInterface 
                     "paymentId" INT NOT NULL,
                     "totalAmount" DECIMAL NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY ("userId") REFERENCES "users" ("userId")
                 );
             `);
     }

@@ -12,7 +12,8 @@ export class CreateTableCarts1712661221574 implements MigrationInterface {
                     "cartId" SERIAL PRIMARY KEY,
                     "userId" INTEGER NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY ("userId") REFERENCES "users" ("userId")
                 );
             `);
     }

@@ -8,7 +8,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * email, password, and role. It's intended to be the initial schema setup for
  * managing user data within the application.
  */
-export class InitialMigration1711085051379 implements MigrationInterface {
+export class CreateTableUsers1711085051379 implements MigrationInterface {
   /**
    * Run the migrations.
    *
