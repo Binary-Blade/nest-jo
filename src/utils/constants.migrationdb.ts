@@ -38,27 +38,10 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'category_type_enum') THEN
         CREATE TYPE "category_type_enum" AS ENUM(
-            'ARCHERY', 
-            'ATHLETICS', 
-            'BADMINTON', 
-            'BASKETBALL', 
-            'BOXING', 
-            'CANOE_KAYAK', 
-            'CYCLING', 
-            'DIVING', 
-            'FENCING', 
-            'FOOTBALL', 
-            'GYMNASTICS', 
-            'HANDBALL', 
-            'JUDO', 
-            'ROWING', 
-            'SAILING', 
-            'SWIMMING', 
-            'TABLE_TENNIS', 
-            'TENNIS', 
-            'VOLLEYBALL', 
-            'WEIGHTLIFTING', 
-            'WRESTLING'
+            'ARCHERY', 'ATHLETICS', 'BADMINTON', 'BASKETBALL', 'BOXING',
+            'CANOE_KAYAK', 'CYCLING', 'DIVING', 'FENCING', 'FOOTBALL', 'GYMNASTICS',
+            'HANDBALL', 'ROWING', 'SAILING', 'SWIMMING', 'TABLE_TENNIS', 'TENNIS',
+            'VOLLEYBALL', 'WEIGHTLIFTING', 'KARATE'
         );
     END IF;
 END

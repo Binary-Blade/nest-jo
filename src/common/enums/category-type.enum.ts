@@ -15,7 +15,6 @@
  * @property {string} FOOTBALL = 'FOOTBALL'
  * @property {string} GYMNASTICS = 'GYMNASTICS'
  * @property {string} HANDBALL = 'HANDBALL'
- * @property {string} JUDO = 'JUDO'
  * @property {string} ROWING = 'ROWING'
  * @property {string} SAILING = 'SAILING'
  * @property {string} SWIMMING = 'SWIMMING'
@@ -23,7 +22,6 @@
  * @property {string} TENNIS = 'TENNIS'
  * @property {string} VOLLEYBALL = 'VOLLEYBALL'
  * @property {string} WEIGHTLIFTING = 'WEIGHTLIFTING'
- * @property {string} WRESTLING = 'WRESTLING'
  */
 export enum CategoryEventTypeEnum {
   ARCHERY = 'ARCHERY',
@@ -38,7 +36,6 @@ export enum CategoryEventTypeEnum {
   FOOTBALL = 'FOOTBALL',
   GYMNASTICS = 'GYMNASTICS',
   HANDBALL = 'HANDBALL',
-  JUDO = 'JUDO',
   ROWING = 'ROWING',
   SAILING = 'SAILING',
   SWIMMING = 'SWIMMING',
@@ -46,5 +43,5 @@ export enum CategoryEventTypeEnum {
   TENNIS = 'TENNIS',
   VOLLEYBALL = 'VOLLEYBALL',
   WEIGHTLIFTING = 'WEIGHTLIFTING',
-  WRESTLING = 'WRESTLING'
+  KARATE = 'KARATE'
 }
