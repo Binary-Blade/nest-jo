@@ -38,11 +38,11 @@ export class CartItemsService {
       throw new NotFoundException('Not enough tickets available');
     }
 
-    const unitPrice = await this.eventPricesService.getPriceByEventAndType(
-      createCartItemDto.eventId,
-      createCartItemDto.priceFormula
-    );
-    return this.getOrCreateCartItem(cart.cartId, createCartItemDto, unitPrice);
+    const priceDetail = event.prices.find(p => p.priceFormula === createCartItemDto.priceFormula);
+    if (!priceDetail) {
+      throw new NotFoundException('Price formula not found for event');
+    }
+    return this.getOrCreateCartItem(cart.cartId, createCartItemDto, priceDetail.price);
   }
 
   /**
@@ -70,12 +70,12 @@ export class CartItemsService {
 
     if (existingCartItem) {
       existingCartItem.quantity += createCartItemDto.quantity;
-      existingCartItem.price = unitPrice;
+      existingCartItem.price = unitPrice * existingCartItem.quantity;
       return await this.cartItemRepository.save(existingCartItem);
     } else {
       const cartItem = this.cartItemRepository.create({
         ...createCartItemDto,
-        price: unitPrice,
+        price: unitPrice * createCartItemDto.quantity, // Calculate initial total price
         cart: { cartId },
         event: { eventId: createCartItemDto.eventId }
       });

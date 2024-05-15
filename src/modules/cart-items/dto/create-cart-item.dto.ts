@@ -19,8 +19,4 @@ export class CreateCartItemDto {
   @IsNotEmpty()
   @IsEnum(PriceFormulaEnum)
   readonly priceFormula: PriceFormulaEnum;
-
-  @IsNotEmpty()
-  @IsInt()
-  price: number;
 }
