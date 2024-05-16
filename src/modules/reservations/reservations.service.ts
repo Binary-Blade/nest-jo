@@ -1,10 +1,11 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationsProcessorService } from './reservations-processor.service';
 import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
+import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
  * Service responsible for handling reservations.
@@ -14,7 +15,8 @@ import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 export class ReservationsService {
   constructor(
     @InjectRepository(Reservation) private reservationRepository: Repository<Reservation>,
-    private readonly reservationProcessorService: ReservationsProcessorService
+    private readonly reservationProcessorService: ReservationsProcessorService,
+    private readonly queryHelperService: QueryHelperService
   ) {}
 
   /**
@@ -40,70 +42,24 @@ export class ReservationsService {
     userId: number,
     paginationFilterDto: PaginationAndFilterDto
   ): Promise<{ reservations: Reservation[]; total: number }> {
-    const {
-      limit = DEFAULT_PAGE_SIZE.RESERVATION,
-      offset = 0,
-      sortBy,
-      sortOrder = 'ASC',
-      filterBy,
-      filterValue
-    } = paginationFilterDto;
+    const queryOptions =
+      this.queryHelperService.buildQueryOptions<Reservation>(paginationFilterDto);
 
-    const whereCondition = this.buildWhereCondition(userId, filterBy, filterValue);
+    queryOptions.where = { ...queryOptions.where, user: { userId } };
+    queryOptions.relations = [
+      'user',
+      'reservationDetails',
+      'reservationDetails.event',
+      'transaction'
+    ];
+    queryOptions.select = this.getSelectFieldsFindAll();
 
-    const selectFields = this.getSelectFieldsFindAll();
     try {
-      const [reservations, total] = await this.reservationRepository.findAndCount({
-        where: whereCondition,
-        relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-        select: selectFields,
-        order: sortBy ? this.createNestedOrder(sortBy, sortOrder) : {},
-        skip: offset,
-        take: limit
-      });
-
+      const [reservations, total] = await this.reservationRepository.findAndCount(queryOptions);
       return { reservations, total };
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve reservations.', error);
     }
-  }
-
-  private buildWhereCondition(
-    userId: number,
-    filterBy?: string,
-    filterValue?: string | number
-  ): FindOptionsWhere<Reservation> {
-    const whereCondition: FindOptionsWhere<Reservation> = { user: { userId } };
-
-    if (filterBy && filterValue && filterValue !== 'ALL') {
-      const nestedFields = filterBy.split('.');
-      let currentField = whereCondition;
-      nestedFields.forEach((field, index) => {
-        if (index === nestedFields.length - 1) {
-          currentField[field] = filterValue;
-        } else {
-          currentField[field] = {};
-          currentField = currentField[field];
-        }
-      });
-    }
-
-    return whereCondition;
-  }
-
-  private createNestedOrder(sortBy: string, sortOrder: 'ASC' | 'DESC') {
-    const orderParts = sortBy.split('.');
-    const order = {};
-    let currentPart = order;
-    orderParts.forEach((part, index) => {
-      if (index === orderParts.length - 1) {
-        currentPart[part] = sortOrder;
-      } else {
-        currentPart[part] = {};
-        currentPart = currentPart[part];
-      }
-    });
-    return order;
   }
 
   /**
@@ -119,25 +75,7 @@ export class ReservationsService {
       skip: offset,
       take: limit ?? DEFAULT_PAGE_SIZE.USER,
       relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-      select: {
-        reservationId: true,
-        user: {
-          userId: true,
-          email: true // Example, adjust based on the fields you want to expose
-        },
-        reservationDetails: {
-          title: true,
-          event: {
-            eventId: true
-          }
-        },
-        transaction: {
-          transactionId: true, // Assuming you want to include this as well
-          statusPayment: true,
-          paymentId: true,
-          totalAmount: true // Example, adjust based on your schema
-        }
-      }
+      select: this.getSelectFieldsFindAllAdmin()
     });
 
     if (!reservations.length) {
@@ -210,6 +148,28 @@ export class ReservationsService {
       transaction: {
         statusPayment: true,
         paymentId: true
+      }
+    };
+  }
+
+  private getSelectFieldsFindAllAdmin() {
+    return {
+      reservationId: true,
+      user: {
+        userId: true,
+        email: true // Example, adjust based on the fields you want to expose
+      },
+      reservationDetails: {
+        title: true,
+        event: {
+          eventId: true
+        }
+      },
+      transaction: {
+        transactionId: true, // Assuming you want to include this as well
+        statusPayment: true,
+        paymentId: true,
+        totalAmount: true // Example, adjust based on your schema
       }
     };
   }

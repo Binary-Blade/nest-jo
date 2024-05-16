@@ -1,10 +1,10 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
-import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
+import { QueryHelperService } from '@database/query/query-helper.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Service providing user management functionality.
@@ -13,7 +13,8 @@ import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private readonly queryHelper: QueryHelperService
   ) {}
 
   /**
@@ -24,28 +25,10 @@ export class UsersService {
   async findAll(
     paginationFilterDto: PaginationAndFilterDto
   ): Promise<{ users: User[]; total: number }> {
-    const {
-      limit = DEFAULT_PAGE_SIZE.USER,
-      offset = 0,
-      sortBy,
-      sortOrder = 'ASC',
-      filterBy,
-      filterValue
-    } = paginationFilterDto;
-    let whereCondition: FindOptionsWhere<User> = {};
-
-    if (filterBy && filterValue && filterValue !== 'ALL') {
-      whereCondition = { [filterBy]: filterValue };
-    }
+    const queryOptions = this.queryHelper.buildQueryOptions<User>(paginationFilterDto);
 
     try {
-      const [users, total] = await this.usersRepository.findAndCount({
-        where: whereCondition,
-        order: sortBy ? { [sortBy]: sortOrder } : {},
-        skip: offset,
-        take: limit
-      });
-
+      const [users, total] = await this.usersRepository.findAndCount(queryOptions);
       return { users, total };
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve events', error.message);
