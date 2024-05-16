@@ -1,22 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@modules/users/entities/user.entity';
 import { Cart } from './entities/cart.entity';
-import { RedisModule } from '@database/redis/redis.module';
-import { RedisService } from '@database/redis/redis.service';
-import { Event } from '@modules/events/entities/event.entity';
 import { CartsService } from './carts.service';
-import { EventPrice } from '@modules/events/entities/event-price.entity';
-import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
-import { EventsModule } from '@modules/events/events.module';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Cart, Event, EventPrice, ReservationDetails]),
-    RedisModule,
-    EventsModule
-  ],
-  providers: [CartsService, RedisService, ConvertUtilsService]
+  imports: [TypeOrmModule.forFeature([Cart])],
+  providers: [CartsService],
+  exports: [CartsService]
 })
 export class CartsModule {}

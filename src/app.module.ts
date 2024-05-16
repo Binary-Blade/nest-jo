@@ -10,7 +10,6 @@ import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { PaymentModule } from '@libs/payment/payment.module';
 import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
-import { AppController } from './app.controller';
 import { ThrollerModule } from '@security/throttler/throttler.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
 /**
@@ -40,7 +39,6 @@ import { TransactionsModule } from '@modules/transactions/transactions.module';
     TicketsModule,
     TransactionsModule,
     ThrollerModule
-  ],
-  controllers: [AppController]
+  ]
 })
 export class AppModule {}
