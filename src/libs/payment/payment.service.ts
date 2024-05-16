@@ -8,7 +8,7 @@ import { StatusReservation } from '@common/enums/status-reservation.enum';
  */
 @Injectable()
 export class PaymentService {
-  private readonly SUCCESS_RATE = 0.8; // 60% chance of payment being successful
+  private readonly SUCCESS_RATE = 0.7; // 70% chance of payment being successful
 
   /**
    * Processes a payment for a reservation.
