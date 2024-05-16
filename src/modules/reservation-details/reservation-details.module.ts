@@ -8,7 +8,6 @@ import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Event, ReservationDetails]), CartItemsModule, EventsModule],
-  providers: [ReservationDetailsService],
-  exports: [ReservationDetailsService]
+  providers: [ReservationDetailsService]
 })
 export class ReservationDetailsModule {}

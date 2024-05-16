@@ -12,6 +12,7 @@ import { ReservationDetailsService } from '@modules/reservation-details/reservat
 import { CartsModule } from '@modules/carts/carts.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
+import { QueryHelperService } from '@database/query/query-helper.service';
 
 @Module({
   imports: [
@@ -23,7 +24,12 @@ import { TransactionsModule } from '@modules/transactions/transactions.module';
     TransactionsModule
   ],
   controllers: [ReservationsController],
-  providers: [ReservationsService, ReservationsProcessorService, ReservationDetailsService],
+  providers: [
+    ReservationsService,
+    ReservationsProcessorService,
+    ReservationDetailsService,
+    QueryHelperService
+  ],
   exports: [ReservationsService, ReservationsProcessorService]
 })
 export class ReservationsModule {}

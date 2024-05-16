@@ -7,6 +7,7 @@ import { User } from './users/entities/user.entity';
 import { RedisModule } from '@database/redis/redis.module';
 import { RedisService } from '@database/redis/redis.service';
 import { ConvertUtilsService } from '@utils/services/convert-utils.service';
+import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
  * Module for common services.
@@ -15,7 +16,14 @@ import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 @Global()
 @Module({
   imports: [TypeOrmModule.forFeature([User]), RedisModule],
-  providers: [ConvertUtilsService, UsersService, EncryptionService, PaymentService, RedisService],
+  providers: [
+    ConvertUtilsService,
+    UsersService,
+    EncryptionService,
+    PaymentService,
+    RedisService,
+    QueryHelperService
+  ],
   exports: [UsersService, ConvertUtilsService, EncryptionService, PaymentService, RedisService]
 })
 export class CommonModule {}
