@@ -4,7 +4,7 @@ import { UserId } from '@common/decorators/user-id.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { Role } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 @UseGuards(AccessTokenGuard)
 @Controller('reservations')
