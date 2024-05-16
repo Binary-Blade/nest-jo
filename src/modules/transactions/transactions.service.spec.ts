@@ -12,6 +12,7 @@ import { StatusReservation } from '@common/enums/status-reservation.enum';
 describe('TransactionsService', () => {
   let service: TransactionsService;
   let transactionRepository: Repository<Transaction>;
+  let userRepository: Repository<User>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,17 +21,22 @@ describe('TransactionsService', () => {
         {
           provide: getRepositoryToken(Transaction),
           useClass: Repository
+        },
+        {
+          provide: getRepositoryToken(User),
+          useClass: Repository
         }
       ]
     }).compile();
 
     service = module.get<TransactionsService>(TransactionsService);
     transactionRepository = module.get<Repository<Transaction>>(getRepositoryToken(Transaction));
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
   describe('createTransaction', () => {
-    it('should create a transaction successfully', async () => {
-      const user = { userId: 1 } as User;
+    it('should create and update user transaction successfully', async () => {
+      const user = { userId: 1, transactionsCount: 0, totalSpent: 0 } as User;
       const paymentResult: PaymentResult = {
         status: StatusReservation.APPROVED,
         detail: 'Success'
@@ -39,6 +45,7 @@ describe('TransactionsService', () => {
 
       jest.spyOn(transactionRepository, 'create').mockReturnValue(transaction);
       jest.spyOn(transactionRepository, 'save').mockResolvedValue(transaction);
+      jest.spyOn(userRepository, 'update').mockResolvedValue(undefined); // Mock the update operation
 
       const result = await service.createTransaction(user, 100, paymentResult);
       expect(result).toBe(transaction);
@@ -49,6 +56,10 @@ describe('TransactionsService', () => {
         statusPayment: StatusReservation.APPROVED
       });
       expect(transactionRepository.save).toHaveBeenCalledWith(transaction);
+      expect(userRepository.update).toHaveBeenCalledWith(user.userId, {
+        transactionsCount: 1,
+        totalSpent: 100
+      });
     });
   });
 

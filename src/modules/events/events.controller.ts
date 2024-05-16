@@ -17,7 +17,7 @@ import { EventsService } from './events.service';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { EventPricesService } from './event-prices.service';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Controller responsible for handling requests to the /events route
