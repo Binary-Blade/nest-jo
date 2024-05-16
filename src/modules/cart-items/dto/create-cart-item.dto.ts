@@ -1,9 +1,9 @@
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
-import { IsEnum, IsInt, IsNotEmpty, IsPositive, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsPositive, Min } from 'class-validator';
 
 export class CreateCartItemDto {
-  @IsNotEmpty()
   @IsInt()
+  @IsOptional()
   readonly userId: number;
 
   @IsNotEmpty()
