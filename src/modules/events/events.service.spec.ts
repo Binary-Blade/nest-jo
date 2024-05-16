@@ -5,7 +5,7 @@ import { Event } from './entities/event.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from '@database/redis/redis.service';
 import { EventPricesService } from './event-prices.service';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';

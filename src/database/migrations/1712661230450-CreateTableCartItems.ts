@@ -1,4 +1,4 @@
-import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from '@utils/constants.migrationdb';
+import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from '@utils/constants/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateTableCartItems1712661230450 implements MigrationInterface {

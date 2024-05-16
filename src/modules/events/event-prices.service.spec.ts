@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { NotFoundException } from '@nestjs/common';
 import { Event } from './entities/event.entity';
-import { PRICES_FORMULA } from '@utils/constants.common';
+import { PRICES_FORMULA } from '@utils/constants/constants.common';
 
 describe('EventPricesService', () => {
   let service: EventPricesService;

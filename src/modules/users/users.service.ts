@@ -4,7 +4,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
 import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
-import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
 
 /**
  * Service providing user management functionality.

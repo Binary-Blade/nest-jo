@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CookieService } from './cookie.service';
 import { ConfigService } from '@nestjs/config';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { Request, Response } from 'express';
 
 describe('CookieService', () => {

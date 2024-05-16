@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PROD_ENV } from '@utils/constants.env';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { PROD_ENV } from '@utils/constants/constants.env';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { CookieOptions, Request, Response } from 'express';
 
 /**

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 
 /**
  * Service responsible for storing and verifying refresh tokens in Redis.

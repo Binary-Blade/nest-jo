@@ -10,9 +10,9 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { EventPricesService } from './event-prices.service';
-import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
 import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**

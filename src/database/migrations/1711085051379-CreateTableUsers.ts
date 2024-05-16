@@ -1,4 +1,4 @@
-import { DOES_ENUM_USER_ROLE_EXIST } from '@utils/constants.migrationdb';
+import { DOES_ENUM_USER_ROLE_EXIST } from '@utils/constants/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RefreshTokenStoreService } from './refreshtoken-store.service';
 import { RedisService } from '@database/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { Logger } from '@nestjs/common';
 
 describe('RefreshTokenStoreService', () => {

@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { RedisModule } from '@database/redis/redis.module';
 import { RedisService } from '@database/redis/redis.service';
-import { ConvertUtilsService } from '@utils/convert-utils.service';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 
 /**
  * Module for common services.

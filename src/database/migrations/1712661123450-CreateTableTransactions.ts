@@ -1,4 +1,4 @@
-import { DOES_ENUM_STATUS_RESERVATION_EXIST } from '@utils/constants.migrationdb';
+import { DOES_ENUM_STATUS_RESERVATION_EXIST } from '@utils/constants/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateTableTransactions1712661123450 implements MigrationInterface {

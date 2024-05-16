@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationsProcessorService } from './reservations-processor.service';
-import { DEFAULT_PAGE_SIZE } from '@utils/constants.common';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
 import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 
 /**
@@ -49,38 +49,15 @@ export class ReservationsService {
       filterValue
     } = paginationFilterDto;
 
-    // Construct the where condition based on user ID and any additional filters
-    const whereCondition: FindOptionsWhere<Reservation> = { user: { userId } };
-    if (filterBy && filterValue) {
-      whereCondition[filterBy] = filterValue;
-    }
+    const whereCondition = this.buildWhereCondition(userId, filterBy, filterValue);
 
+    const selectFields = this.getSelectFieldsFindAll();
     try {
       const [reservations, total] = await this.reservationRepository.findAndCount({
         where: whereCondition,
         relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-        select: {
-          reservationId: true,
-          reservationDetails: {
-            title: true,
-            shortDescription: true,
-            price: true,
-            priceFormula: true,
-            event: {
-              eventId: true,
-              title: true,
-              shortDescription: true,
-              categoryType: true,
-              startDate: true,
-              endDate: true
-            }
-          },
-          transaction: {
-            statusPayment: true,
-            paymentId: true
-          }
-        },
-        order: sortBy ? { [sortBy]: sortOrder } : {},
+        select: selectFields,
+        order: sortBy ? this.createNestedOrder(sortBy, sortOrder) : {},
         skip: offset,
         take: limit
       });
@@ -90,6 +67,45 @@ export class ReservationsService {
       throw new InternalServerErrorException('Failed to retrieve reservations.', error);
     }
   }
+
+  private buildWhereCondition(
+    userId: number,
+    filterBy?: string,
+    filterValue?: string | number
+  ): FindOptionsWhere<Reservation> {
+    const whereCondition: FindOptionsWhere<Reservation> = { user: { userId } };
+
+    if (filterBy && filterValue && filterValue !== 'ALL') {
+      const nestedFields = filterBy.split('.');
+      let currentField = whereCondition;
+      nestedFields.forEach((field, index) => {
+        if (index === nestedFields.length - 1) {
+          currentField[field] = filterValue;
+        } else {
+          currentField[field] = {};
+          currentField = currentField[field];
+        }
+      });
+    }
+
+    return whereCondition;
+  }
+
+  private createNestedOrder(sortBy: string, sortOrder: 'ASC' | 'DESC') {
+    const orderParts = sortBy.split('.');
+    const order = {};
+    let currentPart = order;
+    orderParts.forEach((part, index) => {
+      if (index === orderParts.length - 1) {
+        currentPart[part] = sortOrder;
+      } else {
+        currentPart[part] = {};
+        currentPart = currentPart[part];
+      }
+    });
+    return order;
+  }
+
   /**
    * Find all reservations for an admin
    *
@@ -170,5 +186,31 @@ export class ReservationsService {
    */
   async saveReservation(reservation: Reservation): Promise<Reservation> {
     return await this.reservationRepository.save(reservation);
+  }
+
+  private getSelectFieldsFindAll() {
+    return {
+      reservationId: true,
+      reservationDetails: {
+        title: true,
+        shortDescription: true,
+        price: true,
+        priceFormula: true,
+        event: {
+          eventId: true,
+          categoryType: true,
+          startDate: true
+        }
+      },
+      user: {
+        userId: true,
+        firstName: true,
+        lastName: true
+      },
+      transaction: {
+        statusPayment: true,
+        paymentId: true
+      }
+    };
   }
 }
