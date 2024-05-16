@@ -1,4 +1,4 @@
-import { DEV_ENV, PROD_ENV } from '@utils/constants.env';
+import { DEV_ENV, PROD_ENV } from '@utils/constants/constants.env';
 import * as winston from 'winston';
 
 /**

@@ -7,7 +7,7 @@ import {
   Logger
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NODE_ENV, PROD_ENV } from '@utils/constants.env';
+import { NODE_ENV, PROD_ENV } from '@utils/constants/constants.env';
 import { Request, Response } from 'express';
 
 /**
