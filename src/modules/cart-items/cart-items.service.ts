@@ -70,12 +70,12 @@ export class CartItemsService {
 
     if (existingCartItem) {
       existingCartItem.quantity += createCartItemDto.quantity;
-      existingCartItem.price = unitPrice * existingCartItem.quantity;
+      existingCartItem.price = unitPrice;
       return await this.cartItemRepository.save(existingCartItem);
     } else {
       const cartItem = this.cartItemRepository.create({
         ...createCartItemDto,
-        price: unitPrice * createCartItemDto.quantity, // Calculate initial total price
+        price: unitPrice,
         cart: { cartId },
         event: { eventId: createCartItemDto.eventId }
       });
@@ -189,7 +189,11 @@ export class CartItemsService {
    */
   async removeAllItemFromCart(userId: number, cartId: number): Promise<void> {
     await this.cartsService.findCart(userId, cartId);
-    await this.cartItemRepository.delete({ cart: { cartId } });
+    const cartItems = await this.cartItemRepository.find({
+      where: { cart: { cartId } },
+      relations: ['reservations']
+    });
+    await this.cartItemRepository.remove(cartItems);
   }
 
   /**
