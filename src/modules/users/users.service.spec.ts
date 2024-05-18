@@ -5,8 +5,8 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
 import { SortOrder } from '@common/enums/sort-order.enum';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -168,13 +168,13 @@ describe('UsersService', () => {
       const user = new User(); // Adjust with actual user entity properties if necessary
 
       mockUsersRepository.findOneBy.mockResolvedValue(user);
-      await service.remove(userId);
+      await service.delete(userId);
       expect(mockUsersRepository.remove).toHaveBeenCalledWith(user);
     });
 
     it('should throw NotFoundException if user not found', async () => {
       mockUsersRepository.findOneBy.mockResolvedValue(undefined);
-      await expect(service.remove(1)).rejects.toThrow(NotFoundException);
+      await expect(service.delete(1)).rejects.toThrow(NotFoundException);
     });
   });
 });
