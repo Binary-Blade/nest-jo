@@ -59,29 +59,6 @@ services:
         target: /data
     networks:
       - appnet
-
-  # API GATEWAY - NGINX
-  nginx:
-    container_name: nginx-jo-prod
-    image: nginx:alpine
-    ports:
-      #  - "443:443"   # If active HTTPS, also add "443:443"
-      - "80:80"
-    depends_on:
-      - server-prod
-    volumes:
-      - type: bind
-        source: ./nginx/nginx.conf
-        target: /etc/nginx/nginx.conf
-        read_only: true
-      - type: bind
-        source: ./nginx/conf.d/prod.conf
-        target: /etc/nginx/conf.d/prod.conf
-        read_only: true
-    networks:
-      - appnet
-
-
 networks: 
   appnet:
 

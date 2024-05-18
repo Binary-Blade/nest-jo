@@ -25,5 +25,3 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
 
-  # nginx:
-  #   container_name: nginx-jo-dev
