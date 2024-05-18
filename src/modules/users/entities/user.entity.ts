@@ -43,6 +43,9 @@ export class User {
   tokenVersion: number;
 
   @Column()
+  isActive: boolean;
+
+  @Column()
   transactionsCount: number;
 
   @Column()
