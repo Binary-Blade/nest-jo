@@ -9,11 +9,11 @@ COPY . .
 RUN npm install -g pnpm && \
     pnpm install
 
+
 # == DEVELOPMENT STAGE ==
 FROM builder as dev
 EXPOSE 3000
 CMD [""]
-
 
 # == PRE-PRODUCTION STAGE ==
 # This stage is used to build the application and prune development dependencies.
@@ -26,11 +26,11 @@ RUN ls -la /app/dist && \
 # This stage sets up the production environment.
 FROM $IMAGE as prod
 
-# Copy built files and node_modules from builder stage
-COPY --chown=node:node --from=builder /app/dist ./dist
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+# Copy built files and node_modules from prod-build stage
+COPY --chown=node:node --from=prod-build /app/dist ./dist
+COPY --chown=node:node --from=prod-build /app/node_modules ./node_modules
 # Copy the .env file into the container.
-COPY --chown=node:node --from=builder /app/.prod.env /app/.env
+COPY --chown=node:node --from=prod-build /app/.production.env /app/.env
 
 EXPOSE 3000
 # Specify the entry point
