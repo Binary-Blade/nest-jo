@@ -157,7 +157,7 @@ export class CartItemsService {
       throw new NotFoundException('Quantity not available');
     }
     cartItem.quantity = quantity;
-    cartItem.price = ticketPrice * quantity; // Recalculate the total price
+    cartItem.price = ticketPrice; // Recalculate the total price
 
     return await this.cartItemRepository.save(cartItem);
   }
