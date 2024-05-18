@@ -13,8 +13,6 @@ services:
     depends_on:
       - postgres
       - redis
-    environment:
-      - NODE_ENV=development
     volumes:
       - .:/app:delegated
 

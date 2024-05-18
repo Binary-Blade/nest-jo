@@ -11,6 +11,8 @@ services:
     command: [sh, -c, 'pnpm run start:dev']
     environment:
       - NODE_ENV=development
+    env_file:
+      - .development.env
 
   postgres:
     container_name: postgres-jo-dev
