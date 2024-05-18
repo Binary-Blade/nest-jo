@@ -44,11 +44,16 @@ export class TransactionsService {
       statusPayment: paymentResult.status
     });
     const savedTransaction = await this.transactionRepository.save(transaction);
-
-    await this.userRepository.update(user.userId, {
-      transactionsCount: user.transactionsCount + 1,
-      totalSpent: user.totalSpent + total
-    });
+    if (paymentResult.status === 'APPROVED') {
+      await this.userRepository.update(user.userId, {
+        transactionsCount: user.transactionsCount + 1,
+        totalSpent: user.totalSpent + total
+      });
+    } else {
+      await this.userRepository.update(user.userId, {
+        transactionsCount: user.transactionsCount + 1
+      });
+    }
 
     return savedTransaction;
   }
