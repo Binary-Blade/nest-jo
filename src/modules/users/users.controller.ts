@@ -60,13 +60,21 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @UseGuards(IsCreatorGuard)
+  @Delete(':id')
+  makeInactive(@Param('id') id: string) {
+    return this.usersService.removeUserActive(+id);
+  }
+
   /**
    * Deletes a user. Access is restricted to the user themself or an admin.
    *
    * @param id The ID of the user to delete.
    */
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+
+  @UseGuards(IsCreatorGuard)
+  @Delete('/delete/:id')
+  delete(@Param('id') id: string) {
+    return this.usersService.delete(+id);
   }
 }

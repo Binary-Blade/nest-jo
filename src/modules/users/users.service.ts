@@ -65,13 +65,19 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  async removeUserActive(userId: number): Promise<void> {
+    const user = await this.verifyUserOneBy(userId);
+    user.isActive = false;
+    await this.usersRepository.save(user);
+  }
+
   /**
    * Removes a user from the database.
    *
    * @param id The ID of the user to remove.
    * @throws NotFoundException if the user is not found.
    */
-  async remove(userId: number): Promise<void> {
+  async delete(userId: number): Promise<void> {
     const user = await this.verifyUserOneBy(userId);
     await this.usersRepository.remove(user);
   }
