@@ -34,6 +34,7 @@ export class CreateTableUsers1711085051379 implements MigrationInterface {
                     "passwordHash" VARCHAR NOT NULL,
                     "accountKey" VARCHAR UNIQUE,
                     "role" "user_role_enum" DEFAULT 'USER',
+                    "isActive" BOOLEAN DEFAULT TRUE,
                     "tokenVersion" INTEGER DEFAULT 1,
                     "transactionsCount" INTEGER DEFAULT 0,
                     "totalSpent" INTEGER DEFAULT 0,

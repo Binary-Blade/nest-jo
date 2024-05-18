@@ -19,7 +19,7 @@ export class CreateTableTransactions1712661123450 implements MigrationInterface 
                     "totalAmount" DECIMAL NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY ("userId") REFERENCES "users" ("userId")
+                    FOREIGN KEY ("userId") REFERENCES "users" ("userId") ON DELETE CASCADE
                 );
             `);
     }
