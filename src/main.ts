@@ -36,6 +36,7 @@ async function bootstrap() {
     console.log('================ Environnement de production ================');
     app.useLogger(['log', 'warn', 'error']); // Adjust log levels for production
   } else {
+    console.log('================ Environnement de développement ================');
     app.useLogger(['log', 'debug', 'warn', 'error', 'verbose']); // More verbose for development
   }
 
