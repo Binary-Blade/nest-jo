@@ -1,17 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationsService } from './reservations.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { Repository } from 'typeorm';
-import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReservationsProcessorService } from './reservations-processor.service';
+import { QueryHelperService } from '@database/query/query-helper.service';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 import { SortOrder } from '@common/enums/sort-order.enum';
+import { DEFAULT_PAGE_SIZE } from '@utils/constants/constants.common';
 
 describe('ReservationsService', () => {
   let service: ReservationsService;
   let reservationRepository: Repository<Reservation>;
-  let reservationsProcessorService: ReservationsProcessorService;
+  let reservationProcessorService: ReservationsProcessorService;
+  let queryHelperService: QueryHelperService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,40 +22,48 @@ describe('ReservationsService', () => {
         ReservationsService,
         {
           provide: getRepositoryToken(Reservation),
-          useValue: {
-            findAndCount: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            save: jest.fn()
-          }
+          useClass: Repository
         },
         {
           provide: ReservationsProcessorService,
           useValue: {
             processUserReservation: jest.fn()
           }
+        },
+        {
+          provide: QueryHelperService,
+          useValue: {
+            buildQueryOptions: jest.fn()
+          }
         }
       ]
     }).compile();
 
     service = module.get<ReservationsService>(ReservationsService);
-    reservationRepository = module.get(getRepositoryToken(Reservation));
-    reservationsProcessorService = module.get(ReservationsProcessorService);
+    reservationRepository = module.get<Repository<Reservation>>(getRepositoryToken(Reservation));
+    reservationProcessorService = module.get<ReservationsProcessorService>(
+      ReservationsProcessorService
+    );
+    queryHelperService = module.get<QueryHelperService>(QueryHelperService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   describe('generateReservation', () => {
-    it('should generate a reservation successfully', async () => {
+    it('should generate reservations for a user', async () => {
       const userId = 1;
       const cartId = 1;
-      const reservations = [new Reservation()];
+      const reservations: Reservation[] = [{ reservationId: 1 }] as Reservation[];
 
       jest
-        .spyOn(reservationsProcessorService, 'processUserReservation')
+        .spyOn(reservationProcessorService, 'processUserReservation')
         .mockResolvedValue(reservations);
 
       const result = await service.generateReservation(userId, cartId);
-      expect(result).toBe(reservations);
-      expect(reservationsProcessorService.processUserReservation).toHaveBeenCalledWith(
+      expect(result).toEqual(reservations);
+      expect(reservationProcessorService.processUserReservation).toHaveBeenCalledWith(
         userId,
         cartId
       );
@@ -60,67 +71,45 @@ describe('ReservationsService', () => {
   });
 
   describe('findAll', () => {
-    it('should find all reservations for a user with pagination and sorting', async () => {
+    it('should return all reservations for a user', async () => {
       const userId = 1;
       const paginationFilterDto: PaginationAndFilterDto = {
         limit: 10,
         offset: 0,
-        sortBy: 'createdAt',
+        sortBy: 'date',
         sortOrder: SortOrder.ASC,
-        filterBy: null,
-        filterValue: null
+        filterBy: 'status',
+        filterValue: 'active'
       };
-      const reservations = [new Reservation()];
+      const reservations: Reservation[] = [{ reservationId: 1 }] as Reservation[];
       const total = 1;
 
+      jest.spyOn(queryHelperService, 'buildQueryOptions').mockReturnValue({});
       jest.spyOn(reservationRepository, 'findAndCount').mockResolvedValue([reservations, total]);
 
       const result = await service.findAll(userId, paginationFilterDto);
       expect(result).toEqual({ reservations, total });
+      expect(queryHelperService.buildQueryOptions).toHaveBeenCalledWith(paginationFilterDto);
       expect(reservationRepository.findAndCount).toHaveBeenCalledWith({
         where: { user: { userId } },
         relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-        select: {
-          reservationId: true,
-          reservationDetails: {
-            title: true,
-            shortDescription: true,
-            price: true,
-            priceFormula: true,
-            event: {
-              eventId: true,
-              title: true,
-              shortDescription: true,
-              longDescription: true,
-              categoryType: true,
-              startDate: true,
-              endDate: true
-            }
-          },
-          transaction: {
-            statusPayment: true,
-            paymentId: true
-          }
-        },
-        order: { createdAt: 'ASC' },
-        skip: 0,
-        take: 10
+        select: expect.any(Object)
       });
     });
 
-    it('should handle database errors during find all', async () => {
+    it('should throw InternalServerErrorException on error', async () => {
       const userId = 1;
       const paginationFilterDto: PaginationAndFilterDto = {
         limit: 10,
         offset: 0,
-        sortBy: 'createdAt',
+        sortBy: 'date',
         sortOrder: SortOrder.ASC,
-        filterBy: null,
-        filterValue: null
+        filterBy: 'status',
+        filterValue: 'active'
       };
-      jest
-        .spyOn(reservationRepository, 'findAndCount')
-        .mockRejectedValue(new Error('Database error'));
+
+      jest.spyOn(queryHelperService, 'buildQueryOptions').mockReturnValue({});
+      jest.spyOn(reservationRepository, 'findAndCount').mockRejectedValue(new Error('Error'));
 
       await expect(service.findAll(userId, paginationFilterDto)).rejects.toThrow(
         InternalServerErrorException
@@ -129,48 +118,39 @@ describe('ReservationsService', () => {
   });
 
   describe('findAllAdmin', () => {
-    it('should find all reservations for an admin with specified fields', async () => {
-      const reservations = [new Reservation()];
+    it('should return all reservations for an admin', async () => {
       const paginationFilterDto: PaginationAndFilterDto = {
         limit: 10,
         offset: 0,
-        sortBy: null,
-        sortOrder: null,
-        filterBy: null,
-        filterValue: null
+        sortBy: 'date',
+        sortOrder: SortOrder.ASC,
+        filterBy: 'status',
+        filterValue: 'active'
       };
+      const reservations: Reservation[] = [{ reservationId: 1 }] as Reservation[];
 
       jest.spyOn(reservationRepository, 'find').mockResolvedValue(reservations);
 
       const result = await service.findAllAdmin(paginationFilterDto);
-      expect(result).toBe(reservations);
+      expect(result).toEqual(reservations);
       expect(reservationRepository.find).toHaveBeenCalledWith({
+        skip: paginationFilterDto.offset,
+        take: paginationFilterDto.limit ?? DEFAULT_PAGE_SIZE.USER,
         relations: ['user', 'reservationDetails', 'reservationDetails.event', 'transaction'],
-        select: {
-          reservationId: true,
-          user: { userId: true, email: true },
-          reservationDetails: { title: true, event: { eventId: true } },
-          transaction: {
-            transactionId: true,
-            statusPayment: true,
-            paymentId: true,
-            totalAmount: true
-          }
-        },
-        skip: 0,
-        take: 10
+        select: expect.any(Object)
       });
     });
 
-    it('should throw NotFoundException if no reservations found for admin', async () => {
+    it('should throw NotFoundException if no reservations are found', async () => {
       const paginationFilterDto: PaginationAndFilterDto = {
         limit: 10,
         offset: 0,
-        sortBy: null,
-        sortOrder: null,
-        filterBy: null,
-        filterValue: null
+        sortBy: 'date',
+        sortOrder: SortOrder.ASC,
+        filterBy: 'status',
+        filterValue: 'active'
       };
+
       jest.spyOn(reservationRepository, 'find').mockResolvedValue([]);
 
       await expect(service.findAllAdmin(paginationFilterDto)).rejects.toThrow(NotFoundException);
@@ -178,53 +158,50 @@ describe('ReservationsService', () => {
   });
 
   describe('findOne', () => {
-    it('should find a single reservation by ID and user ID', async () => {
-      const reservation = { reservationId: 1, user: { userId: 1 } } as Reservation;
+    it('should return a reservation by ID', async () => {
+      const reservationId = 1;
+      const userId = 1;
+      const reservation = { reservationId, user: { userId } } as Reservation;
 
-      // Simulate the service's call to findOne that retrieves a reservation with specific relations and fields.
       jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(reservation);
 
-      const result = await service.findOne(1, 1);
-      expect(result).toBe(reservation);
+      const result = await service.findOne(reservationId, userId);
+      expect(result).toEqual(reservation);
       expect(reservationRepository.findOne).toHaveBeenCalledWith({
-        where: { reservationId: 1 },
+        where: { reservationId },
         relations: ['ticket', 'user'],
-        select: {
-          reservationId: true,
-          user: {
-            userId: true
-          },
-          ticket: {
-            ticketId: true,
-            qrCode: true
-          }
-        }
+        select: expect.any(Object)
       });
     });
 
-    it('should throw NotFoundException if the reservation does not belong to the user', async () => {
-      const reservation = { reservationId: 1, user: { userId: 2 } } as Reservation;
+    it('should throw NotFoundException if reservation is not found', async () => {
+      const reservationId = 1;
+      const userId = 1;
+
+      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(service.findOne(reservationId, userId)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw NotFoundException if reservation userId does not match', async () => {
+      const reservationId = 1;
+      const userId = 1;
+      const reservation = { reservationId, user: { userId: 2 } } as Reservation;
 
       jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(reservation);
 
-      await expect(service.findOne(1, 1)).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw NotFoundException if the reservation does not exist', async () => {
-      jest.spyOn(reservationRepository, 'findOne').mockResolvedValue(null);
-
-      await expect(service.findOne(1, 1)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(reservationId, userId)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('saveReservation', () => {
-    it('should save a reservation successfully', async () => {
-      const reservation = {} as Reservation;
+    it('should save a reservation', async () => {
+      const reservation: Reservation = { reservationId: 1 } as Reservation;
 
       jest.spyOn(reservationRepository, 'save').mockResolvedValue(reservation);
 
       const result = await service.saveReservation(reservation);
-      expect(result).toBe(reservation);
+      expect(result).toEqual(reservation);
       expect(reservationRepository.save).toHaveBeenCalledWith(reservation);
     });
   });

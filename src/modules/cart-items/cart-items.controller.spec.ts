@@ -38,7 +38,8 @@ describe('CartItemsController', () => {
       const createCartItemDto: CreateCartItemDto = {
         eventId: 1,
         quantity: 2,
-        priceFormula: PriceFormulaEnum.SOLO
+        priceFormula: PriceFormulaEnum.SOLO,
+        userId: 1
       };
       const cartItem = { cartItemId: 1 } as CartItem;
 
@@ -53,7 +54,12 @@ describe('CartItemsController', () => {
       jest.spyOn(service, 'addItemToCart').mockRejectedValue(new NotFoundException());
 
       await expect(
-        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
+        controller.create(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -61,7 +67,12 @@ describe('CartItemsController', () => {
       jest.spyOn(service, 'addItemToCart').mockRejectedValue(new ForbiddenException());
 
       await expect(
-        controller.create(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
+        controller.create(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
       ).rejects.toThrow(ForbiddenException);
     });
   });

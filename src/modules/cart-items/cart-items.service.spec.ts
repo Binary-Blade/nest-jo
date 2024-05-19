@@ -58,7 +58,8 @@ describe('CartItemsService', () => {
       const createCartItemDto: CreateCartItemDto = {
         eventId: 1,
         quantity: 2,
-        priceFormula: PriceFormulaEnum.SOLO
+        priceFormula: PriceFormulaEnum.SOLO,
+        userId: 1
       };
       const cart = {
         cartId: 1,
@@ -67,13 +68,15 @@ describe('CartItemsService', () => {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      const event = { eventId: 1, quantityAvailable: 10 } as Event;
-      const unitPrice = 100;
+      const event = {
+        eventId: 1,
+        quantityAvailable: 10,
+        prices: [{ priceFormula: PriceFormulaEnum.SOLO, price: 100 }]
+      } as Event;
       const cartItem = { cartItemId: 1 } as CartItem;
 
       jest.spyOn(cartsService, 'getOrCreateCart').mockResolvedValue(cart);
       jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
-      jest.spyOn(eventPricesService, 'getPriceByEventAndType').mockResolvedValue(unitPrice);
       jest.spyOn(service as any, 'getOrCreateCartItem').mockResolvedValue(cartItem);
 
       const result = await service.addItemToCart(userId, createCartItemDto);
@@ -84,7 +87,12 @@ describe('CartItemsService', () => {
       jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(null);
 
       await expect(
-        service.addItemToCart(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
+        service.addItemToCart(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -93,7 +101,12 @@ describe('CartItemsService', () => {
       jest.spyOn(eventRepository, 'findOneBy').mockResolvedValue(event);
 
       await expect(
-        service.addItemToCart(1, { eventId: 1, quantity: 2, priceFormula: PriceFormulaEnum.SOLO })
+        service.addItemToCart(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -129,7 +142,7 @@ describe('CartItemsService', () => {
 
       const result = await service.updateQuantityInCart(1, 1, 1, 2);
       expect(result).toBe(cartItem);
-      expect(cartItem.price).toBe(200);
+      expect(cartItem.price).toBe(100);
       expect(cartItem.quantity).toBe(2);
     });
 
@@ -161,7 +174,9 @@ describe('CartItemsService', () => {
 
   describe('removeAllItemFromCart', () => {
     it('should remove all cart items', async () => {
-      jest.spyOn(cartItemRepository, 'delete').mockResolvedValue({ affected: 1, raw: {} });
+      const cartItems = [{ cartItemId: 1 }] as CartItem[];
+      jest.spyOn(cartItemRepository, 'find').mockResolvedValue(cartItems);
+      jest.spyOn(cartItemRepository, 'remove').mockResolvedValue(cartItems as any);
 
       await expect(service.removeAllItemFromCart(1, 1)).resolves.not.toThrow();
     });

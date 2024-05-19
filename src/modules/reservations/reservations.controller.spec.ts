@@ -3,7 +3,7 @@ import { ReservationsController } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Reservation } from './entities/reservation.entity';
-import { PaginationAndFilterDto } from '@common/dto/pagination-filter.dto';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 describe('ReservationsController', () => {
   let controller: ReservationsController;
