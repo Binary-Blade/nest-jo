@@ -1,5 +1,5 @@
+import { AddForeignKeyConstraints1712751780000 } from '@database/migrations/1712751780000-AddForeignKey';
 import { QueryRunner } from 'typeorm';
-import { AddForeignKeyConstraints1712751780000 } from './1712751780000-AddForeignKey';
 
 describe('AddForeignKeyConstraints1712751780000', () => {
   let queryRunner: QueryRunner;

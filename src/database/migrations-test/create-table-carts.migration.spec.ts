@@ -1,5 +1,5 @@
+import { CreateTableCarts1712661221574 } from '@database/migrations/1712661221574-CreateTableCarts';
 import { QueryRunner } from 'typeorm';
-import { CreateTableCarts1712661221574 } from './1712661221574-CreateTableCarts';
 
 describe('CreateTableCarts1712661221574', () => {
   let queryRunner: QueryRunner;

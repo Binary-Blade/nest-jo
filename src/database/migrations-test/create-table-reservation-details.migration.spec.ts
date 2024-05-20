@@ -1,6 +1,6 @@
 import { QueryRunner } from 'typeorm';
 import { DOES_ENUM_PRICE_FORMULE_TYPE_EXIST } from '@utils/constants/constants.migrationdb';
-import { CreateTableReservationDetails1712751776641 } from './1712751776641-CreateTableReservationDetails';
+import { CreateTableReservationDetails1712751776641 } from '@database/migrations/1712751776641-CreateTableReservationDetails';
 
 describe('CreateTableReservationDetails1712751776641', () => {
   let queryRunner: QueryRunner;

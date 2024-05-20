@@ -1,5 +1,5 @@
+import { CreateTableTickets1712717719010 } from '@database/migrations/1712717719010-CreateTableTickets';
 import { QueryRunner } from 'typeorm';
-import { CreateTableTickets1712717719010 } from './1712717719010-CreateTableTickets';
 
 describe('CreateTableTickets1712717719010', () => {
   let queryRunner: QueryRunner;

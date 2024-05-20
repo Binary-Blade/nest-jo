@@ -15,7 +15,7 @@ export class CreateTableEventPrices1712642603715 implements MigrationInterface {
                     "eventId" INTEGER NOT NULL,
                     "priceFormula" "type_price_formule_enum" NOT NULL,
                     "price" INTEGER NOT NULL,
-                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId")
+                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId") DELETE ON CASCADE
                 );
             `);
     }

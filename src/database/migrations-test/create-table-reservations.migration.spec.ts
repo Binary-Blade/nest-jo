@@ -1,5 +1,5 @@
+import { CreateTableReservations1712751776642 } from '@database/migrations/1712751776642-CreateTableReservations';
 import { QueryRunner } from 'typeorm';
-import { CreateTableReservations1712751776642 } from './1712751776642-CreateTableReservations';
 
 describe('CreateTableReservations1712751776642', () => {
   let queryRunner: QueryRunner;

@@ -1,6 +1,6 @@
 import { QueryRunner } from 'typeorm';
 import { DOES_ENUM_USER_ROLE_EXIST } from '@utils/constants/constants.migrationdb';
-import { CreateTableUsers1711085051379 } from './1711085051379-CreateTableUsers';
+import { CreateTableUsers1711085051379 } from '@database/migrations/1711085051379-CreateTableUsers';
 
 describe('CreateTableUsers1711085051379', () => {
   let queryRunner: QueryRunner;

@@ -1,6 +1,6 @@
 import { QueryRunner } from 'typeorm';
 import { DOES_ENUM_CATEGORY_TYPE_EXIST } from '@utils/constants/constants.migrationdb';
-import { CreateTableEvents1712572717258 } from './1712572717258-CreateTableEvents';
+import { CreateTableEvents1712572717258 } from '@database/migrations/1712572717258-CreateTableEvents';
 
 describe('CreateTableEvents1712572717258', () => {
   let queryRunner: QueryRunner;

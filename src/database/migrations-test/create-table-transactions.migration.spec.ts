@@ -1,6 +1,6 @@
 import { QueryRunner } from 'typeorm';
 import { DOES_ENUM_STATUS_RESERVATION_EXIST } from '@utils/constants/constants.migrationdb';
-import { CreateTableTransactions1712661123450 } from './1712661123450-CreateTableTransactions';
+import { CreateTableTransactions1712661123450 } from '@database/migrations/1712661123450-CreateTableTransactions';
 
 describe('CreateTableTransactions1712661123450', () => {
   let queryRunner: QueryRunner;
