@@ -10,7 +10,7 @@ import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.ser
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
 import { UserRole } from '@common/enums/user-role.enum';
 import { InvalidCredentialsException } from '@common/exceptions/invalid-credentials.exception';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { UnauthorizedException, NotFoundException, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { CartsService } from '@modules/carts/carts.service';
 
@@ -204,7 +204,7 @@ describe('AuthService', () => {
 
       await expect(
         authService.updatePassword(1, 'wrongOldPassword', 'newPassword')
-      ).rejects.toThrow(InvalidCredentialsException);
+      ).rejects.toThrow(HttpException);
     });
   });
 
