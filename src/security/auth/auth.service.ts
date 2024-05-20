@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
@@ -98,7 +103,7 @@ export class AuthService {
     }
     const validPassword = await this.encryptionService.verifyPassword(user.password, oldPassword);
     if (!validPassword) {
-      throw new InvalidCredentialsException();
+      throw new HttpException('Invalid password', 400);
     }
 
     const hashedPassword = await this.encryptionService.hashPassword(newPassword);
