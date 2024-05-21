@@ -46,7 +46,7 @@ export class AuthService {
       email: normalizedEmail
     });
     if (existingUser) {
-      throw new UnauthorizedException('Email already exists');
+      throw new UnauthorizedException('Cet email est déjà utilisé. Veuillez en choisir un autre.');
     }
     const hashedPassword = await this.encryptionService.hashPassword(createUserDto.password);
     // Create a new user with the hashed password and the role
