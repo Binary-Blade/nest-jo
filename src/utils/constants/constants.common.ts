@@ -9,7 +9,7 @@ export const PRICES_FORMULA = [
 
 // Pagination constants
 export const DEFAULT_PAGE_SIZE = {
-  USER: 9,
+  USER: 8,
   RESERVATION: 12,
-  EVENT: 9
+  EVENT: 8
 } as const satisfies Record<string, number>;
