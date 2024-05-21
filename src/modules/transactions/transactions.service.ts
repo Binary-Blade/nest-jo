@@ -1,10 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
 import { PaymentResult } from '@common/interfaces/payment.interface';
 import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
+import { QueryHelperService } from '@database/query/query-helper.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Service responsible for handling transactions.
@@ -12,6 +19,7 @@ import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
  */
 @Injectable()
 export class TransactionsService {
+  private readonly logger = new Logger(TransactionsService.name);
   /**
    * Constructs the TransactionsService
    *
@@ -21,7 +29,8 @@ export class TransactionsService {
   constructor(
     @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly queryHelperService: QueryHelperService
   ) {}
 
   /**
@@ -78,6 +87,45 @@ export class TransactionsService {
     return transaction;
   }
 
+  async findAll(
+    userId: number,
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ transactions: Transaction[]; total: number }> {
+    const queryOptions = this.queryHelperService.buildQueryOptions<Transaction>(
+      paginationFilterDto,
+      5
+    );
+
+    queryOptions.where = { ...queryOptions.where, user: { userId } };
+    queryOptions.relations = [
+      'user',
+      'reservation',
+      'reservation.ticket',
+      'reservation.reservationDetails',
+      'reservation.reservationDetails.event'
+    ];
+
+    queryOptions.select = this.getSelectFieldsFindAll();
+    // Add sorting by date
+    if (paginationFilterDto.sortBy) {
+      queryOptions.order = {
+        [paginationFilterDto.sortBy]: paginationFilterDto.sortOrder.toUpperCase() // 'ASC' or 'DESC'
+      };
+    } else {
+      // Default sorting by createdAt date descending
+      queryOptions.order = {
+        createdAt: 'DESC'
+      };
+    }
+    try {
+      const [transactions, total] = await this.transactionRepository.findAndCount(queryOptions);
+      return { transactions, total };
+    } catch (error) {
+      this.logger.error(`Failed to retrieve transactions. Error: ${error.message}`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve transactions.', error.message);
+    }
+  }
+
   /**
    * Calculate the total price of a cart
    *
@@ -89,12 +137,41 @@ export class TransactionsService {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  /**
-   * Find all transactions
-   *
-   * @returns Promise<Transaction[]> - The transactions
-   */
-  findAll(): Promise<Transaction[]> {
-    return this.transactionRepository.find();
+  private getSelectFieldsFindAll() {
+    return {
+      transactionId: true,
+      statusPayment: true,
+      totalAmount: true,
+      createdAt: true,
+      user: {
+        userId: true,
+        firstName: true,
+        lastName: true
+      },
+      reservation: {
+        reservationId: true,
+        transaction: {
+          transactionId: true,
+          statusPayment: true
+        },
+        ticket: {
+          ticketId: true,
+          purchaseKey: true,
+          secureKey: true,
+          qrCode: true
+        },
+        reservationDetails: {
+          title: true,
+          shortDescription: true,
+          price: true,
+          priceFormula: true,
+          event: {
+            eventId: true,
+            categoryType: true,
+            startDate: true
+          }
+        }
+      }
+    };
   }
 }

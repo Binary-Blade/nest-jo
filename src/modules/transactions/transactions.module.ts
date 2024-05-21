@@ -8,6 +8,8 @@ import { ReservationDetails } from '@modules/reservation-details/entities/reserv
 import { User } from '@modules/users/entities/user.entity';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
+import { QueryHelperService } from '@database/query/query-helper.service';
+import { TransactionsController } from './transactions.controller';
 
 @Module({
   imports: [
@@ -15,7 +17,8 @@ import { ReservationsModule } from '@modules/reservations/reservations.module';
     forwardRef(() => ReservationsModule),
     forwardRef(() => TicketsModule)
   ],
-  providers: [TransactionsService, ReservationDetailsService],
+  providers: [TransactionsService, ReservationDetailsService, QueryHelperService],
+  controllers: [TransactionsController],
   exports: [TransactionsService]
 })
 export class TransactionsModule {}
