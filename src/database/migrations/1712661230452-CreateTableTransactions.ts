@@ -1,7 +1,7 @@
 import { DOES_ENUM_STATUS_RESERVATION_EXIST } from '@utils/constants/constants.migrationdb';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTableTransactions1712661123450 implements MigrationInterface {
+export class CreateTableTransactions1712661230452 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if the "reservation" table already exists in the database.
     const table = await queryRunner.getTable('transactions');
