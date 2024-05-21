@@ -55,6 +55,11 @@ export class ReservationsController {
     return this.reservationsService.findAllAdmin(paginationDto);
   }
 
+  @Get('find-all-data/:userId')
+  findAllData(@Param('userId') userId: number) {
+    return this.reservationsService.findAllData(userId);
+  }
+
   /**
    * Find a single reservation by ID
    *

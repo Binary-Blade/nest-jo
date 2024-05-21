@@ -62,6 +62,14 @@ export class ReservationsService {
     }
   }
 
+  async findAllData(userId: number): Promise<Reservation[]> {
+    return await this.reservationRepository.find({
+      where: { user: { userId } },
+      relations: ['reservationDetails', 'reservationDetails.event', 'transaction'],
+      select: this.getSelectFieldsFindAll()
+    });
+  }
+
   /**
    * Find all reservations for an admin
    *
