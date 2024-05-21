@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role } from '@common/decorators/role.decorator';
 import { UpdateUserDto } from './dto';
@@ -60,21 +60,16 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
-  @UseGuards(IsCreatorGuard)
-  @Delete(':id')
-  makeInactive(@Param('id') id: string) {
-    return this.usersService.removeUserActive(+id);
-  }
-
   /**
    * Deletes a user. Access is restricted to the user themself or an admin.
    *
    * @param id The ID of the user to delete.
+   * @returns A promise that resolves when the user is successfully deleted.
+   * @throws NotFoundException If the user ID does not exist in the database.
    */
-
   @UseGuards(IsCreatorGuard)
-  @Delete('/delete/:id')
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(+id);
+  @Patch('make-inactive/:id')
+  makeInactive(@Param('id') id: string) {
+    return this.usersService.removeUserActive(+id);
   }
 }

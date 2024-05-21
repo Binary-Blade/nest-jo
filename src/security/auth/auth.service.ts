@@ -39,9 +39,11 @@ export class AuthService {
    * @throws UnauthorizedException If a user with the provided email already exists.
    */
   async signup(createUserDto: CreateUserDto, role: UserRole = UserRole.USER): Promise<User> {
+    // Normalize the email to lowercase
+    const normalizedEmail = createUserDto.email.toLowerCase();
     // Check for existing user with the same email
     const existingUser = await this.usersRepository.findOneBy({
-      email: createUserDto.email
+      email: normalizedEmail
     });
     if (existingUser) {
       throw new UnauthorizedException('Email already exists');
@@ -50,6 +52,7 @@ export class AuthService {
     // Create a new user with the hashed password and the role
     const newUser = this.usersRepository.create({
       ...createUserDto,
+      email: normalizedEmail,
       password: hashedPassword,
       role,
       accountKey: await this.encryptionService.generatedKeyUuid(),
@@ -67,10 +70,14 @@ export class AuthService {
    * @throws InvalidCredentialsException If the email doesn't exist or the password doesn't match.
    */
   async login(email: string, password: string, res: Response): Promise<void> {
+    const normalizedEmail = email.toLowerCase();
     // Find the user by email
-    const user = await this.usersRepository.findOneBy({ email });
+    const user = await this.usersRepository.findOneBy({ email: normalizedEmail });
     if (!user) {
       throw new InvalidCredentialsException();
+    }
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is not active');
     }
     // Verify the provided password against the hashed password
     const validPassword = await this.encryptionService.verifyPassword(user.password, password);
@@ -128,5 +135,18 @@ export class AuthService {
 
     res.clearCookie('RefreshToken', { path: '/' }); // Clear the refresh token cookie
     res.status(200).send('Logged out successfully');
+  }
+
+  /**
+   * Removes a user from the database.
+   *
+   * @param id The ID of the user to remove.
+   * @throws NotFoundException if the user is not found.
+   */
+  async delete(userId: number, res: Response): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ userId });
+    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId); // Invalidate the current refresh token.
+    res.clearCookie('RefreshToken', { path: '/' }); // Clear the refresh token cookie
+    await this.usersRepository.remove(user);
   }
 }

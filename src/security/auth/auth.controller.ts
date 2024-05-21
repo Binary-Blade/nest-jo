@@ -7,7 +7,9 @@ import {
   HttpStatus,
   Patch,
   Res,
-  Req
+  Req,
+  Delete,
+  Param
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
@@ -119,5 +121,17 @@ export class AuthController {
   async logout(@UserId() userId: number, @Res() response: Response) {
     await this.authService.logout(userId, response);
     return { message: 'Logged out successfully' };
+  }
+
+  /**
+   * Deletes a user. Access is restricted to the user themself or an admin.
+   *
+   * @param id The ID of the user to delete.
+   */
+
+  @UseGuards(AccessTokenGuard)
+  @Delete('/delete/:id')
+  delete(@Param('id') id: string, @Res() response: Response) {
+    return this.authService.delete(+id, response);
   }
 }

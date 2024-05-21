@@ -72,17 +72,6 @@ export class UsersService {
   }
 
   /**
-   * Removes a user from the database.
-   *
-   * @param id The ID of the user to remove.
-   * @throws NotFoundException if the user is not found.
-   */
-  async delete(userId: number): Promise<void> {
-    const user = await this.verifyUserOneBy(userId);
-    await this.usersRepository.remove(user);
-  }
-
-  /**
    * Verifies that a user exists in the database.
    *
    * @param userId The ID of the user to verify.
