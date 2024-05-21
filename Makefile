@@ -16,8 +16,13 @@ migrate-revert:
 # === TESTING ====
 # Run tests
 test:
-	@echo "Running tests..."
+	@echo "Running tests units..."
 	docker-compose exec server pnpm run test
+
+
+e2e:
+	@echo "Running tests e2e..."
+	docker-compose exec server pnpm run test:e2e
 
 # === REDIS ====
 # Connect to the redis cli
@@ -33,21 +38,21 @@ redis-cli:
 dev:
 	@echo "Setting containers to development..."
 	@export NODE_ENV=development
-	docker-compose --env-file ./.dev.env up -d
+	docker-compose --env-file ./.development.env up -d
 
 clean-d:
 	@echo "Stopping development containers..."
-	docker-compose --env-file .dev.env -f docker-compose.yml down 
+	docker-compose --env-file .development.env -f docker-compose.yml down 
 # --- PRODUCTION
 # Docker compose up for production
 prod:
 	@echo "Setting containers to production..."
 	@export NODE_ENV=production
-	docker-compose --env-file ./.prod.env -f docker-compose.prod.yml up -d
+	docker-compose --env-file ./.production.env -f docker-compose.prod.yml up -d
 
 # Docker compose down for production
 clean-p:
 	@echo "Stopping production containers..."
-	docker-compose --env-file .prod.env -f docker-compose.prod.yml down 
+	docker-compose --env-file .production.env -f docker-compose.prod.yml down 
 
-.PHONY: migrate-create migrate-run migrat je-revert test redis-cli dev clean-d prod clean-p
+.PHONY: migrate-create migrate-run migrat je-revert test e2e redis-cli dev clean-d prod clean-p

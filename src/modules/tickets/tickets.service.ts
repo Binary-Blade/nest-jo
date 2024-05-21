@@ -1,13 +1,14 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { Repository } from 'typeorm';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { ReservationsService } from '@modules/reservations/reservations.service';
 import { UsersService } from '@modules/users/users.service';
-import { StatusReservation } from '@common/enums/status-reservation.enum';
 import { User } from '@modules/users/entities/user.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
+import { TransactionsService } from '@modules/transactions/transactions.service';
+import { StatusReservation } from '@common/enums/status-reservation.enum';
 
 /**
  * Service responsible for handling tickets.
@@ -20,40 +21,65 @@ export class TicketsService {
     private encryptionService: EncryptionService,
     private usersService: UsersService,
     @Inject(forwardRef(() => ReservationsService)) // Inject the ReservationsService with forwardRef
-    private reservationService: ReservationsService
+    private reservationService: ReservationsService,
+    private transactionService: TransactionsService
   ) {}
 
   /**
-   * Creates a ticket for a reservation.
+   * Generate tickets for all approved reservations.
    *
-   * @param reservationId The ID of the reservation.
-   * @param userId The ID of the user creating the ticket.
-   * @returns A promise resolved with the created ticket.
-   * @throws Error if the reservation is not approved.
+   * @param reservations - The reservations to generate tickets for
+   * @returns A promise that resolves when all tickets are generated
    */
-  async createTickets(reservationId: number, userId: number): Promise<Ticket> {
-    const reservation = await this.reservationService.findOne(reservationId, userId);
-    // Check if the reservation status is completed
-    if (reservation.status !== StatusReservation.APPROVED) {
-      throw new Error('Reservation is not approved.');
+  async generateTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
+    for (const reservation of reservations) {
+      const transaction = await this.transactionService.findTransactionByReservationId(
+        reservation.reservationId
+      );
+      if (transaction && transaction.statusPayment === StatusReservation.APPROVED) {
+        await this.generateTicketsForReservation(
+          reservation.reservationId,
+          reservation.user.userId
+        );
+      }
     }
-    // Generate purchase_key and secure_key
+  }
+
+  /**
+   * Generate tickets for a reservation.
+   *
+   * @private This method is private and should not be accessed from outside the service.
+   * @param reservationId - The ID of the reservation to generate tickets for
+   * @param userId - The ID of the user making the request
+   * @returns - A list of tickets created
+   * @throws NotFoundException if the reservation does not exist
+   */
+  private async generateTicketsForReservation(
+    reservationId: number,
+    userId: number
+  ): Promise<Ticket[]> {
+    const reservation = await this.reservationService.findOne(reservationId, userId);
+    if (!reservation) throw new NotFoundException('Reservation not found');
+
     const user = await this.usersService.verifyUserOneBy(userId);
-    const ticket = await this.createTicketForReservation(user, reservation);
-    // Update reservation with the ticket ID
-    reservation.ticketId = ticket.ticketId;
+    const ticket = await this.createNewTicket(user, reservation);
+
+    // Attach the ticket to the reservation and save it
+    reservation.ticket = ticket;
     await this.reservationService.saveReservation(reservation);
-    return ticket;
+
+    return [ticket]; // Return the created ticket in an array for consistency
   }
 
   /**
    * Creates a ticket for a reservation.
    *
+   * @private This method is private and should not be accessed from outside the service.
    * @param user The user creating the ticket.
    * @param reservation The reservation for which the ticket is created.
    * @returns A promise resolved with the created ticket.
    */
-  private async createTicketForReservation(user: User, reservation: Reservation): Promise<Ticket> {
+  private async createNewTicket(user: User, reservation: Reservation): Promise<Ticket> {
     const purchaseKey = await this.encryptionService.generatedKeyUuid();
     const secureKey = await this.encryptionService.generatedSecureKey(user);
     const qrCode = await this.encryptionService.generatedQRCode(secureKey);

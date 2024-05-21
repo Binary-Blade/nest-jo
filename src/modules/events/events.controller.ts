@@ -1,10 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query
+} from '@nestjs/common';
 import { UserRole } from '@common/enums/user-role.enum';
 import { Role } from '@common/decorators/role.decorator';
 import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventsService } from './events.service';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
+import { EventPricesService } from './event-prices.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Controller responsible for handling requests to the /events route
@@ -13,7 +26,10 @@ import { UpdateEventDto } from './dto/update-event.dto';
 @Controller('events')
 export class EventsController {
   // Inject the events service
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly eventPricesService: EventPricesService
+  ) {}
 
   /**
    * Create a new event
@@ -35,9 +51,14 @@ export class EventsController {
    * @returns - List of all events
    * @throws InternalServerErrorException if there is an error parsing the data
    */
-  @Get('get-all')
+  @Get('get-all-filtered')
+  findAllFiltered(@Query() paginationFilterDto: PaginationAndFilterDto) {
+    return this.eventsService.findAllFiltered(paginationFilterDto);
+  }
+
+  @Get('get-events-values')
   findAll() {
-    return this.eventsService.findAll();
+    return this.eventsService.findAllValues();
   }
 
   /**
@@ -47,13 +68,13 @@ export class EventsController {
    * @param ticketType - The type of ticket
    * @returns - The price of the ticket
    */
-  @Get(':id/price/:ticketType')
+  @Get(':id/price/:priceFormula')
   async getTicketPrice(
     @Param('id') id: number,
-    @Param('ticketType') ticketType: string
-  ): Promise<{ eventId: number; ticketType: string; price: number }> {
-    const price = await this.eventsService.getPriceByType(+id, ticketType);
-    return { eventId: +id, ticketType, price: +price }; // Ensure price is a number
+    @Param('priceFormula') priceFormula: PriceFormulaEnum
+  ): Promise<{ eventId: number; priceFormula: PriceFormulaEnum; price: number }> {
+    const price = await this.eventPricesService.getPriceByEventAndType(+id, priceFormula);
+    return { eventId: +id, priceFormula, price };
   }
 
   /**

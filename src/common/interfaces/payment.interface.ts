@@ -10,6 +10,7 @@ import { Reservation } from '@modules/reservations/entities/reservation.entity';
 export interface PaymentResult {
   status: StatusReservation;
   detail: string;
+  paymentId?: number;
 }
 
 /**

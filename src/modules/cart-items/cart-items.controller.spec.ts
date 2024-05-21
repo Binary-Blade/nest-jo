@@ -2,19 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CartItemsController } from './cart-items.controller';
 import { CartItemsService } from './cart-items.service';
 import { CreateCartItemDto } from './dto/create-cart-item.dto';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { CartItem } from './entities/cartitems.entity';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 
 describe('CartItemsController', () => {
   let controller: CartItemsController;
   let service: CartItemsService;
-
-  const mockCartItemsService = {
-    addItemToCart: jest.fn(),
-    findAllItemsInCart: jest.fn(),
-    findOneItemInCart: jest.fn(),
-    updateQuantityInCart: jest.fn(),
-    removeItemFromCart: jest.fn()
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -22,7 +17,13 @@ describe('CartItemsController', () => {
       providers: [
         {
           provide: CartItemsService,
-          useValue: mockCartItemsService
+          useValue: {
+            addItemToCart: jest.fn(),
+            findAllItemsInCart: jest.fn(),
+            findOneItemInCart: jest.fn(),
+            updateQuantityInCart: jest.fn(),
+            removeOneItemFromCart: jest.fn()
+          }
         }
       ]
     }).compile();
@@ -31,87 +32,159 @@ describe('CartItemsController', () => {
     service = module.get<CartItemsService>(CartItemsService);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('create', () => {
-    it('should create an item in the cart', async () => {
+    it('should add an item to a cart successfully', async () => {
       const userId = 1;
-      const dto: CreateCartItemDto = {
+      const createCartItemDto: CreateCartItemDto = {
+        eventId: 1,
         quantity: 2,
-        eventId: 123, // Assuming an example event ID
-        ticketType: TypeEvent.DUO // Assuming a valid ticket type
+        priceFormula: PriceFormulaEnum.SOLO,
+        userId: 1
       };
-      const expectedCartItem = { ...dto, id: 1 };
+      const cartItem = { cartItemId: 1 } as CartItem;
 
-      mockCartItemsService.addItemToCart.mockResolvedValue(expectedCartItem);
+      jest.spyOn(service, 'addItemToCart').mockResolvedValue(cartItem);
 
-      const result = await controller.create(userId, dto);
-      expect(service.addItemToCart).toHaveBeenCalledWith(userId, dto);
-      expect(result).toEqual(expectedCartItem);
+      const result = await controller.create(userId, createCartItemDto);
+      expect(result).toBe(cartItem);
+      expect(service.addItemToCart).toHaveBeenCalledWith(userId, createCartItemDto);
+    });
+
+    it('should throw NotFoundException if the event does not exist', async () => {
+      jest.spyOn(service, 'addItemToCart').mockRejectedValue(new NotFoundException());
+
+      await expect(
+        controller.create(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException if the user is not authorized to add items to the cart', async () => {
+      jest.spyOn(service, 'addItemToCart').mockRejectedValue(new ForbiddenException());
+
+      await expect(
+        controller.create(1, {
+          eventId: 1,
+          quantity: 2,
+          priceFormula: PriceFormulaEnum.SOLO,
+          userId: 1
+        })
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('findAll', () => {
-    it('should retrieve all items in a specific cart', async () => {
+    it('should fetch all items in a cart successfully', async () => {
       const userId = 1;
-      const cartId = '1';
-      const items = [{ id: 1, productId: 1, quantity: 2 }];
-      mockCartItemsService.findAllItemsInCart.mockResolvedValue(items);
+      const cartId = 1;
+      const cartItems = [{} as CartItem];
 
-      const result = await controller.findAll(userId, cartId);
-      expect(service.findAllItemsInCart).toHaveBeenCalledWith(userId, +cartId);
-      expect(result).toEqual(items);
+      jest.spyOn(service, 'findAllItemsInCart').mockResolvedValue(cartItems);
+
+      const result = await controller.findAll(userId, `${cartId}`);
+      expect(result).toBe(cartItems);
+      expect(service.findAllItemsInCart).toHaveBeenCalledWith(userId, cartId);
+    });
+
+    it('should throw NotFoundException if the cart does not exist', async () => {
+      jest.spyOn(service, 'findAllItemsInCart').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.findAll(1, '1')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('findOne', () => {
-    it('should retrieve a specific item from a cart', async () => {
+    it('should fetch a specific item in a cart successfully', async () => {
       const userId = 1;
-      const cartId = '1';
-      const cartItemId = '2';
-      const item = { id: 2, productId: 3, quantity: 1 };
-      mockCartItemsService.findOneItemInCart.mockResolvedValue(item);
+      const cartId = 1;
+      const cartItemId = 1;
+      const cartItem = {} as CartItem;
 
-      const result = await controller.findOne(userId, cartId, cartItemId);
-      expect(service.findOneItemInCart).toHaveBeenCalledWith(userId, +cartId, +cartItemId);
-      expect(result).toEqual(item);
+      jest.spyOn(service, 'findOneItemInCart').mockResolvedValue(cartItem);
+
+      const result = await controller.findOne(userId, `${cartId}`, `${cartItemId}`);
+      expect(result).toBe(cartItem);
+      expect(service.findOneItemInCart).toHaveBeenCalledWith(userId, cartId, cartItemId);
+    });
+
+    it('should throw NotFoundException if the cart item does not exist', async () => {
+      jest.spyOn(service, 'findOneItemInCart').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.findOne(1, '1', '1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException if the user is not authorized to access the cart', async () => {
+      jest.spyOn(service, 'findOneItemInCart').mockRejectedValue(new ForbiddenException());
+
+      await expect(controller.findOne(1, '1', '1')).rejects.toThrow(ForbiddenException);
     });
   });
 
   describe('update', () => {
-    it('should update the quantity of a specific item in a cart', async () => {
+    it('should update the quantity of an item in the cart successfully', async () => {
       const userId = 1;
-      const cartId = '1';
-      const cartItemId = '2';
-      const dto = { quantity: 5 };
-      const updatedItem = { id: 2, productId: 3, quantity: 5 };
-      mockCartItemsService.updateQuantityInCart.mockResolvedValue(updatedItem);
+      const cartId = 1;
+      const cartItemId = 1;
+      const updateCartItemDto: UpdateCartItemDto = { quantity: 3 };
+      const cartItem = {} as CartItem;
 
-      const result = await controller.update(userId, cartId, cartItemId, dto);
-      expect(service.updateQuantityInCart).toHaveBeenCalledWith(
+      jest.spyOn(service, 'updateQuantityInCart').mockResolvedValue(cartItem);
+
+      const result = await controller.update(
         userId,
-        +cartId,
-        +cartItemId,
-        dto.quantity
+        `${cartId}`,
+        `${cartItemId}`,
+        updateCartItemDto
       );
-      expect(result).toEqual(updatedItem);
+      expect(result).toBe(cartItem);
+      expect(service.updateQuantityInCart).toHaveBeenCalledWith(userId, cartId, cartItemId, 3);
+    });
+
+    it('should throw NotFoundException if the cart item does not exist', async () => {
+      jest.spyOn(service, 'updateQuantityInCart').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.update(1, '1', '1', { quantity: 3 })).rejects.toThrow(
+        NotFoundException
+      );
+    });
+
+    it('should throw ForbiddenException if the user is not authorized to update the cart item', async () => {
+      jest.spyOn(service, 'updateQuantityInCart').mockRejectedValue(new ForbiddenException());
+
+      await expect(controller.update(1, '1', '1', { quantity: 3 })).rejects.toThrow(
+        ForbiddenException
+      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a specific item from a cart', async () => {
+    it('should remove an item from a cart successfully', async () => {
       const userId = 1;
-      const cartId = '1';
-      const cartItemId = '2';
-      const expectedResponse = {}; // Adapt based on actual service behavior
+      const cartId = 1;
+      const cartItemId = 1;
+      const cartItem = {} as CartItem;
 
-      mockCartItemsService.removeItemFromCart.mockResolvedValue(expectedResponse);
+      jest.spyOn(service, 'removeOneItemFromCart').mockResolvedValue(cartItem);
 
-      const result = await controller.remove(userId, cartId, cartItemId);
-      expect(service.removeItemFromCart).toHaveBeenCalledWith(userId, +cartId, +cartItemId);
-      expect(result).toEqual(expectedResponse); // This assumes your service actually returns something on delete
+      const result = await controller.remove(userId, `${cartId}`, `${cartItemId}`);
+      expect(result).toBe(cartItem);
+      expect(service.removeOneItemFromCart).toHaveBeenCalledWith(userId, cartId, cartItemId);
+    });
+
+    it('should throw NotFoundException if the cart item does not exist', async () => {
+      jest.spyOn(service, 'removeOneItemFromCart').mockRejectedValue(new NotFoundException());
+
+      await expect(controller.remove(1, '1', '1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException if the user is not authorized to remove items from the cart', async () => {
+      jest.spyOn(service, 'removeOneItemFromCart').mockRejectedValue(new ForbiddenException());
+
+      await expect(controller.remove(1, '1', '1')).rejects.toThrow(ForbiddenException);
     });
   });
 });

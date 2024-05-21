@@ -1,9 +1,10 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Role } from '@common/decorators/role.decorator';
 import { UpdateUserDto } from './dto';
 import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
 import { UserRole } from '@common/enums/user-role.enum';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Controller that manages user operations. It includes endpoints for fetching,
@@ -23,8 +24,15 @@ export class UsersController {
   @Role(UserRole.ADMIN)
   @UseGuards(RoleGuard)
   @Get('get-all')
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() paginationFilterDto: PaginationAndFilterDto) {
+    return this.usersService.findAll(paginationFilterDto);
+  }
+
+  @Role(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
+  @Get('get-all-values')
+  findAllValues() {
+    return this.usersService.findAllValues();
   }
 
   /**
@@ -56,10 +64,12 @@ export class UsersController {
    * Deletes a user. Access is restricted to the user themself or an admin.
    *
    * @param id The ID of the user to delete.
+   * @returns A promise that resolves when the user is successfully deleted.
+   * @throws NotFoundException If the user ID does not exist in the database.
    */
   @UseGuards(IsCreatorGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Patch('make-inactive/:id')
+  makeInactive(@Param('id') id: string) {
+    return this.usersService.removeUserActive(+id);
   }
 }

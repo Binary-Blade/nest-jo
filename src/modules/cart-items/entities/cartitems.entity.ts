@@ -1,14 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  Index
+} from 'typeorm';
 import { Cart } from '@modules/carts/entities/cart.entity';
 import { Reservation } from '@modules/reservations/entities/reservation.entity';
 import { Event } from '@modules/events/entities/event.entity';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 
 @Entity('cart_items')
 export class CartItem {
   @PrimaryGeneratedColumn()
   cartItemId: number;
 
+  @Index()
   @ManyToOne(() => Cart, cart => cart.cartId)
   @JoinColumn({ name: 'cartId' })
   cart: Cart;
@@ -21,7 +30,7 @@ export class CartItem {
   reservations: Reservation[];
 
   @Column()
-  ticketType: TypeEvent;
+  priceFormula: PriceFormulaEnum;
 
   @Column('int')
   price: number;

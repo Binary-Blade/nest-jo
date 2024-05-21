@@ -8,7 +8,8 @@ import {
   Patch,
   Res,
   Req,
-  Get
+  Delete,
+  Param
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@modules/users/dto/create-user.dto';
@@ -51,6 +52,7 @@ export class AuthController {
    * Endpoint for authenticating a user and returning access and refresh tokens.
    *
    * @param loginDto The data transfer object containing user login credentials.
+   * @param response The response object to send the JWT tokens.
    * @returns A promise resolved to an object containing JWT tokens.
    */
   @Post('login')
@@ -59,6 +61,14 @@ export class AuthController {
     return await this.authService.login(email, password, response);
   }
 
+  /**
+   * Endpoint for updating a user's password.
+   *
+   * @param userId The ID of the user whose password is being updated.
+   * @param updatePasswordDto The data transfer object containing the old and new passwords.
+   * @returns A promise resolved to a message indicating successful password update.
+   * @throws UnauthorizedException if the old password is incorrect.
+   */
   @UseGuards(AccessTokenGuard)
   @Patch('change-password')
   async updatePassword(@UserId() userId: number, @Body() updatePasswordDto: UpdatePasswordDTO) {
@@ -69,20 +79,30 @@ export class AuthController {
     );
   }
 
+  /**
+   * Endpoint for generating a new access token using a refresh token.
+   *
+   * @param req The request object containing the refresh token.
+   * @param res The response object to send the new access token.
+   * @returns A promise resolved to a new access token.
+   * @throws UnauthorizedException if the refresh token is invalid.
+   * @throws InternalServerErrorException if there is an error generating the access token.
+   */
   @HttpCode(HttpStatus.OK)
-  @Get('get-refresh-token')
+  @Post('access-token')
   async getRefreshToken(@Req() req: Request, @Res() res: Response) {
-    await this.tokenService.refreshToken(req, res);
+    await this.tokenService.generateAccessTokenFromRefreshToken(req, res);
   }
 
   /**
    * Endpoint for refreshing the JWT access token using a refresh token.
    * This endpoint is protected and requires a valid access token.
    *
-   * @param refreshTokenDto The data transfer object containing the refresh token.
+   * @param req The request object containing the refresh token.
+   * @param res The response object to send the new access token.
    * @returns A promise resolved to a new set of access and refresh tokens.
    */
-  @UseGuards(AccessTokenGuard)
+
   @HttpCode(HttpStatus.OK)
   @Post('/refresh-token')
   async refreshToken(@Req() req: Request, @Res() res: Response) {
@@ -93,6 +113,7 @@ export class AuthController {
    * Endpoint for logging out a user by invalidating their refresh token.
    *
    * @param  req The request object containing the user's ID.
+   * @param response The response object to send the logout message.
    * @returns A promise resolved to a message indicating successful logout.
    */
   @UseGuards(AccessTokenGuard)
@@ -100,5 +121,17 @@ export class AuthController {
   async logout(@UserId() userId: number, @Res() response: Response) {
     await this.authService.logout(userId, response);
     return { message: 'Logged out successfully' };
+  }
+
+  /**
+   * Deletes a user. Access is restricted to the user themself or an admin.
+   *
+   * @param id The ID of the user to delete.
+   */
+
+  @UseGuards(AccessTokenGuard)
+  @Delete('/delete/:id')
+  delete(@Param('id') id: string, @Res() response: Response) {
+    return this.authService.delete(+id, response);
   }
 }

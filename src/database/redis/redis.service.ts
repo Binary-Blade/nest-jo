@@ -1,7 +1,4 @@
-import { DEV_PREFIX, NODE_ENV, PROD_ENV, PROD_PREFIX } from '@common/constants';
-import { KeyValuePairs } from '@common/interfaces/key-value-redis.interface';
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
 import Redis from 'ioredis';
 
 /**
@@ -17,7 +14,6 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name);
-  private readonly keyPrefix: string;
 
   /**
    * Constructor for RedisService class
@@ -25,14 +21,7 @@ export class RedisService {
    * @param redisClient Redis client
    * @param configService ConfigService instance
    */
-  constructor(
-    @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
-    @Inject(ConfigService) private readonly configService: ConfigService
-  ) {
-    // Set key prefix based on environment
-    this.keyPrefix =
-      this.configService.get<string>(NODE_ENV) === PROD_ENV ? PROD_PREFIX : DEV_PREFIX;
-  }
+  constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
 
   /**
    * Set data in Redis cache
@@ -44,15 +33,13 @@ export class RedisService {
    */
   async set(key: string, value: any, ttl?: number): Promise<string> {
     if (!key) throw new Error('Key is required');
-
-    const fullKey = this.formatKey(key);
     const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
     if (typeof ttl === 'number') {
-      await this.redisClient.set(fullKey, stringValue, 'EX', ttl);
+      await this.redisClient.set(key, stringValue, 'EX', ttl);
     } else {
-      await this.redisClient.set(fullKey, stringValue);
+      await this.redisClient.set(key, stringValue);
     }
-    return `Data set for key: ${fullKey}`;
+    return `Data set for key: ${key}`;
   }
 
   /**
@@ -64,13 +51,12 @@ export class RedisService {
   async get(key: string): Promise<string | null> {
     if (!key) throw new Error('Key is required');
 
-    const fullKey = this.formatKey(key);
     try {
-      const value = await this.redisClient.get(fullKey);
+      const value = await this.redisClient.get(key);
       if (!value) return null;
       return value;
     } catch (error) {
-      this.logger.error(`Error retrieving key ${fullKey} from cache`, error);
+      this.logger.error(`Error retrieving key ${key} from cache`, error);
       throw error;
     }
   }
@@ -84,43 +70,59 @@ export class RedisService {
   async del(key: string): Promise<string> {
     if (!key) throw new Error('Key is required');
 
-    const fullKey = this.formatKey(key);
-    const result = await this.redisClient.del(fullKey);
+    const result = await this.redisClient.del(key);
     if (!result) {
-      this.logger.warn(`Key not found in cache: ${fullKey}`);
-      return `Key not found: ${fullKey}`;
+      this.logger.warn(`Key not found in cache: ${key}`);
+      return `Key not found: ${key}`;
     }
-    return `Key deleted: ${fullKey}`;
+    return `Key deleted: ${key}`;
   }
 
   /**
-   * Set multiple key-value pairs in Redis cache
+   * Fetch data from cache if available, otherwise fetch from the database
    *
-   * @param keyValuePairs Key-value pairs to set
-   * @param ttl Time to live for the keys
-   * @returns Success message
+   * @param key - The key to use for caching
+   * @param fetchFn - Function to fetch data if not available in cache
+   * @returns - The fetched data
+   * @throws InternalServerErrorException if there is an error parsing the data
    */
-  async setMultiple(keyValuePairs: KeyValuePairs, ttl?: number): Promise<void> {
-    const pipeline = this.redisClient.pipeline();
-    keyValuePairs.forEach(([key, value]) => {
-      const fullKey = this.formatKey(key);
-      const stringValue = JSON.stringify(value);
-      if (typeof ttl === 'number') {
-        pipeline.set(fullKey, stringValue, 'EX', ttl);
-      } else {
-        pipeline.set(fullKey, stringValue);
-      }
-    });
-    await pipeline.exec();
+  async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>, TTL: number): Promise<T> {
+    let data = await this.get(key);
+    if (!data) {
+      const result = await fetchFn();
+      await this.set(key, JSON.stringify(result), TTL);
+      return result;
+    }
+    return this.safeParse(data);
   }
 
   /**
-   * Get data from Redis cache
+   * Safely parse JSON data
    *
-   * @param keys Keys to get data for
-   * @returns Values for the keys
+   * @private Helper method to parse JSON data
+   * @param jsonString - The JSON string to parse
+   * @returns - The parsed data
+   * @throws InternalServerErrorException if there is an error parsing the data
    */
-  private formatKey(key: string): string {
-    return `${this.keyPrefix}${key}`;
+  private safeParse<T>(jsonString: string): T {
+    try {
+      return JSON.parse(jsonString) as T;
+    } catch (error) {
+      throw new InternalServerErrorException('Error parsing data');
+    }
+  }
+
+  /**
+   * Clear cache for a specific event or all events
+   *
+   * @param eventId - The ID of the event to clear cache for
+   * @returns - Promise that resolves when the cache is cleared
+   * @throws InternalServerErrorException if there is an error clearing the cache
+   */
+  async clearCacheEvent(eventId?: number): Promise<void> {
+    if (eventId) {
+      await this.del(`event_${eventId}`);
+    }
+    await this.del('events_all');
   }
 }

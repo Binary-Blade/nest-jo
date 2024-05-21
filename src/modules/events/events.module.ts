@@ -1,17 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RedisService } from '@database/redis/redis.service';
-import { RedisModule } from '@database/redis/redis.module';
 import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
 import { EventsController } from './events.controller';
+import { EventPrice } from './entities/event-price.entity';
+import { EventPricesService } from './event-prices.service';
+import { ReservationDetails } from '@modules/reservation-details/entities/reservation-details.entity';
+import { EventSalesService } from './event-sales.service';
+import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
  * Module responsible for handling events
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Event]), RedisModule], // Import the event entity and the Redis module
+  imports: [TypeOrmModule.forFeature([Event, EventPrice, ReservationDetails])], // Import the event entity and the Redis module
   controllers: [EventsController], // Declare the events controller
-  providers: [EventsService, RedisService] // Declare the events service and the Redis service
+  providers: [EventsService, EventPricesService, EventSalesService, QueryHelperService],
+  exports: [EventsService, EventPricesService, EventSalesService] // Export the events service
 })
 export class EventsModule {}

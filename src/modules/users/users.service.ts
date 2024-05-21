@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto';
+import { QueryHelperService } from '@database/query/query-helper.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
  * Service providing user management functionality.
@@ -11,7 +13,8 @@ import { UpdateUserDto } from './dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private readonly queryHelper: QueryHelperService
   ) {}
 
   /**
@@ -19,7 +22,20 @@ export class UsersService {
    *
    * @returns A promise resolved with the list of all user entities.
    */
-  findAll(): Promise<User[]> {
+  async findAll(
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ users: User[]; total: number }> {
+    const queryOptions = this.queryHelper.buildQueryOptions<User>(paginationFilterDto);
+
+    try {
+      const [users, total] = await this.usersRepository.findAndCount(queryOptions);
+      return { users, total };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve events', error.message);
+    }
+  }
+
+  async findAllValues(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
@@ -45,19 +61,14 @@ export class UsersService {
    */
   async update(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.verifyUserOneBy(userId);
-    this.usersRepository.merge(user, updateUserDto);
+    Object.assign(user, updateUserDto);
     return this.usersRepository.save(user);
   }
 
-  /**
-   * Removes a user from the database.
-   *
-   * @param id The ID of the user to remove.
-   * @throws NotFoundException if the user is not found.
-   */
-  async remove(userId: number): Promise<void> {
+  async removeUserActive(userId: number): Promise<void> {
     const user = await this.verifyUserOneBy(userId);
-    await this.usersRepository.remove(user);
+    user.isActive = false;
+    await this.usersRepository.save(user);
   }
 
   /**

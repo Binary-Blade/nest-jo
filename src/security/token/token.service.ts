@@ -1,13 +1,5 @@
-import {
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  UnauthorizedException
-} from '@nestjs/common';
-import { RedisService } from '@database/redis/redis.service';
+import { HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from '@common/utils/utils.service';
 import { JWTTokens } from '@common/interfaces/jwt.interface';
 import { User } from '@modules/users/entities/user.entity';
 import { Payload } from '@common/interfaces/payload.interface';
@@ -15,6 +7,7 @@ import { Request, Response } from 'express';
 import { TokenManagementService } from './token-management.service';
 import { UsersService } from '@modules/users/users.service';
 import { CookieService } from '@security/cookie/cookie.service';
+import { RefreshTokenStoreService } from './refreshtoken-store.service';
 
 /**
  * Service responsible for managing JWT tokens, including their creation and validation.
@@ -29,8 +22,7 @@ export class TokenService {
     private readonly tokenManagementService: TokenManagementService,
     private readonly cookieService: CookieService,
     private readonly configService: ConfigService,
-    private readonly redisService: RedisService,
-    private readonly utilsService: UtilsService
+    private readonly refreshTokenStoreService: RefreshTokenStoreService
   ) {}
 
   /**
@@ -45,7 +37,7 @@ export class TokenService {
     const accessToken = this.tokenManagementService.createAccessToken(payload);
     const refreshToken = this.tokenManagementService.createRefreshToken(payload);
 
-    await this.storeRefreshTokenRedis(user.userId, refreshToken);
+    await this.refreshTokenStoreService.storeRefreshTokenInRedis(user.userId, refreshToken);
 
     this.logger.log(`Access token created for user ${user.userId}`);
     this.logger.log(`Refresh token created and stored in Redis for user ${user.userId}`);
@@ -65,41 +57,6 @@ export class TokenService {
   }
 
   /**
-   * Stores the refresh token in Redis for the given user.
-   * The token is stored with a TTL equal to the refresh token expiration time.
-   *
-   * @param userId The ID of the user for whom to store the token.
-   * @param refreshToken The refresh token to store.
-   */
-  private async storeRefreshTokenRedis(userId: number, refreshToken: string): Promise<void> {
-    const refreshTokenTTL = this.utilsService.convertDaysToSeconds(
-      this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION')
-    );
-    await this.redisService.set(`refresh_token_${userId}`, refreshToken, refreshTokenTTL);
-  }
-
-  /**
-   * Removes the refresh token from Redis for the given user.
-   *
-   * @param userId The ID of the user for whom to remove the token.
-   **/
-  private async refreshTokenRedisExist(userId: number, refreshToken: string): Promise<boolean> {
-    const storedToken = await this.redisService.get(`refresh_token_${userId}`);
-    return storedToken === refreshToken;
-  }
-  /**
-   * Removes the refresh token from Redis for the given user.
-   * This method is called when the user logs out or refreshes their token.
-   *
-   * @param userId The ID of the user for whom to remove the token.
-   * @returns A promise resolved when the token is removed.
-   */
-  async removeRefreshTokenRedis(userId: number) {
-    this.logger.log(`Refresh token for user ${userId} removed from Redis`);
-    await this.redisService.del(`refresh_token_${userId}`);
-  }
-
-  /**
    * Refreshes the access token and refresh token for the given user.
    * The old refresh token is verified and removed from Redis.
    * The new refresh token is stored in Redis and set as a cookie in the response.
@@ -110,45 +67,93 @@ export class TokenService {
    * @returns A promise resolved with the new tokens and user ID.
    * @throws UnauthorizedException if the token cannot be refreshed.
    */
+
   async refreshToken(req: Request, res: Response): Promise<any> {
     const oldRefreshToken = this.cookieService.extractRefreshTokenCookie(req);
+    if (!oldRefreshToken) {
+      return this.errorResponse(
+        res,
+        'No refresh token provided. Please login again.',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
     try {
-      const payload = await this.tokenManagementService.verifyToken(oldRefreshToken);
-      const userId = payload.sub;
-
-      const isTokenValid = await this.refreshTokenRedisExist(userId, oldRefreshToken);
-      if (!isTokenValid) {
-        throw new UnauthorizedException('Invalid refresh token.');
-      }
-
+      const { userId } = await this.validateAndExtractFromRefreshToken(oldRefreshToken);
       const user = await this.usersService.verifyUserOneBy(userId);
-      await this.redisService.del(`refresh_token_${userId}`);
+      await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
 
       const { accessToken, refreshToken } = await this.getTokens(user);
-      const expiresIn = this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION');
 
-      await this.storeRefreshTokenRedis(userId, refreshToken);
+      await this.refreshTokenStoreService.storeRefreshTokenInRedis(userId, refreshToken);
       this.cookieService.setRefreshTokenCookie(res, refreshToken);
 
       this.logger.log(`Tokens refreshed for user ${userId}`);
-      return res.status(HttpStatus.OK).json({ accessToken, refreshToken, expiresIn, userId });
+      return res.status(HttpStatus.OK).json({ accessToken, refreshToken, userId });
     } catch (error) {
-      this.logger.error(`Token refresh error for user extracted from token: ${error.message}`);
-
-      if (error instanceof UnauthorizedException) {
-        this.cookieService.clearRefreshTokenCookie(res);
-        throw error;
-      }
-
-      if (error instanceof Error) {
-        this.cookieService.clearRefreshTokenCookie(res);
-        throw new InternalServerErrorException('Internal server error. Please try again later.');
-      }
-
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error. Please contact support if the problem persists.'
-      });
+      return this.errorResponse(res, error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  /**
+   * Generates a new accessToken using a valid refreshToken from Redis.
+   * This method ensures that the refreshToken is still valid and has not been tampered with.
+   *
+   * @param req The request object.
+   * @param res The response object.
+   * @returns A response with the new accessToken.
+   */
+  async generateAccessTokenFromRefreshToken(req: Request, res: Response): Promise<Response> {
+    const refreshTokenFromCookie = this.cookieService.extractRefreshTokenCookie(req);
+    if (!refreshTokenFromCookie) {
+      return this.errorResponse(
+        res,
+        'No refresh token provided. Please login again.',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+    try {
+      const { payload, userId } =
+        await this.validateAndExtractFromRefreshToken(refreshTokenFromCookie);
+
+      const newAccessToken = this.tokenManagementService.createAccessToken({
+        sub: userId,
+        role: payload.role,
+        version: payload.version
+      });
+
+      return res.status(HttpStatus.OK).json({
+        accessToken: newAccessToken,
+        userId,
+        expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_EXPIRATION')
+      });
+    } catch (error) {
+      return this.errorResponse(
+        res,
+        'Failed to generate access token due to internal error. Please try again later.',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async validateAndExtractFromRefreshToken(refreshToken: string): Promise<any> {
+    try {
+      const payload = await this.tokenManagementService.verifyToken(refreshToken);
+      const userId = payload.sub;
+      if (!(await this.refreshTokenStoreService.verifyRefreshTokenInRedis(userId, refreshToken))) {
+        throw new UnauthorizedException('Invalid or expired refresh token.');
+      }
+      return { payload, userId };
+    } catch (error) {
+      this.logger.error(`Token validation failed: ${error.message}`);
+      throw new UnauthorizedException('Failed to validate token.');
+    }
+  }
+
+  private errorResponse(res: Response, message: string, status: HttpStatus): Response {
+    this.logger.error(message);
+    return res.status(status).json({
+      message: message,
+      actionRequired: 'Please login again.'
+    });
   }
 }

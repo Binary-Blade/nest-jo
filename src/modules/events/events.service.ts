@@ -10,63 +10,96 @@ import { RedisService } from '@database/redis/redis.service';
 import { Event } from './entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { TypeEvent } from '@common/enums/type-event.enum';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
+import { EventPricesService } from './event-prices.service';
+import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
+import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
  * Service responsible for handling CRUD operations for events
  */
 @Injectable()
 export class EventsService {
-  // Time to live for cache in seconds - 1 hour
-  private readonly TTL: number = 3600;
+  private static readonly CACHE_TTL_ONE_HOUR: number = 360; // TTL 360 seconds
 
   constructor(
     @InjectRepository(Event) private eventRepository: Repository<Event>,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
+    private readonly eventPricesService: EventPricesService,
+    private readonly convertUtilsService: ConvertUtilsService,
+    private readonly queryHelper: QueryHelperService
   ) {}
 
   /**
    * Create a new event
    *
    * @param createEventDto - DTO for creating an event
-   * @returns - The created event
+   * @return Promise<Event> - The created event
    * @throws ConflictException if an event with the same title already exists
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
+    const startDate = this.convertUtilsService.convertDateStringToDate(createEventDto.startDate);
+    const endDate = this.convertUtilsService.convertDateStringToDate(createEventDto.endDate);
     await this.ensureTitleUnique(createEventDto.title);
     const event: Event = this.eventRepository.create({
       ...createEventDto,
-      basePrice: createEventDto.basePrice,
-      soloPrice: createEventDto.basePrice,
-      duoPrice: createEventDto.basePrice * 1.3,
-      familyPrice: createEventDto.basePrice * 1.8
+      startDate,
+      endDate
     });
-
     await this.eventRepository.save(event);
-    await this.clearCacheEvent();
+    await this.eventPricesService.createEventPrices(event.eventId, event.basePrice);
+    await this.redisService.clearCacheEvent();
     return event;
   }
 
   /**
    * Get all event
    *
-   * @returns - List of all events
+   * @returns Promise<Event[]> - The list of all events
    * @throws InternalServerErrorException if there is an error parsing the data
    */
-  async findAll(): Promise<Event[]> {
-    return this.fetchCachedData('events_all', () => this.eventRepository.find());
+  async findAllValues(): Promise<Event[]> {
+    return this.eventRepository.find({
+      select: {
+        quantityAvailable: true,
+        quantitySold: true,
+        revenueGenerated: true
+      }
+    });
   }
 
   /**
-   * Get a single event by ID
+   * Get all events with pagination and filtering
+   *
+   * @param paginationFilterDto - DTO for pagination and filtering
+   * @returns Promise<{ events: Event[]; total: number }> - The list of events and the total number of events
+   * @throws InternalServerErrorException if there is an error retrieving the events
+   */
+  async findAllFiltered(
+    paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ events: Event[]; total: number }> {
+    const queryOptions = this.queryHelper.buildQueryOptions<Event>(paginationFilterDto);
+
+    try {
+      const [events, total] = await this.eventRepository.findAndCount(queryOptions);
+      return { events, total };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve events', error.message);
+    }
+  }
+
+  /**
+   * Find an event by ID
    *
    * @param id - The ID of the event
-   * @returns - The event with the given ID
+   * @returns Promise<Event>- The event with the given ID
    * @throws NotFoundException if the event with the given ID does not exist
    */
   async findOne(id: number): Promise<Event> {
-    const event = await this.fetchCachedData(`event_${id}`, () =>
-      this.eventRepository.findOneBy({ eventId: id })
+    const event = await this.redisService.fetchCachedData(
+      `event_${id}`,
+      () => this.eventRepository.findOneBy({ eventId: id }),
+      EventsService.CACHE_TTL_ONE_HOUR
     );
     if (!event) throw new NotFoundException(`Event with id ${id} not found`);
     return event;
@@ -83,12 +116,17 @@ export class EventsService {
    */
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
     const event = await this.findOne(id);
-    await this.ensureTitleUnique(updateEventDto.title, id);
+    if (updateEventDto.title && updateEventDto.title !== event.title) {
+      await this.ensureTitleUnique(updateEventDto.title, id);
+    }
+    if (updateEventDto.basePrice !== undefined && updateEventDto.basePrice !== event.basePrice) {
+      await this.eventPricesService.updateEventPrices(event.eventId, updateEventDto.basePrice);
+    }
 
     Object.assign(event, updateEventDto, { updatedAt: new Date() });
 
+    await this.redisService.clearCacheEvent(id);
     await this.eventRepository.save(event);
-    await this.clearCacheEvent(id);
     return event;
   }
 
@@ -101,36 +139,10 @@ export class EventsService {
    */
   async remove(id: number): Promise<string> {
     const event = await this.findOne(id);
-    if (!event) throw new NotFoundException(`Event with id ${id} not found`);
-
+    await this.eventPricesService.deleteEventPrices(id);
     await this.eventRepository.remove(event);
-    await this.clearCacheEvent(id);
+    await this.redisService.clearCacheEvent(id);
     return 'Event deleted successfully.';
-  }
-
-  /**
-   * Get the price for a ticket type for a specific event
-   *
-   * @param eventId - The ID of the event
-   * @param ticketType - The type of ticket
-   * @returns - The price for the ticket type
-   * @throws NotFoundException if the event with the given ID does not exist
-   **/
-  async getPriceByType(eventId: number, ticketType: string): Promise<number> {
-    const event = await this.eventRepository.findOneBy({ eventId });
-    if (!event) {
-      throw new NotFoundException(`Event with id ${eventId} not found`);
-    }
-    switch (ticketType) {
-      case TypeEvent.SOLO:
-        return event.soloPrice;
-      case TypeEvent.DUO:
-        return event.duoPrice;
-      case TypeEvent.FAMILY:
-        return event.familyPrice;
-      default:
-        throw new NotFoundException(`Invalid ticket type provided`);
-    }
   }
 
   /**
@@ -150,54 +162,15 @@ export class EventsService {
   }
 
   /**
-   * Fetch data from cache if available, otherwise fetch from the database
+   * Find an event by ID
    *
-   * @private - This method should not be exposed to the controller
-   * @param key - The key to use for caching
-   * @param fetchFn - Function to fetch data if not available in cache
-   * @returns - The fetched data
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param eventId - The ID of the event
+   * @returns - The event with the given ID
+   * @throws NotFoundException if the event with the given ID does not exist
    */
-  private async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
-    let data = await this.redisService.get(key);
-    if (!data) {
-      const result = await fetchFn();
-      await this.redisService.set(key, JSON.stringify(result), this.TTL);
-      return result;
-    }
-    return this.safeParse(data);
-  }
-
-  /**
-   * Safely parse JSON data
-   *
-   * @private - This method should not be exposed to the controller
-   * @template T - The type of the data to parse
-   * @param jsonString - The JSON string to parse
-   * @returns - The parsed data
-   * @throws InternalServerErrorException if there is an error parsing the data
-   */
-  private safeParse<T>(jsonString: string): T {
-    try {
-      return JSON.parse(jsonString) as T;
-    } catch (error) {
-      console.error('Error parsing JSON', error);
-      throw new InternalServerErrorException('Error parsing data');
-    }
-  }
-
-  /**
-   * Clear cache for a specific event or all events
-   *
-   * @private - This method should not be exposed to the controller
-   * @param eventId - The ID of the event to clear cache for
-   * @returns - Promise that resolves when the cache is cleared
-   * @throws InternalServerErrorException if there is an error clearing the cache
-   */
-  private async clearCacheEvent(eventId?: number): Promise<void> {
-    if (eventId) {
-      await this.redisService.del(`event_${eventId}`);
-    }
-    await this.redisService.del('events_all');
+  async findEventById(eventId: number): Promise<Event> {
+    const event = await this.eventRepository.findOneBy({ eventId });
+    if (!event) throw new NotFoundException(`Event with ID ${eventId} not found.`);
+    return event;
   }
 }

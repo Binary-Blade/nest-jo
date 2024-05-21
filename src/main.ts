@@ -7,7 +7,7 @@ import { HttpExceptionFilter } from '@common/globals-filter/http-exceptions-filt
 import { WinstonLoggerService } from '@common/logger/winston.service';
 import { ConfigService } from '@nestjs/config';
 import { runMigrations } from '@database/migration-runner';
-import { PROD_ENV } from '@common/constants';
+import { PROD_ENV } from '@utils/constants/constants.env';
 
 /**
  * Bootstrap the application
@@ -41,8 +41,9 @@ async function bootstrap() {
   // Globally applied pipes, filters, and interceptors
   app.useGlobalPipes(
     new ValidationPipe({
-      //transform: true, // Automatically transform payloads to DTO instances
-      whitelist: true // Strip non-whitelisted properties
+      transform: true, // Automatically transform payloads to DTO instances
+      whitelist: true, // Strip non-whitelisted properties
+      forbidNonWhitelisted: true // Throw an error when non-whitelisted properties are present
     })
   );
 

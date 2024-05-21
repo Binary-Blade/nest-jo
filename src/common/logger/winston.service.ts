@@ -3,8 +3,11 @@ import { logger } from './winston.config'; // Import your winston logger setup
 
 /**
  * Provides a logger that integrates with Winston.
+ *
+ * @export
+ * @class WinstonLoggerService
+ * @implements {LoggerService}
  */
-
 @Injectable()
 export class WinstonLoggerService implements LoggerService {
   /**

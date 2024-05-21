@@ -1,7 +1,7 @@
-import { PROD_ENV } from '@common/constants';
-import { UtilsService } from '@common/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PROD_ENV } from '@utils/constants/constants.env';
+import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { CookieOptions, Request, Response } from 'express';
 
 /**
@@ -12,7 +12,7 @@ import { CookieOptions, Request, Response } from 'express';
 export class CookieService {
   constructor(
     private configService: ConfigService,
-    private utilsService: UtilsService
+    private convertUtilsService: ConvertUtilsService
   ) {}
 
   /**
@@ -36,13 +36,17 @@ export class CookieService {
    */
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
     const refreshTokenExpiration = this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION');
-    const refreshTokenTTL = this.utilsService.convertDaysToSeconds(refreshTokenExpiration);
+    if (!refreshTokenExpiration) {
+      throw new Error('JWT_REFRESH_TOKEN_EXPIRATION is not configured.');
+    }
+
+    const refreshTokenTTL = this.convertUtilsService.convertDaysToSeconds(refreshTokenExpiration);
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === PROD_ENV,
       maxAge: refreshTokenTTL * 1000,
       path: '/',
-      sameSite: this.configService.get('NODE_ENV') === PROD_ENV ? 'none' : 'lax'
+      sameSite: this.configService.get('NODE_ENV') === PROD_ENV ? 'none' : 'strict'
     };
     res.cookie('RefreshToken', refreshToken, cookieOptions);
   }

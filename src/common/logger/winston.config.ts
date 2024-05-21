@@ -1,7 +1,15 @@
-import { DEV_ENV, PROD_ENV } from '@common/constants';
+import { DEV_ENV, PROD_ENV } from '@utils/constants/constants.env';
 import * as winston from 'winston';
 
-// Define custom levels if needed
+/**
+ * Define the log levels
+ *
+ * error: 0,
+ * warn: 1,
+ * info: 2,
+ * http: 3,
+ * debug: 4
+ */
 const levels = {
   error: 0,
   warn: 1,
@@ -10,22 +18,39 @@ const levels = {
   debug: 4
 };
 
-// Define which level to use based on the environment
+/**
+ * Determine the log level based on the environment
+ *
+ * @returns string - The log level
+ * @default 'debug' if in development, 'warn' otherwise
+ */
 const level = () => {
   const env = process.env.NODE_ENV || DEV_ENV;
   const isDevelopment = env === DEV_ENV;
   return isDevelopment ? 'debug' : 'warn';
 };
 
-// Common format options for all transports
-const commonFormat = winston.format.combine(
+/**
+ * Define the common format for logs
+ *
+ * @type {winston.Logform.Format}
+ * @default timestamp, errors, splat
+ * @see
+ */
+const commonFormat: winston.Logform.Format = winston.format.combine(
   winston.format.timestamp({ format: 'YY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }), // Print stack trace
   winston.format.splat()
 );
 
-// Enhanced console format for readability
-const consoleFormat = winston.format.combine(
+/**
+ * Define the format for console logs
+ *
+ * @type {winston.Logform.Format}
+ * @default colorize, printf
+ * @see
+ */
+const consoleFormat: winston.Logform.Format = winston.format.combine(
   commonFormat,
   winston.format.colorize(), // Colorize part of the message
   winston.format.printf(({ level, message, timestamp }) => {
