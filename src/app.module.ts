@@ -24,8 +24,8 @@ import { TransactionsModule } from '@modules/transactions/transactions.module';
   imports: [
     // Global configuration module that loads environment variables.
     ConfigModule.forRoot({
-      envFilePath: `./.env`,
-      isGlobal: true
+      envFilePath: `./.${process.env.NODE_ENV || ''}.env`, // Load conditionally the environment variables based on the current environment
+      isGlobal: true // Make the configuration module global
     }),
     DatabaseModule,
     RedisModule,
