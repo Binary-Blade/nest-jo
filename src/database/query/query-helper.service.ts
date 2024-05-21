@@ -6,10 +6,11 @@ import { FindManyOptions, FindOptionsWhere } from 'typeorm';
 @Injectable()
 export class QueryHelperService {
   buildQueryOptions<TypeEntity>(
-    paginationFilterDto: PaginationAndFilterDto
+    paginationFilterDto: PaginationAndFilterDto,
+    limitPut?: number
   ): FindManyOptions<TypeEntity> {
     const {
-      limit,
+      limit = limitPut || 10,
       offset,
       sortBy,
       sortOrder = SortOrder.ASC,
