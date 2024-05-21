@@ -10,7 +10,7 @@ export class CreateTableReservations1712751776642 implements MigrationInterface 
       await queryRunner.query(`
                 CREATE TABLE "reservations" (
                     "reservationId" SERIAL PRIMARY KEY,
-                    "userId" INT NOT NULL,
+                    "userId" INT NULL,
                     "cartItemId" INT NULL,
                     "transactionId" INT NULL,
                     "reservationDetailsId" INT NULL, 

@@ -13,13 +13,13 @@ export class CreateTableTransactions1712661123450 implements MigrationInterface 
       await queryRunner.query(`
                 CREATE TABLE "transactions" (
                     "transactionId" SERIAL PRIMARY KEY,
-                    "userId" INT NOT NULL,
+                    "userId" INT NULL,
                     "statusPayment" "status_reservation_enum" ,
                     "paymentId" INT NOT NULL,
                     "totalAmount" DECIMAL NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY ("userId") REFERENCES "users" ("userId") ON DELETE CASCADE
+                    FOREIGN KEY ("userId") REFERENCES "users" ("userId") ON DELETE SET NULL 
                 );
             `);
     }

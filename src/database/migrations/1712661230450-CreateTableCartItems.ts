@@ -13,14 +13,14 @@ export class CreateTableCartItems1712661230450 implements MigrationInterface {
                 CREATE TABLE "cart_items" (
                     "cartItemId" SERIAL PRIMARY KEY,
                     "cartId" INTEGER NULL,
-                    "eventId" INTEGER NOT NULL,
+                    "eventId" INTEGER NULL,
                     "priceFormula" "type_price_formule_enum" NOT NULL,
                     "price" INTEGER NOT NULL,
                     "quantity" INTEGER NOT NULL,
                     "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY ("cartId") REFERENCES "cart" ("cartId") DELETE ON CASCADE, 
-                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId") DELETE ON CASCADE 
+                    FOREIGN KEY ("cartId") REFERENCES "cart" ("cartId") ON DELETE CASCADE, 
+                    FOREIGN KEY ("eventId") REFERENCES "events" ("eventId") 
                 );
             `);
     }

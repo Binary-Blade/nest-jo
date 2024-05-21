@@ -5,7 +5,7 @@ export class AddForeignKeyConstraints1712751780000 implements MigrationInterface
     // Add foreign keys to reservations
     await queryRunner.query(`
             ALTER TABLE "reservations"
-            ADD CONSTRAINT "fk_reservations_users" FOREIGN KEY ("userId") REFERENCES "users" ("userId"),
+            ADD CONSTRAINT "fk_reservations_users" FOREIGN KEY ("userId") REFERENCES "users" ("userId") ON DELETE SET NULL,
             ADD CONSTRAINT "fk_reservations_transactions" FOREIGN KEY ("transactionId") REFERENCES "transactions" ("transactionId") ON DELETE SET NULL, 
             ADD CONSTRAINT "fk_reservations_tickets" FOREIGN KEY ("ticketId") REFERENCES "tickets" ("ticketId") ON DELETE SET NULL;
         `);
