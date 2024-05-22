@@ -1,0 +1,1233 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>nestjs-jo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avaoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="../" class="navbar-brand">nestjs-jo documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >TokenService</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/security/token/token.service.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Service to manage JWT tokens and token-related operations.</p>
+
+            </p>
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#createPayload" >createPayload</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#errorResponse" >errorResponse</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#generateAccessTokenFromRefreshToken" >generateAccessTokenFromRefreshToken</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getTokens" >getTokens</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#refreshToken" >refreshToken</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateAndExtractFromRefreshToken" >validateAndExtractFromRefreshToken</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(usersService: <a href="../injectables/UsersService.html" target="_self">UsersService</a>, tokenManagementService: <a href="../injectables/TokenManagementService.html" target="_self">TokenManagementService</a>, cookieService: <a href="../injectables/CookieService.html" target="_self">CookieService</a>, configService: ConfigService, refreshTokenStoreService: <a href="../injectables/RefreshTokenStoreService.html" target="_self">RefreshTokenStoreService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/security/token/token.service.ts:27</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div class="io-description"><p>Creates an instance of TokenService.</p>
+</div>
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                                    <td>Description</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>usersService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/UsersService.html" target="_self" >UsersService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>Service to manage users.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>tokenManagementService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/TokenManagementService.html" target="_self" >TokenManagementService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>Service to manage JWT tokens.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>cookieService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CookieService.html" target="_self" >CookieService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>Service to manage cookies.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>Service to access configuration variables.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>refreshTokenStoreService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RefreshTokenStoreService.html" target="_self" >RefreshTokenStoreService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>Service to manage refresh tokens.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createPayload"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>createPayload</b></span>
+                        <a href="#createPayload"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createPayload(user: <a href="../entitys/User.html" target="_self">User</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/security/token/token.service.ts:78</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Creates a payload for JWT tokens.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const payload = tokenService.createPayload(user);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../entitys/User.html" target="_self" >User</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The user entity.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/Payload.html" target="_self" >Payload</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The payload for the JWT token.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="errorResponse"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>errorResponse</b></span>
+                        <a href="#errorResponse"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>errorResponse(res: Response, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, status: HttpStatus)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="199"
+                                    class="link-to-prism">src/security/token/token.service.ts:199</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Sends an error response.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const response = tokenService.errorResponse(res, &#39;Error message&#39;, HttpStatus.BAD_REQUEST);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP response object.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>message</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>Error message.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>status</td>
+                                            <td>
+                                                        <code>HttpStatus</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP status code.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Response</code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The error response.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="generateAccessTokenFromRefreshToken"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>generateAccessTokenFromRefreshToken</b></span>
+                        <a href="#generateAccessTokenFromRefreshToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>generateAccessTokenFromRefreshToken(req: Request, res: Response)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/security/token/token.service.ts:128</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Generates a new access token using the provided refresh token.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const response = await tokenService.generateAccessTokenFromRefreshToken(req, res);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP request object.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP response object.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Response&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The response with the new access token.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTokens"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getTokens</b></span>
+                        <a href="#getTokens"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getTokens(user: <a href="../entitys/User.html" target="_self">User</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/security/token/token.service.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Generates access and refresh tokens for a user and stores the refresh token in Redis.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const tokens = await tokenService.getTokens(user);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../entitys/User.html" target="_self" >User</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The user entity.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/JWTTokens.html" target="_self" >Promise&lt;JWTTokens&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The generated JWT tokens.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="refreshToken"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>refreshToken</b></span>
+                        <a href="#refreshToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>refreshToken(req: Request, res: Response)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/security/token/token.service.ts:92</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Refreshes the access and refresh tokens using the provided refresh token.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const response = await tokenService.refreshToken(req, res);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP request object.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>HTTP response object.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Response&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The response with new tokens.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateAndExtractFromRefreshToken"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>validateAndExtractFromRefreshToken</b></span>
+                        <a href="#validateAndExtractFromRefreshToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateAndExtractFromRefreshToken(refreshToken: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/security/token/token.service.ts:172</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validates a refresh token and extracts the payload.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const { payload, userId } = await tokenService.validateAndExtractFromRefreshToken(refreshToken);</code></pre></div></div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>refreshToken</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The refresh token to validate.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <ul>
+<li>The extracted payload and user ID.</li>
+</ul>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Logger</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(TokenService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/security/token/token.service.ts:27</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Logger instance from NestJS.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpStatus, Injectable, Logger, UnauthorizedException } from &#x27;@nestjs/common&#x27;;
+import { ConfigService } from &#x27;@nestjs/config&#x27;;
+import { JWTTokens } from &#x27;@common/interfaces/jwt.interface&#x27;;
+import { User } from &#x27;@modules/users/entities/user.entity&#x27;;
+import { Payload } from &#x27;@common/interfaces/payload.interface&#x27;;
+import { Request, Response } from &#x27;express&#x27;;
+import { TokenManagementService } from &#x27;./token-management.service&#x27;;
+import { UsersService } from &#x27;@modules/users/users.service&#x27;;
+import { CookieService } from &#x27;@security/cookie/cookie.service&#x27;;
+import { RefreshTokenStoreService } from &#x27;./refreshtoken-store.service&#x27;;
+
+/**
+ * Service to manage JWT tokens and token-related operations.
+ * @class
+ */
+@Injectable()
+export class TokenService {
+  /**
+   * Logger instance from NestJS.
+   *
+   * @private
+   * @readonly
+   * @type {Logger}
+   * @memberof TokenService
+   * @default new Logger(TokenService.name)
+   */
+  private readonly logger: Logger &#x3D; new Logger(TokenService.name);
+
+  /**
+   * Creates an instance of TokenService.
+   *
+   * @constructor
+   * @param {UsersService} usersService - Service to manage users.
+   * @param {TokenManagementService} tokenManagementService - Service to manage JWT tokens.
+   * @param {CookieService} cookieService - Service to manage cookies.
+   * @param {ConfigService} configService - Service to access configuration variables.
+   * @param {RefreshTokenStoreService} refreshTokenStoreService - Service to manage refresh tokens.
+   */
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly tokenManagementService: TokenManagementService,
+    private readonly cookieService: CookieService,
+    private readonly configService: ConfigService,
+    private readonly refreshTokenStoreService: RefreshTokenStoreService
+  ) {}
+
+  /**
+   * Generates access and refresh tokens for a user and stores the refresh token in Redis.
+   *
+   * @param {User} user - The user entity.
+   * @returns {Promise&lt;JWTTokens&gt;} - The generated JWT tokens.
+   *
+   * @example
+   * const tokens &#x3D; await tokenService.getTokens(user);
+   */
+  async getTokens(user: User): Promise&lt;JWTTokens&gt; {
+    const payload &#x3D; this.createPayload(user);
+    const accessToken &#x3D; this.tokenManagementService.createAccessToken(payload);
+    const refreshToken &#x3D; this.tokenManagementService.createRefreshToken(payload);
+
+    await this.refreshTokenStoreService.storeRefreshTokenInRedis(user.userId, refreshToken);
+
+    this.logger.log(&#x60;Access token created for user ${user.userId}&#x60;);
+    this.logger.log(&#x60;Refresh token created and stored in Redis for user ${user.userId}&#x60;);
+
+    return { accessToken, refreshToken };
+  }
+
+  /**
+   * Creates a payload for JWT tokens.
+   *
+   * @param {User} user - The user entity.
+   * @returns {Payload} - The payload for the JWT token.
+   *
+   * @example
+   * const payload &#x3D; tokenService.createPayload(user);
+   */
+  private createPayload(user: User): Payload {
+    return { sub: user.userId, role: user.role, version: user.tokenVersion };
+  }
+
+  /**
+   * Refreshes the access and refresh tokens using the provided refresh token.
+   *
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise&lt;Response&gt;} - The response with new tokens.
+   *
+   * @example
+   * const response &#x3D; await tokenService.refreshToken(req, res);
+   */
+  async refreshToken(req: Request, res: Response): Promise&lt;Response&gt; {
+    const oldRefreshToken &#x3D; this.cookieService.extractRefreshTokenCookie(req);
+    if (!oldRefreshToken) {
+      return this.errorResponse(
+        res,
+        &#x27;No refresh token provided. Please login again.&#x27;,
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+    try {
+      const { userId } &#x3D; await this.validateAndExtractFromRefreshToken(oldRefreshToken);
+      const user &#x3D; await this.usersService.verifyUserOneBy(userId);
+      await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
+
+      const { accessToken, refreshToken } &#x3D; await this.getTokens(user);
+
+      await this.refreshTokenStoreService.storeRefreshTokenInRedis(userId, refreshToken);
+      this.cookieService.setRefreshTokenCookie(res, refreshToken);
+
+      this.logger.log(&#x60;Tokens refreshed for user ${userId}&#x60;);
+      return res.status(HttpStatus.OK).json({ accessToken, refreshToken, userId });
+    } catch (error) {
+      return this.errorResponse(res, error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Generates a new access token using the provided refresh token.
+   *
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise&lt;Response&gt;} - The response with the new access token.
+   *
+   * @example
+   * const response &#x3D; await tokenService.generateAccessTokenFromRefreshToken(req, res);
+   */
+  async generateAccessTokenFromRefreshToken(req: Request, res: Response): Promise&lt;Response&gt; {
+    const refreshTokenFromCookie &#x3D; this.cookieService.extractRefreshTokenCookie(req);
+    if (!refreshTokenFromCookie) {
+      return this.errorResponse(
+        res,
+        &#x27;No refresh token provided. Please login again.&#x27;,
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+    try {
+      const { payload, userId } &#x3D;
+        await this.validateAndExtractFromRefreshToken(refreshTokenFromCookie);
+
+      const newAccessToken &#x3D; this.tokenManagementService.createAccessToken({
+        sub: userId,
+        role: payload.role,
+        version: payload.version
+      });
+
+      return res.status(HttpStatus.OK).json({
+        accessToken: newAccessToken,
+        userId,
+        expiresIn: this.configService.get&lt;string&gt;(&#x27;JWT_ACCESS_TOKEN_EXPIRATION&#x27;)
+      });
+    } catch (error) {
+      return this.errorResponse(
+        res,
+        &#x27;Failed to generate access token due to internal error. Please try again later.&#x27;,
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  /**
+   * Validates a refresh token and extracts the payload.
+   *
+   * @param {string} refreshToken - The refresh token to validate.
+   * @returns {Promise&lt;{ payload: Payload; userId: number }&gt;} - The extracted payload and user ID.
+   *
+   * @throws {UnauthorizedException} If the token is invalid or expired.
+   *
+   * @example
+   * const { payload, userId } &#x3D; await tokenService.validateAndExtractFromRefreshToken(refreshToken);
+   */
+  async validateAndExtractFromRefreshToken(
+    refreshToken: string
+  ): Promise&lt;{ payload: Payload; userId: number }&gt; {
+    try {
+      const payload &#x3D; await this.tokenManagementService.verifyToken(refreshToken);
+      const userId &#x3D; payload.sub;
+      if (!(await this.refreshTokenStoreService.verifyRefreshTokenInRedis(userId, refreshToken))) {
+        throw new UnauthorizedException(&#x27;Invalid or expired refresh token.&#x27;);
+      }
+      return { payload, userId };
+    } catch (error) {
+      this.logger.error(&#x60;Token validation failed: ${error.message}&#x60;);
+      throw new UnauthorizedException(&#x27;Failed to validate token.&#x27;);
+    }
+  }
+
+  /**
+   * Sends an error response.
+   *
+   * @param {Response} res - HTTP response object.
+   * @param {string} message - Error message.
+   * @param {HttpStatus} status - HTTP status code.
+   * @returns {Response} - The error response.
+   *
+   * @example
+   * const response &#x3D; tokenService.errorResponse(res, &#x27;Error message&#x27;, HttpStatus.BAD_REQUEST);
+   */
+  private errorResponse(res: Response, message: string, status: HttpStatus): Response {
+    this.logger.error(message);
+    return res.status(status).json({
+      message: message,
+      actionRequired: &#x27;Please login again.&#x27;
+    });
+  }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'TokenService.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+       <script src="../js/libs/zepto.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
