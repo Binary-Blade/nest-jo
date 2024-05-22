@@ -38,7 +38,7 @@ export class CreateTableReservationDetails1712751776641 implements MigrationInte
           "shortDescription" TEXT NOT NULL,
           "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY ("eventId") REFERENCES "events" ("eventId"),
+          FOREIGN KEY ("eventId") REFERENCES "events" ("eventId") ON DELETE CASCADE,
           FOREIGN KEY ("reservationId") REFERENCES "reservations" ("reservationId") ON DELETE CASCADE
         );
       `);
