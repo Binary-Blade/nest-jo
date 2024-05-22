@@ -240,10 +240,10 @@
                         <div class="io-description"><p>Registers a new user.</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-html">POST /auth/signup
 {
-```html
-  &quot;password&quot;: &quot;password123&quot;,
-  &quot;firstName&quot;: &quot;First&quot;,
-  &quot;lastName&quot;: &quot;Last&quot;
+  "email": "user@example.com",
+  "password": "password123",
+  "firstName": "First",
+  "lastName": "Last"
 }</code></pre></div></div>
 
                             <div class="io-description">
@@ -544,8 +544,8 @@
                         <div class="io-description"><p>Logs in a user.</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-html">POST /auth/login
 {
-```html
-  &quot;password&quot;: &quot;password123&quot;
+ "email": "user@example.com",
+ "password": "password123"
 }</code></pre></div></div>
 
                             <div class="io-description">
