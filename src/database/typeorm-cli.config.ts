@@ -2,39 +2,86 @@ import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { config } from 'dotenv';
 
-// Load environment variables from .env file
-config();
+config(); // Load environment variables from .env file
 
 const configService = new ConfigService();
 
 /**
  * TypeORM DataSource configuration for PostgreSQL.
  *
- * @remarks
- * The configuration values are loaded from environment variables using the ConfigService.
- * This configuration is used for setting up the connection to the PostgreSQL database.
- *
- * @example
- * export default new DataSource({
- *   type: 'postgres',
- *   host: configService.get<string>('PGHOST'),
- *   port: configService.get<number>('PGPORT'),
- *   username: configService.get<string>('PGUSER'),
- *   password: configService.get<string>('PGPASSOWRD'),
- *   database: configService.get<string>('PGDATABASE'),
- *   synchronize: false,
- *   entities: [__dirname + '/path-to-entity{.ts,.js}'],
- *   migrations: [__dirname + '/path-to-migration/migrations/*{.ts,.js}']
- * });
+ * @class
  */
 export default new DataSource({
-  type: 'postgres', // Database type
-  host: configService.get<string>('PGHOST'), // Database host
-  port: configService.get<number>('PGPORT'), // Database port
-  username: configService.get<string>('PGUSER'), // Database username
-  password: configService.get<string>('PGPASSOWRD'), // Database password
-  database: configService.get<string>('PGDATABASE'), // Database name
-  synchronize: false, // Disable auto-synchronization in production
-  entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'], // Path to the entities
-  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'] // Path to the migrations
+  /**
+   * The type of database to connect to.
+   *
+   * @type {string}
+   * @default 'postgres'
+   */
+  type: 'postgres',
+
+  /**
+   * The host of the database.
+   *
+   * @type {string}
+   * @example 'localhost'
+   */
+  host: configService.get<string>('PGHOST'),
+
+  /**
+   * The port of the database.
+   *
+   * @type {number}
+   * @example 5432
+   */
+  port: configService.get<number>('PGPORT'),
+
+  /**
+   * The username to connect to the database.
+   *
+   * @type {string}
+   * @example 'postgres'
+   */
+  username: configService.get<string>('PGUSER'),
+
+  /**
+   * The password to connect to the database.
+   *
+   * @type {string}
+   * @example 'password123'
+   */
+  password: configService.get<string>('PGPASSOWRD'),
+
+  /**
+   * The name of the database.
+   *
+   * @type {string}
+   * @example 'mydatabase'
+   */
+  database: configService.get<string>('PGDATABASE'),
+
+  /**
+   * Whether to synchronize the database schema with entities automatically.
+   * This should be disabled in production.
+   *
+   * @type {boolean}
+   * @default false
+   */
+  synchronize: false,
+
+  /**
+   * Paths to the entities files.
+   *
+   * @type {string[]}
+   * @example [__dirname + '/path-to-entity{.ts,.js}']
+   */
+  entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
+
+  /**
+   * Paths to the migrations files.
+   *
+   * @type {string[]}
+   * @example [__dirname + '/../database/migrations/*{.ts,.js}']
+   */
+  migrations: [__dirname + '/../database/migrations/*{.ts,.js}']
 });
