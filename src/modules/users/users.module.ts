@@ -7,13 +7,25 @@ import { AccessTokenStrategy } from '@security/auth/strategies/access-token.stra
 import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { QueryHelperService } from '@database/query/query-helper.service';
 
+/**
+ * Module to manage users.
+ *
+ * @module
+ */
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Transaction])], // Registers the User entity for TypeORM
-  controllers: [UsersController], // The controllers that are part of this module
+  imports: [
+    // Import TypeOrmModule for User and Transaction entities
+    TypeOrmModule.forFeature([User, Transaction])
+  ],
+  controllers: [
+    // Register UsersController
+    UsersController
+  ],
   providers: [
-    UsersService, // The service responsible for user-related operations
-    QueryHelperService, // QueryHelperService provides utility functions for building TypeORM queries
-    AccessTokenStrategy // AccessTokenStrategy implements JWT validation logic for Passport.
+    // Register UsersService, QueryHelperService, and AccessTokenStrategy as providers
+    UsersService,
+    QueryHelperService,
+    AccessTokenStrategy
   ]
 })
 export class UsersModule {}

@@ -10,15 +10,21 @@ import { EventsModule } from '@modules/events/events.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
 import { CartsModule } from '@modules/carts/carts.module';
 
+/**
+ * Module to manage cart items.
+ *
+ * @module
+ */
 @Module({
   imports: [
+    // Import TypeOrmModule for CartItem, Event, and ReservationDetails entities
     TypeOrmModule.forFeature([CartItem, Event, ReservationDetails]),
-    EventsModule,
-    CartsModule,
-    forwardRef(() => ReservationsModule)
+    EventsModule, // Import EventsModule
+    CartsModule, // Import CartsModule
+    forwardRef(() => ReservationsModule) // Import ReservationsModule with forward reference
   ],
-  controllers: [CartItemsController],
-  providers: [CartItemsService, ReservationDetailsService],
-  exports: [CartItemsService]
+  controllers: [CartItemsController], // Register CartItemsController
+  providers: [CartItemsService, ReservationDetailsService], // Register CartItemsService and ReservationDetailsService as providers
+  exports: [CartItemsService] // Export CartItemsService
 })
 export class CartItemsModule {}

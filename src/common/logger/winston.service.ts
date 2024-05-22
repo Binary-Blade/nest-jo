@@ -2,55 +2,68 @@ import { Injectable, LoggerService } from '@nestjs/common';
 import { logger } from './winston.config'; // Import your winston logger setup
 
 /**
- * Provides a logger that integrates with Winston.
- *
- * @export
- * @class WinstonLoggerService
+ * Service to handle logging using Winston.
+ * @class
  * @implements {LoggerService}
  */
 @Injectable()
 export class WinstonLoggerService implements LoggerService {
   /**
-   * Log a message with the info level.
+   * Logs a message at the info level.
    *
-   * @param message The message to log
+   * @param {string} message - The message to log.
+   *
+   * @example
+   * winstonLoggerService.log('This is an info message');
    */
   log(message: string) {
     logger.info(message);
   }
 
   /**
-   * Log a message with the error level.
+   * Logs a message at the error level.
    *
-   * @param message The message to log
-   * @param trace The stack trace
+   * @param {string} message - The message to log.
+   * @param {string} trace - The stack trace.
+   *
+   * @example
+   * winstonLoggerService.error('This is an error message', 'Error stack trace');
    */
   error(message: string, trace: string) {
     logger.error(message, { trace });
   }
 
   /**
-   * Log a message with the warn level.
+   * Logs a message at the warn level.
    *
-   * @param message The message to log
+   * @param {string} message - The message to log.
+   *
+   * @example
+   * winstonLoggerService.warn('This is a warning message');
    */
   warn(message: string) {
     logger.warn(message);
   }
 
   /**
-   * Log a message with the debug level.
+   * Logs a message at the debug level.
    *
-   * @param message The message to log
+   * @param {string} message - The message to log.
+   *
+   * @example
+   * winstonLoggerService.debug('This is a debug message');
    */
   debug(message: string) {
     logger.debug(message);
   }
 
   /**
-   * Log a message with the verbose level.
+   * Logs a message at the verbose level.
    *
-   * @param message The message to log
+   * @param {string} message - The message to log.
+   *
+   * @example
+   * winstonLoggerService.verbose('This is a verbose message');
    */
   verbose(message: string) {
     logger.verbose(message);

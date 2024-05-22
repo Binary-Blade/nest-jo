@@ -2,10 +2,13 @@ import { Logger } from '@nestjs/common';
 import datasource from './typeorm-cli.config';
 
 /**
- * Run migrations to update the database schema to the latest version
- * If migration fails, the app will not start
+ * Runs database migrations using TypeORM.
  *
- * @returns void
+ * @async
+ * @function runMigrations
+ *
+ * @example
+ * runMigrations();
  */
 export async function runMigrations() {
   const logger = new Logger('migrationRunner');
@@ -18,7 +21,7 @@ export async function runMigrations() {
     logger.log('Running migrations...');
     await datasource.runMigrations();
   } catch (err) {
-    logger.error('Cannot start the app. Migration have failed!', err);
+    logger.error('Cannot start the app. Migration has failed!', err);
     process.exit(1); // Exiting with a non-zero code to indicate failure
   }
 }

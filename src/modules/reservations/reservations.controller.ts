@@ -5,72 +5,101 @@ import { AccessTokenGuard, RoleGuard } from '@security/guards';
 import { Role } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
+import { Reservation } from './entities/reservation.entity';
 
+/**
+ * Controller to manage reservations.
+ * @class
+ */
 @UseGuards(AccessTokenGuard)
 @Controller('reservations')
 export class ReservationsController {
+  /**
+   * Creates an instance of ReservationsController.
+   *
+   * @constructor
+   * @param {ReservationsService} reservationsService - Service to manage reservations.
+   */
   constructor(private readonly reservationsService: ReservationsService) {}
 
   /**
-   * Create a new reservation
+   * Creates reservations for a user based on their cart.
    *
-   * @param userId - The ID of the user making the reservation
-   * @param cartId - The ID of the cart to create the reservation from
-   * @returns - The created reservation
-   * @throws ForbiddenException if the user is not authorized to create the reservation
-   * @throws NotFoundException if the cart does not exist
+   * @param {number} userId - ID of the user.
+   * @param {number} cartId - ID of the user's cart.
+   * @returns {Promise<Reservation[]>} - List of created reservations.
+   *
+   * @example
+   * POST /reservations/1
    */
   @Post('/:cartId')
   async createReservations(
     @UserId() userId: number,
-    @Param('cartId')
-    cartId: number
-  ) {
+    @Param('cartId') cartId: number
+  ): Promise<Reservation[]> {
     return this.reservationsService.generateReservation(userId, cartId);
   }
 
   /**
-   * Find all reservations for a user
+   * Retrieves all reservations for a user with pagination and filtering.
    *
-   * @param userId - The ID of the user to find reservations for
-   * @returns - A list of reservations for the user
-   * @throws NotFoundException if the user does not exist
+   * @param {number} userId - ID of the user.
+   * @param {PaginationAndFilterDto} paginationDto - DTO containing pagination and filter data.
+   * @returns {Promise<{ reservations: Reservation[]; total: number }>} - The filtered reservations and total count.
+   *
+   * @example
+   * GET /reservations/1/find-all?page=1&limit=10&sortBy=date&sortOrder=ASC
    */
   @Get(':userId/find-all')
-  findAll(@Param('userId') userId: number, @Query() paginationDto: PaginationAndFilterDto) {
+  findAll(
+    @Param('userId') userId: number,
+    @Query() paginationDto: PaginationAndFilterDto
+  ): Promise<{ reservations: Reservation[]; total: number }> {
     return this.reservationsService.findAll(userId, paginationDto);
   }
 
   /**
-   * Find all reservations for an admin
+   * Retrieves all reservations with pagination for admin.
    *
-   * @returns - A list of all reservations
-   * @throws ForbiddenException if the user is not an admin
-   * @throws NotFoundException if the user does not exist
+   * @param {PaginationAndFilterDto} paginationDto - DTO containing pagination data.
+   * @returns {Promise<Reservation[]>} - List of reservations.
+   *
+   * @example
+   * GET /reservations/find-all-admin?page=1&limit=10
    */
   @UseGuards(RoleGuard)
   @Role(UserRole.ADMIN)
   @Get('find-all-admin')
-  findAllAdmin(@Query() paginationDto: PaginationAndFilterDto) {
+  findAllAdmin(@Query() paginationDto: PaginationAndFilterDto): Promise<Reservation[]> {
     return this.reservationsService.findAllAdmin(paginationDto);
   }
 
+  /**
+   * Retrieves all reservations for a user.
+   *
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<Reservation[]>} - List of reservations.
+   *
+   * @example
+   * GET /reservations/find-all-data/1
+   */
   @Get('find-all-data/:userId')
-  findAllData(@Param('userId') userId: number) {
+  findAllData(@Param('userId') userId: number): Promise<Reservation[]> {
     return this.reservationsService.findAllData(userId);
   }
 
   /**
-   * Find a single reservation by ID
+   * Retrieves a single reservation by its ID.
    *
-   * @param id - The ID of the reservation to find
-   * @param userId - The ID of the user making the request
-   * @returns - The requested reservation
-   * @throws NotFoundException if the reservation does not exist
-   * @throws ForbiddenException if the user is not authorized to access the reservation
+   * @param {string} id - ID of the reservation.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<Reservation>} - The found reservation.
+   *
+   * @example
+   * GET /reservations/1
    */
   @Get(':id')
-  findOne(@Param('id') id: string, @UserId() userId: number) {
+  findOne(@Param('id') id: string, @UserId() userId: number): Promise<Reservation> {
     return this.reservationsService.findOne(+id, userId);
   }
 }

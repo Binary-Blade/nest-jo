@@ -14,32 +14,47 @@ import { QueryHelperService } from '@database/query/query-helper.service';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
- * Service responsible for handling transactions.
- * This service is used to process transactions for a user's cart.
+ * Service to manage transactions.
+ * @class
  */
 @Injectable()
 export class TransactionsService {
-  private readonly logger = new Logger(TransactionsService.name);
   /**
-   * Constructs the TransactionsService
+   * Logger instance.
    *
-   * @param transactionRepository - The transaction repository
-   * @param userRepository - The user repository
+   * @private
+   * @memberof TransactionsService
+   * @type {Logger}
+   *
+   * @example
+   * private readonly logger = new Logger(TransactionsService.name);
+   */
+  private readonly logger: Logger = new Logger(TransactionsService.name);
+
+  /**
+   * Creates an instance of TransactionsService.
+   *
+   * @constructor
+   * @param {Repository<Transaction>} transactionRepository - Repository for the Transaction entity.
+   * @param {Repository<User>} userRepository - Repository for the User entity.
+   * @param {QueryHelperService} queryHelperService - Service to build query options.
    */
   constructor(
     @InjectRepository(Transaction) private transactionRepository: Repository<Transaction>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly queryHelperService: QueryHelperService
   ) {}
 
   /**
-   * Create a transaction for a user's cart
+   * Creates a new transaction.
    *
-   * @param user - The user making the transaction
-   * @param total - The total amount of the transaction
-   * @param paymentResult - The result of the payment
-   * @returns Promise<Transaction> - The created transaction
+   * @param {User} user - The user entity.
+   * @param {number} total - The total amount of the transaction.
+   * @param {PaymentResult} paymentResult - The payment result.
+   * @returns {Promise<Transaction>} - The created transaction.
+   *
+   * @example
+   * const transaction = await transactionsService.createTransaction(user, 100, paymentResult);
    */
   async createTransaction(
     user: User,
@@ -68,11 +83,15 @@ export class TransactionsService {
   }
 
   /**
-   * Find a transaction by reservation ID
+   * Finds a transaction by reservation ID.
    *
-   * @param reservationId - The ID of the reservation to find the transaction for
-   * @returns Promise<Transaction> - The transaction
-   * @throws NotFoundException if the transaction is not found
+   * @param {number} reservationId - ID of the reservation.
+   * @returns {Promise<Transaction>} - The found transaction.
+   *
+   * @throws {NotFoundException} If the transaction is not found.
+   *
+   * @example
+   * const transaction = await transactionsService.findTransactionByReservationId(1);
    */
   async findTransactionByReservationId(reservationId: number): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
@@ -87,6 +106,18 @@ export class TransactionsService {
     return transaction;
   }
 
+  /**
+   * Retrieves all transactions for a user with pagination and filtering.
+   *
+   * @param {number} userId - ID of the user.
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination and filter data.
+   * @returns {Promise<{ transactions: Transaction[]; total: number }>} - The filtered transactions and total count.
+   *
+   * @throws {InternalServerErrorException} If an error occurs while retrieving transactions.
+   *
+   * @example
+   * const result = await transactionsService.findAll(1, paginationFilterDto);
+   */
   async findAll(
     userId: number,
     paginationFilterDto: PaginationAndFilterDto
@@ -106,13 +137,11 @@ export class TransactionsService {
     ];
 
     queryOptions.select = this.getSelectFieldsFindAll();
-    // Add sorting by date
     if (paginationFilterDto.sortBy) {
       queryOptions.order = {
         [paginationFilterDto.sortBy]: paginationFilterDto.sortOrder.toUpperCase() // 'ASC' or 'DESC'
       };
     } else {
-      // Default sorting by createdAt date descending
       queryOptions.order = {
         createdAt: 'DESC'
       };
@@ -127,17 +156,29 @@ export class TransactionsService {
   }
 
   /**
-   * Calculate the total price of a cart
+   * Calculates the total amount for the items in the cart.
    *
-   * @private - This method is only used internally by the service
-   * @param cartItems - The items in the cart
-   * @returns number - The total price of the cart
+   * @param {CartItem[]} cartItems - List of cart items.
+   * @returns {number} - The total amount.
+   *
+   * @example
+   * const total = transactionsService.calculateCartTotal(cartItems);
    */
   calculateCartTotal(cartItems: CartItem[]): number {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  private getSelectFieldsFindAll() {
+  /**
+   * Gets the fields to select for the findAll query.
+   *
+   * @returns {object} - The fields to select.
+   *
+   * @private
+   *
+   * @example
+   * const selectFields = transactionsService.getSelectFieldsFindAll();
+   */
+  private getSelectFieldsFindAll(): object {
     return {
       transactionId: true,
       statusPayment: true,

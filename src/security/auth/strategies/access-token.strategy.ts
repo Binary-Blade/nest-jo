@@ -8,16 +8,16 @@ import { User } from '@modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 /**
- * Passport strategy for JWT access token validation.
- * This strategy is responsible for extracting the JWT from the authorization header,
- * and validating its integrity and expiration status.
+ * Strategy for validating access tokens.
+ *
+ * @class
+ * @extends PassportStrategy
  */
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   /**
-   * The constructor for the AccessTokenStrategy.
-   * @param usersRepository The TypeORM repository for the User entity.
-   * @param configService The service to access the configuration environment and defaults.
+   * @param {Repository<User>} usersRepository - Repository for the User entity.
+   * @param {ConfigService} configService - Service to access application configuration.
    */
   constructor(
     @InjectRepository(User)
@@ -25,17 +25,21 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     configService: ConfigService
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT from the Auth Header
-      secretOrKey: configService.get<string>('JWT_ACCESS_TOKEN_SECRET') ?? '', // Get the secret key for verifying the token
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extract JWT from the Authorization header as a Bearer token
+      secretOrKey: configService.get<string>('JWT_ACCESS_TOKEN_SECRET') ?? '', // Get the secret key for verifying the token from configuration
       ignoreExpiration: false // Ensure the expiration is not ignored
     });
   }
 
   /**
-   * Validates a JWT's payload to authenticate a user request.
-   * @param payload The decoded JWT payload.
-   * @returns A Promise resolved with the User object associated with the token.
-   * @throws UnauthorizedException if the user cannot be found or the token is invalid.
+   * Validate the JWT payload.
+   *
+   * @param {JwtPayload} payload - The JWT payload containing user information.
+   * @returns {Promise<User>} - The validated user.
+   * @throws {UnauthorizedException} - If the user is not found or token is invalidated.
+   *
+   * @example
+   * const user = await this.validate(payload);
    */
   async validate(payload: JwtPayload): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { userId: payload.sub } });

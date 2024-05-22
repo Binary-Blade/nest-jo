@@ -11,25 +11,38 @@ import { TransactionsService } from '@modules/transactions/transactions.service'
 import { StatusReservation } from '@common/enums/status-reservation.enum';
 
 /**
- * Service responsible for handling tickets.
- * This service is used to create tickets for reservations.
+ * Service to manage tickets.
+ * @class
  */
 @Injectable()
 export class TicketsService {
+  /**
+   * Constructor for the TicketsService.
+   *
+   * @constructor
+   * @param {Repository<Ticket>} ticketRepository - Repository for the Ticket entity.
+   * @param {EncryptionService} encryptionService - Service to manage encryption.
+   * @param {UsersService} usersService - Service to manage users.
+   * @param {ReservationsService} reservationService - Service to manage reservations.
+   * @param {TransactionsService} transactionService - Service to manage transactions.
+   */
   constructor(
     @InjectRepository(Ticket) private ticketRepository: Repository<Ticket>,
     private encryptionService: EncryptionService,
     private usersService: UsersService,
-    @Inject(forwardRef(() => ReservationsService)) // Inject the ReservationsService with forwardRef
+    @Inject(forwardRef(() => ReservationsService))
     private reservationService: ReservationsService,
     private transactionService: TransactionsService
   ) {}
 
   /**
-   * Generate tickets for all approved reservations.
+   * Generates tickets for approved reservations.
    *
-   * @param reservations - The reservations to generate tickets for
-   * @returns A promise that resolves when all tickets are generated
+   * @param {Reservation[]} reservations - List of reservations to generate tickets for.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await ticketsService.generateTicketsForApprovedReservations(reservations);
    */
   async generateTicketsForApprovedReservations(reservations: Reservation[]): Promise<void> {
     for (const reservation of reservations) {
@@ -46,13 +59,18 @@ export class TicketsService {
   }
 
   /**
-   * Generate tickets for a reservation.
+   * Generates tickets for a specific reservation.
    *
-   * @private This method is private and should not be accessed from outside the service.
-   * @param reservationId - The ID of the reservation to generate tickets for
-   * @param userId - The ID of the user making the request
-   * @returns - A list of tickets created
-   * @throws NotFoundException if the reservation does not exist
+   * @param {number} reservationId - ID of the reservation.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<Ticket[]>} - List of generated tickets.
+   *
+   * @throws {NotFoundException} If the reservation is not found.
+   *
+   * @private
+   *
+   * @example
+   * const tickets = await ticketsService.generateTicketsForReservation(1, 1);
    */
   private async generateTicketsForReservation(
     reservationId: number,
@@ -64,27 +82,29 @@ export class TicketsService {
     const user = await this.usersService.verifyUserOneBy(userId);
     const ticket = await this.createNewTicket(user, reservation);
 
-    // Attach the ticket to the reservation and save it
     reservation.ticket = ticket;
     await this.reservationService.saveReservation(reservation);
 
-    return [ticket]; // Return the created ticket in an array for consistency
+    return [ticket];
   }
 
   /**
-   * Creates a ticket for a reservation.
+   * Creates a new ticket for a reservation.
    *
-   * @private This method is private and should not be accessed from outside the service.
-   * @param user The user creating the ticket.
-   * @param reservation The reservation for which the ticket is created.
-   * @returns A promise resolved with the created ticket.
+   * @param {User} user - The user entity.
+   * @param {Reservation} reservation - The reservation entity.
+   * @returns {Promise<Ticket>} - The created ticket.
+   *
+   * @private
+   *
+   * @example
+   * const ticket = await ticketsService.createNewTicket(user, reservation);
    */
   private async createNewTicket(user: User, reservation: Reservation): Promise<Ticket> {
     const purchaseKey = await this.encryptionService.generatedKeyUuid();
     const secureKey = await this.encryptionService.generatedSecureKey(user);
     const qrCode = await this.encryptionService.generatedQRCode(secureKey);
 
-    // Create the ticket with the generated keys and QR code
     const ticket = this.ticketRepository.create({
       reservation,
       purchaseKey,

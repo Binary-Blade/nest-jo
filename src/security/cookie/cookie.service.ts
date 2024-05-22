@@ -5,8 +5,8 @@ import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { CookieOptions, Request, Response } from 'express';
 
 /**
- * Service responsible for handling cookies.
- * This service provides methods for extracting, setting, and clearing cookies.
+ * Service to manage cookies.
+ * @class
  */
 @Injectable()
 export class CookieService {
@@ -16,23 +16,27 @@ export class CookieService {
   ) {}
 
   /**
-   * Extracts the access token from the request cookies.
+   * Extracts the refresh token from the request cookies.
    *
-   * @param req The request object.
-   * @returns The access token.
+   * @param {Request} req - HTTP request object.
+   * @returns {string} - The refresh token.
+   *
+   * @example
+   * const refreshToken = cookieService.extractRefreshTokenCookie(req);
    */
   extractRefreshTokenCookie(req: Request): string {
     return req.cookies['RefreshToken'];
   }
 
   /**
-   * Sets the refresh token cookie in the response.
-   * The cookie is set with the specified expiration time and secure flag.
+   * Sets the refresh token as an HTTP-only cookie.
    *
-   * @param res The response object.
-   * @param refreshToken The refresh token to set.
-   * @returns void
-   * @throws Error if the refresh token expiration time is not set in the configuration.
+   * @param {Response} res - HTTP response object.
+   * @param {string} refreshToken - The refresh token.
+   * @throws {Error} If JWT_REFRESH_TOKEN_EXPIRATION is not configured.
+   *
+   * @example
+   * cookieService.setRefreshTokenCookie(res, refreshToken);
    */
   setRefreshTokenCookie(res: Response, refreshToken: string): void {
     const refreshTokenExpiration = this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION');
@@ -52,11 +56,12 @@ export class CookieService {
   }
 
   /**
-   * Clears the refresh token cookie in the response.
+   * Clears the refresh token cookie.
    *
-   * @param res The response object.
-   * @returns void
-   * @throws Error if the refresh token expiration time is not set in the configuration.
+   * @param {Response} res - HTTP response object.
+   *
+   * @example
+   * cookieService.clearRefreshTokenCookie(res);
    */
   clearRefreshTokenCookie(res: Response): void {
     res.clearCookie('RefreshToken', { path: '/' });

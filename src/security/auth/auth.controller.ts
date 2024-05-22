@@ -19,18 +19,20 @@ import { AccessTokenGuard } from '@security/guards';
 import { LoginDTO } from './dto/login.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
 import { Request, Response } from 'express';
+import { User } from '@modules/users/entities/user.entity';
 
 /**
- * Controller that handles authentication-related requests.
- * This controller includes endpoints for user signup, login, and token management.
+ * Controller to manage authentication and user-related operations.
+ * @class
  */
 @Controller('auth')
 export class AuthController {
   /**
-   * Constructs the authentication controller.
+   * Creates an instance of AuthController.
    *
-   * @param authService The service that handles authentication business logic.
-   * @param tokenService The service that handles token operations.
+   * @constructor
+   * @param {AuthService} authService - Service to manage authentication.
+   * @param {TokenService} tokenService - Service to manage tokens.
    */
   constructor(
     private readonly authService: AuthService,
@@ -38,40 +40,65 @@ export class AuthController {
   ) {}
 
   /**
-   * Endpoint for creating a new user account.
+   * Registers a new user.
    *
-   * @param createUserDto The data transfer object containing new user data.
-   * @returns A promise resolved to the created user.
+   * @param {CreateUserDto} createUserDto - DTO containing user registration data.
+   * @returns {Promise<User>} - The created user.
+   *
+   * @example
+   * POST /auth/signup
+   * {
+   *   "email": "user@example.com",
+   *   "password": "password123",
+   *   "firstName": "First",
+   *   "lastName": "Last"
+   * }
    */
   @Post('signup')
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.authService.signup(createUserDto);
   }
 
   /**
-   * Endpoint for authenticating a user and returning access and refresh tokens.
+   * Logs in a user.
    *
-   * @param loginDto The data transfer object containing user login credentials.
-   * @param response The response object to send the JWT tokens.
-   * @returns A promise resolved to an object containing JWT tokens.
+   * @param {LoginDTO} loginDto - DTO containing user login data.
+   * @param {Response} response - HTTP response object.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * POST /auth/login
+   * {
+   *   "email": "user@example.com",
+   *   "password": "password123"
+   * }
    */
   @Post('login')
-  async login(@Body() loginDto: LoginDTO, @Res() response: Response) {
+  async login(@Body() loginDto: LoginDTO, @Res() response: Response): Promise<void> {
     const { email, password } = loginDto;
     return await this.authService.login(email, password, response);
   }
 
   /**
-   * Endpoint for updating a user's password.
+   * Updates a user's password. Only accessible by the user.
    *
-   * @param userId The ID of the user whose password is being updated.
-   * @param updatePasswordDto The data transfer object containing the old and new passwords.
-   * @returns A promise resolved to a message indicating successful password update.
-   * @throws UnauthorizedException if the old password is incorrect.
+   * @param {number} userId - ID of the user.
+   * @param {UpdatePasswordDTO} updatePasswordDto - DTO containing old and new passwords.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * PATCH /auth/change-password
+   * {
+   *   "oldPassword": "oldPassword123",
+   *   "newPassword": "newPassword123"
+   * }
    */
   @UseGuards(AccessTokenGuard)
   @Patch('change-password')
-  async updatePassword(@UserId() userId: number, @Body() updatePasswordDto: UpdatePasswordDTO) {
+  async updatePassword(
+    @UserId() userId: number,
+    @Body() updatePasswordDto: UpdatePasswordDTO
+  ): Promise<void> {
     return await this.authService.updatePassword(
       userId,
       updatePasswordDto.oldPassword,
@@ -80,58 +107,67 @@ export class AuthController {
   }
 
   /**
-   * Endpoint for generating a new access token using a refresh token.
+   * Generates a new access token using a refresh token.
    *
-   * @param req The request object containing the refresh token.
-   * @param res The response object to send the new access token.
-   * @returns A promise resolved to a new access token.
-   * @throws UnauthorizedException if the refresh token is invalid.
-   * @throws InternalServerErrorException if there is an error generating the access token.
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * POST /auth/access-token
    */
   @HttpCode(HttpStatus.OK)
   @Post('access-token')
-  async getRefreshToken(@Req() req: Request, @Res() res: Response) {
+  async getRefreshToken(@Req() req: Request, @Res() res: Response): Promise<void> {
     await this.tokenService.generateAccessTokenFromRefreshToken(req, res);
   }
 
   /**
-   * Endpoint for refreshing the JWT access token using a refresh token.
-   * This endpoint is protected and requires a valid access token.
+   * Refreshes the user's tokens.
    *
-   * @param req The request object containing the refresh token.
-   * @param res The response object to send the new access token.
-   * @returns A promise resolved to a new set of access and refresh tokens.
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise<any>}
+   *
+   * @example
+   * POST /auth/refresh-token
    */
-
   @HttpCode(HttpStatus.OK)
-  @Post('/refresh-token')
-  async refreshToken(@Req() req: Request, @Res() res: Response) {
+  @Post('refresh-token')
+  async refreshToken(@Req() req: Request, @Res() res: Response): Promise<any> {
     return await this.tokenService.refreshToken(req, res);
   }
 
   /**
-   * Endpoint for logging out a user by invalidating their refresh token.
+   * Logs out a user. Only accessible by the user.
    *
-   * @param  req The request object containing the user's ID.
-   * @param response The response object to send the logout message.
-   * @returns A promise resolved to a message indicating successful logout.
+   * @param {number} userId - ID of the user.
+   * @param {Response} response - HTTP response object.
+   * @returns {Promise<{ message: string }>}
+   *
+   * @example
+   * POST /auth/logout
    */
   @UseGuards(AccessTokenGuard)
   @Post('logout')
-  async logout(@UserId() userId: number, @Res() response: Response) {
+  async logout(@UserId() userId: number, @Res() response: Response): Promise<{ message: string }> {
     await this.authService.logout(userId, response);
     return { message: 'Logged out successfully' };
   }
 
   /**
-   * Deletes a user. Access is restricted to the user themself or an admin.
+   * Deletes a user. Only accessible by the user.
    *
-   * @param id The ID of the user to delete.
+   * @param {string} id - ID of the user.
+   * @param {Response} response - HTTP response object.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * DELETE /auth/delete/1
    */
-
   @UseGuards(AccessTokenGuard)
   @Delete('/delete/:id')
-  delete(@Param('id') id: string, @Res() response: Response) {
+  delete(@Param('id') id: string, @Res() response: Response): Promise<void> {
     return this.authService.delete(+id, response);
   }
 }

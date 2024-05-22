@@ -18,55 +18,80 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { EventPricesService } from './event-prices.service';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
+import { Event } from './entities/event.entity';
 
 /**
- * Controller responsible for handling requests to the /events route
- * This controller is used to manage events, including creating, updating, and deleting events.
+ * Controller to manage events.
+ * @class
  */
 @Controller('events')
 export class EventsController {
-  // Inject the events service
   constructor(
     private readonly eventsService: EventsService,
     private readonly eventPricesService: EventPricesService
   ) {}
 
   /**
-   * Create a new event
+   * Creates a new event. Only accessible to admins.
    *
-   * @param createEventDto - DTO for creating an event
-   * @returns - The created event
-   * @throws ConflictException if an event with the same title already exists
+   * @param {CreateEventDto} createEventDto - DTO containing event details.
+   * @returns {Promise<Event>} - The created event.
+   *
+   * @example
+   * POST /events/create
+   * {
+   *   "title": "Event Title",
+   *   "description": "Event Description",
+   *   "startDate": "2023-01-01",
+   *   "endDate": "2023-01-02",
+   *   "basePrice": 100
+   * }
    */
-  @Role(UserRole.ADMIN) // Only admins can create events
-  @UseGuards(AccessTokenGuard, RoleGuard) // Use the access token and role guards
+  @Role(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RoleGuard)
   @Post('create')
-  create(@Body() createEventDto: CreateEventDto) {
+  create(@Body() createEventDto: CreateEventDto): Promise<Event> {
     return this.eventsService.create(createEventDto);
   }
 
   /**
-   * Get all events
+   * Retrieves filtered events based on pagination and filter parameters.
    *
-   * @returns - List of all events
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination and filter data.
+   * @returns {Promise<{ events: Event[]; total: number }>} - The filtered events and total count.
+   *
+   * @example
+   * GET /events/get-all-filtered?page=1&limit=10&sortBy=title&sortOrder=ASC
    */
   @Get('get-all-filtered')
-  findAllFiltered(@Query() paginationFilterDto: PaginationAndFilterDto) {
+  findAllFiltered(
+    @Query() paginationFilterDto: PaginationAndFilterDto
+  ): Promise<{ events: Event[]; total: number }> {
     return this.eventsService.findAllFiltered(paginationFilterDto);
   }
 
+  /**
+   * Retrieves all event values.
+   *
+   * @returns {Promise<Event[]>} - All events with selected values.
+   *
+   * @example
+   * GET /events/get-events-values
+   */
   @Get('get-events-values')
-  findAll() {
+  findAll(): Promise<Event[]> {
     return this.eventsService.findAllValues();
   }
 
   /**
-   * Get the price of a ticket for a given event and ticket type
+   * Retrieves the price of a ticket for an event by its ID and price formula.
    *
-   * @param id - The ID of the event
-   * @param ticketType - The type of ticket
-   * @returns - The price of the ticket
+   * @param {number} id - ID of the event.
+   * @param {PriceFormulaEnum} priceFormula - The price formula type.
+   * @returns {Promise<{ eventId: number; priceFormula: PriceFormulaEnum; price: number }>} - The event ID, price formula, and price.
+   *
+   * @example
+   * GET /events/1/price/STANDARD
    */
   @Get(':id/price/:priceFormula')
   async getTicketPrice(
@@ -78,43 +103,56 @@ export class EventsController {
   }
 
   /**
-   * Get a single event by ID
+   * Retrieves a single event by its ID.
    *
-   * @param id - The ID of the event
-   * @returns - The event with the given ID
+   * @param {string} id - ID of the event.
+   * @returns {Promise<Event>} - The found event.
+   *
+   * @example
+   * GET /events/1
    */
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<Event> {
     return this.eventsService.findOne(+id);
   }
 
   /**
-   * Update an event by ID
+   * Updates an existing event. Only accessible to admins.
    *
-   * @param id - The ID of the event
-   * @param updateEventDto - DTO for updating an event
-   * @returns - The updated event
-   * @throws NotFoundException if the event with the given ID does not exist
-   * @throws ConflictException if an event with the same title already exists
+   * @param {string} id - ID of the event to update.
+   * @param {UpdateEventDto} updateEventDto - DTO containing updated event details.
+   * @returns {Promise<Event>} - The updated event.
+   *
+   * @example
+   * PATCH /events/1
+   * {
+   *   "title": "Updated Title",
+   *   "description": "Updated Description",
+   *   "startDate": "2023-01-03",
+   *   "endDate": "2023-01-04",
+   *   "basePrice": 150
+   * }
    */
-  @Role(UserRole.ADMIN) // Only admins can update events
-  @UseGuards(AccessTokenGuard, RoleGuard) // Use the access token and role guards
+  @Role(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RoleGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
+  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto): Promise<Event> {
     return this.eventsService.update(+id, updateEventDto);
   }
 
   /**
-   * Remove an event by ID
+   * Deletes an event by its ID. Only accessible to admins.
    *
-   * @param id - The ID of the event
-   * @returns - The removed event
-   * @throws NotFoundException if the event with the given ID does not exist
+   * @param {string} id - ID of the event to delete.
+   * @returns {Promise<string>} - Confirmation message.
+   *
+   * @example
+   * DELETE /events/1
    */
-  @Role(UserRole.ADMIN) // Only admins can delete events
-  @UseGuards(AccessTokenGuard, RoleGuard) // Use the access token and role guards
+  @Role(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RoleGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<string> {
     return this.eventsService.remove(+id);
   }
 }

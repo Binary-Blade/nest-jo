@@ -2,17 +2,28 @@ import { Injectable, CanActivate, ExecutionContext, NotFoundException } from '@n
 import { Reflector } from '@nestjs/core';
 
 /**
- * A guard that checks if the current user is the creator of the content
- * they are attempting to access or modify.
+ * Guard to check if the current user is the creator of the content.
+ * @class
+ * @implements {CanActivate}
+ *
+ * @example
+ * \@UseGuards(IsCreatorGuard)
+ * \@Patch(':id')
+ * updateContent(@Param('id') id: string, @Body() updateContentDto: UpdateContentDto) {
+ *   // Update content logic here
+ * }
  */
 @Injectable()
 export class IsCreatorGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   /**
-   * Determines if the current user is authorized to proceed with the request.
-   * @param context The execution context containing the request data.
-   * @returns A boolean indicating whether the user is authorized.
+   * Method to determine if the current user can activate the route.
+   *
+   * @param {ExecutionContext} context - The execution context.
+   * @returns {boolean} - Whether the user can activate the route.
+   *
+   * @throws {NotFoundException} If the user is not the creator of the content.
    */
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();

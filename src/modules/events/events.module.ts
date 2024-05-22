@@ -10,12 +10,31 @@ import { EventSalesService } from './event-sales.service';
 import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
- * Module responsible for handling events
+ * Module to manage events.
+ *
+ * @module
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, EventPrice, ReservationDetails])], // Import the event entity and the Redis module
-  controllers: [EventsController], // Declare the events controller
-  providers: [EventsService, EventPricesService, EventSalesService, QueryHelperService],
-  exports: [EventsService, EventPricesService, EventSalesService] // Export the events service
+  imports: [
+    // Import TypeOrmModule for Event, EventPrice, and ReservationDetails entities
+    TypeOrmModule.forFeature([Event, EventPrice, ReservationDetails])
+  ],
+  controllers: [
+    // Register EventsController
+    EventsController
+  ],
+  providers: [
+    // Register EventsService, EventPricesService, EventSalesService, and QueryHelperService as providers
+    EventsService,
+    EventPricesService,
+    EventSalesService,
+    QueryHelperService
+  ],
+  exports: [
+    // Export EventsService, EventPricesService, and EventSalesService
+    EventsService,
+    EventPricesService,
+    EventSalesService
+  ]
 })
 export class EventsModule {}

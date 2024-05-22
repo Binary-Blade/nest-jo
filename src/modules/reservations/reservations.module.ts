@@ -14,22 +14,36 @@ import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
 import { QueryHelperService } from '@database/query/query-helper.service';
 
+/**
+ * Module to manage reservations.
+ *
+ * @module
+ */
 @Module({
   imports: [
+    // Import TypeOrmModule for Reservation, Event, and ReservationDetails entities
     TypeOrmModule.forFeature([Reservation, Event, ReservationDetails]),
-    forwardRef(() => TicketsModule),
-    EventsModule,
-    CartsModule,
-    CartItemsModule,
-    TransactionsModule
+    forwardRef(() => TicketsModule), // Import TicketsModule with forward reference
+    EventsModule, // Import EventsModule
+    CartsModule, // Import CartsModule
+    CartItemsModule, // Import CartItemsModule
+    TransactionsModule // Import TransactionsModule
   ],
-  controllers: [ReservationsController],
+  controllers: [
+    // Register ReservationsController
+    ReservationsController
+  ],
   providers: [
+    // Register services as providers
     ReservationsService,
     ReservationsProcessorService,
     ReservationDetailsService,
     QueryHelperService
   ],
-  exports: [ReservationsService, ReservationsProcessorService]
+  exports: [
+    // Export ReservationsService and ReservationsProcessorService
+    ReservationsService,
+    ReservationsProcessorService
+  ]
 })
 export class ReservationsModule {}

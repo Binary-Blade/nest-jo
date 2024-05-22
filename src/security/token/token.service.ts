@@ -10,13 +10,32 @@ import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from './refreshtoken-store.service';
 
 /**
- * Service responsible for managing JWT tokens, including their creation and validation.
- * This service utilizes the JwtService for signing tokens with specified secrets and expiration times.
+ * Service to manage JWT tokens and token-related operations.
+ * @class
  */
 @Injectable()
 export class TokenService {
-  private readonly logger = new Logger(TokenService.name);
+  /**
+   * Logger instance from NestJS.
+   *
+   * @private
+   * @readonly
+   * @type {Logger}
+   * @memberof TokenService
+   * @default new Logger(TokenService.name)
+   */
+  private readonly logger: Logger = new Logger(TokenService.name);
 
+  /**
+   * Creates an instance of TokenService.
+   *
+   * @constructor
+   * @param {UsersService} usersService - Service to manage users.
+   * @param {TokenManagementService} tokenManagementService - Service to manage JWT tokens.
+   * @param {CookieService} cookieService - Service to manage cookies.
+   * @param {ConfigService} configService - Service to access configuration variables.
+   * @param {RefreshTokenStoreService} refreshTokenStoreService - Service to manage refresh tokens.
+   */
   constructor(
     private readonly usersService: UsersService,
     private readonly tokenManagementService: TokenManagementService,
@@ -26,11 +45,13 @@ export class TokenService {
   ) {}
 
   /**
-   * Generates a new access token and refresh token for the given user.
-   * The refresh token is stored in Redis for later verification.
+   * Generates access and refresh tokens for a user and stores the refresh token in Redis.
    *
-   * @param user The user for whom to generate tokens.
-   * @returns A promise resolved with the generated tokens.
+   * @param {User} user - The user entity.
+   * @returns {Promise<JWTTokens>} - The generated JWT tokens.
+   *
+   * @example
+   * const tokens = await tokenService.getTokens(user);
    */
   async getTokens(user: User): Promise<JWTTokens> {
     const payload = this.createPayload(user);
@@ -46,29 +67,29 @@ export class TokenService {
   }
 
   /**
-   * Creates a payload object for the given user.
-   * The payload contains the user's ID, role, and token version.
+   * Creates a payload for JWT tokens.
    *
-   * @param user The user for whom to create the payload.
-   * @returns The created payload.
+   * @param {User} user - The user entity.
+   * @returns {Payload} - The payload for the JWT token.
+   *
+   * @example
+   * const payload = tokenService.createPayload(user);
    */
   private createPayload(user: User): Payload {
     return { sub: user.userId, role: user.role, version: user.tokenVersion };
   }
 
   /**
-   * Refreshes the access token and refresh token for the given user.
-   * The old refresh token is verified and removed from Redis.
-   * The new refresh token is stored in Redis and set as a cookie in the response.
-   * The new access token is returned in the response.
+   * Refreshes the access and refresh tokens using the provided refresh token.
    *
-   * @param req The request object.
-   * @param res The response object.
-   * @returns A promise resolved with the new tokens and user ID.
-   * @throws UnauthorizedException if the token cannot be refreshed.
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise<Response>} - The response with new tokens.
+   *
+   * @example
+   * const response = await tokenService.refreshToken(req, res);
    */
-
-  async refreshToken(req: Request, res: Response): Promise<any> {
+  async refreshToken(req: Request, res: Response): Promise<Response> {
     const oldRefreshToken = this.cookieService.extractRefreshTokenCookie(req);
     if (!oldRefreshToken) {
       return this.errorResponse(
@@ -95,12 +116,14 @@ export class TokenService {
   }
 
   /**
-   * Generates a new accessToken using a valid refreshToken from Redis.
-   * This method ensures that the refreshToken is still valid and has not been tampered with.
+   * Generates a new access token using the provided refresh token.
    *
-   * @param req The request object.
-   * @param res The response object.
-   * @returns A response with the new accessToken.
+   * @param {Request} req - HTTP request object.
+   * @param {Response} res - HTTP response object.
+   * @returns {Promise<Response>} - The response with the new access token.
+   *
+   * @example
+   * const response = await tokenService.generateAccessTokenFromRefreshToken(req, res);
    */
   async generateAccessTokenFromRefreshToken(req: Request, res: Response): Promise<Response> {
     const refreshTokenFromCookie = this.cookieService.extractRefreshTokenCookie(req);
@@ -135,7 +158,20 @@ export class TokenService {
     }
   }
 
-  async validateAndExtractFromRefreshToken(refreshToken: string): Promise<any> {
+  /**
+   * Validates a refresh token and extracts the payload.
+   *
+   * @param {string} refreshToken - The refresh token to validate.
+   * @returns {Promise<{ payload: Payload; userId: number }>} - The extracted payload and user ID.
+   *
+   * @throws {UnauthorizedException} If the token is invalid or expired.
+   *
+   * @example
+   * const { payload, userId } = await tokenService.validateAndExtractFromRefreshToken(refreshToken);
+   */
+  async validateAndExtractFromRefreshToken(
+    refreshToken: string
+  ): Promise<{ payload: Payload; userId: number }> {
     try {
       const payload = await this.tokenManagementService.verifyToken(refreshToken);
       const userId = payload.sub;
@@ -149,6 +185,17 @@ export class TokenService {
     }
   }
 
+  /**
+   * Sends an error response.
+   *
+   * @param {Response} res - HTTP response object.
+   * @param {string} message - Error message.
+   * @param {HttpStatus} status - HTTP status code.
+   * @returns {Response} - The error response.
+   *
+   * @example
+   * const response = tokenService.errorResponse(res, 'Error message', HttpStatus.BAD_REQUEST);
+   */
   private errorResponse(res: Response, message: string, status: HttpStatus): Response {
     this.logger.error(message);
     return res.status(status).json({

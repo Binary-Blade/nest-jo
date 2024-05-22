@@ -2,13 +2,7 @@ import { DEV_ENV, PROD_ENV } from '@utils/constants/constants.env';
 import * as winston from 'winston';
 
 /**
- * Define the log levels
- *
- * error: 0,
- * warn: 1,
- * info: 2,
- * http: 3,
- * debug: 4
+ * Logging levels for different types of messages.
  */
 const levels = {
   error: 0,
@@ -19,23 +13,18 @@ const levels = {
 };
 
 /**
- * Determine the log level based on the environment
+ * Determines the logging level based on the environment.
  *
- * @returns string - The log level
- * @default 'debug' if in development, 'warn' otherwise
+ * @returns {string} - The logging level ('debug' for development, 'warn' for production).
  */
-const level = () => {
+const level = (): string => {
   const env = process.env.NODE_ENV || DEV_ENV;
   const isDevelopment = env === DEV_ENV;
   return isDevelopment ? 'debug' : 'warn';
 };
 
 /**
- * Define the common format for logs
- *
- * @type {winston.Logform.Format}
- * @default timestamp, errors, splat
- * @see
+ * Common format for all logs.
  */
 const commonFormat: winston.Logform.Format = winston.format.combine(
   winston.format.timestamp({ format: 'YY-MM-DD HH:mm:ss' }),
@@ -44,11 +33,7 @@ const commonFormat: winston.Logform.Format = winston.format.combine(
 );
 
 /**
- * Define the format for console logs
- *
- * @type {winston.Logform.Format}
- * @default colorize, printf
- * @see
+ * Console-specific log format.
  */
 const consoleFormat: winston.Logform.Format = winston.format.combine(
   commonFormat,
@@ -58,7 +43,9 @@ const consoleFormat: winston.Logform.Format = winston.format.combine(
   })
 );
 
-// Configure the Winston logger
+/**
+ * Winston logger configuration.
+ */
 export const logger = winston.createLogger({
   level: level(),
   levels,
@@ -76,7 +63,7 @@ export const logger = winston.createLogger({
   ]
 });
 
-// If not in production, also log to the console with a simpler format
+// Add console transport for non-production environments.
 if (process.env.NODE_ENV !== PROD_ENV) {
   logger.add(
     new winston.transports.Console({

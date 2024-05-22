@@ -1,12 +1,19 @@
 /**
- * Enum for sort order
- *
- * @export SortOrder
+ * Enumeration for sort order options.
  * @enum {string}
- * @property {string} ASC = 'ASC'
- * @property {string} DESC = 'DESC'
  */
 export enum SortOrder {
+  /**
+   * Ascending order.
+   * @example
+   * SortOrder.ASC
+   */
   ASC = 'ASC',
+
+  /**
+   * Descending order.
+   * @example
+   * SortOrder.DESC
+   */
   DESC = 'DESC'
 }

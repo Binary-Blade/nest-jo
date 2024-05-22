@@ -2,57 +2,59 @@ import { DOES_ENUM_USER_ROLE_EXIST } from '@utils/constants/constants.migrationd
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Initial migration to create the "users" table in the database.
+ * Migration: Create "users" table.
  *
  * This migration adds a table for storing user information, including their
- * email, password, and role. It's intended to be the initial schema setup for
- * managing user data within the application.
+ * email, password, and role. This is intended to be the initial schema setup
+ * for managing user data within the application.
  */
 export class CreateTableUsers1711085051379 implements MigrationInterface {
   /**
-   * Run the migrations.
+   * Applies the migration.
    *
-   * Creates the "users" table with columns for user ID, email, password, role and token version.
+   * This method creates the "users" table with various columns to store user details.
+   * If the table or the "user_role_enum" type already exists, it skips the creation.
    *
-   * @param queryRunner The QueryRunner instance that allows manipulation of the database.
+   * @param queryRunner The QueryRunner instance used to run database queries.
    */
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Check if the "users" table already exists in the database.
+    // Retrieve the "users" table to check if it already exists.
     const table = await queryRunner.getTable('users');
 
-    // Check if the "user_role_enum" enum type already exists in the database.
+    // Ensure the "user_role_enum" enum type exists in the database.
     await queryRunner.query(DOES_ENUM_USER_ROLE_EXIST);
 
-    // If the table doesn't exist, create it with the specified columns.
+    // Create the "users" table only if it does not exist.
     if (!table) {
       await queryRunner.query(`
-                CREATE TABLE "users" (
-                    "userId" SERIAL PRIMARY KEY,
-                    "email" VARCHAR NOT NULL UNIQUE,
-                    "firstName" VARCHAR NOT NULL,
-                    "lastName" VARCHAR NOT NULL,
-                    "passwordHash" VARCHAR NOT NULL,
-                    "accountKey" VARCHAR UNIQUE,
-                    "role" "user_role_enum" DEFAULT 'USER',
-                    "isActive" BOOLEAN DEFAULT TRUE,
-                    "tokenVersion" INTEGER DEFAULT 1,
-                    "transactionsCount" INTEGER DEFAULT 0,
-                    "totalSpent" INTEGER DEFAULT 0,
-                    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    "lastLogin" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-            `);
+        CREATE TABLE "users" (
+          "userId" SERIAL PRIMARY KEY,
+          "email" VARCHAR NOT NULL UNIQUE,
+          "firstName" VARCHAR NOT NULL,
+          "lastName" VARCHAR NOT NULL,
+          "passwordHash" VARCHAR NOT NULL,
+          "accountKey" VARCHAR UNIQUE,
+          "role" "user_role_enum" DEFAULT 'USER',
+          "isActive" BOOLEAN DEFAULT TRUE,
+          "tokenVersion" INTEGER DEFAULT 1,
+          "transactionsCount" INTEGER DEFAULT 0,
+          "totalSpent" INTEGER DEFAULT 0,
+          "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          "lastLogin" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
     }
   }
 
   /**
-   * Reverse the migrations.
+   * Reverts the migration.
    *
-   * Drops the "users" table, effectively rolling back the migration.
+   * This method drops the "users" table, effectively undoing the changes made in the "up" method.
    *
-   * @param queryRunner The QueryRunner instance that allows manipulation of the database.
+   * @param queryRunner The QueryRunner instance used to run database queries.
    */
   public async down(queryRunner: QueryRunner): Promise<void> {
+    // Drop the "users" table if it exists.
     await queryRunner.query(`DROP TABLE "users"`);
   }
 }

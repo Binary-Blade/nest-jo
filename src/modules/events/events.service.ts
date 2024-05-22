@@ -16,7 +16,8 @@ import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
- * Service responsible for handling CRUD operations for events
+ * Service to manage events.
+ * @class
  */
 @Injectable()
 export class EventsService {
@@ -31,11 +32,15 @@ export class EventsService {
   ) {}
 
   /**
-   * Create a new event
+   * Creates a new event.
    *
-   * @param createEventDto - DTO for creating an event
-   * @return Promise<Event> - The created event
-   * @throws ConflictException if an event with the same title already exists
+   * @param {CreateEventDto} createEventDto - DTO containing event details.
+   * @returns {Promise<Event>} - The created event.
+   *
+   * @throws {ConflictException} If an event with the same title already exists.
+   *
+   * @example
+   * const event = await eventsService.create(createEventDto);
    */
   async create(createEventDto: CreateEventDto): Promise<Event> {
     const startDate = this.convertUtilsService.convertDateStringToDate(createEventDto.startDate);
@@ -53,10 +58,12 @@ export class EventsService {
   }
 
   /**
-   * Get all event
+   * Retrieves all event values.
    *
-   * @returns Promise<Event[]> - The list of all events
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @returns {Promise<Event[]>} - All events with selected values.
+   *
+   * @example
+   * const events = await eventsService.findAllValues();
    */
   async findAllValues(): Promise<Event[]> {
     return this.eventRepository.find({
@@ -69,11 +76,15 @@ export class EventsService {
   }
 
   /**
-   * Get all events with pagination and filtering
+   * Retrieves events with pagination and filtering.
    *
-   * @param paginationFilterDto - DTO for pagination and filtering
-   * @returns Promise<{ events: Event[]; total: number }> - The list of events and the total number of events
-   * @throws InternalServerErrorException if there is an error retrieving the events
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination and filtering data.
+   * @returns {Promise<{ events: Event[]; total: number }>} - The filtered events and total count.
+   *
+   * @throws {InternalServerErrorException} If an error occurs while retrieving events.
+   *
+   * @example
+   * const result = await eventsService.findAllFiltered(paginationFilterDto);
    */
   async findAllFiltered(
     paginationFilterDto: PaginationAndFilterDto
@@ -89,11 +100,15 @@ export class EventsService {
   }
 
   /**
-   * Find an event by ID
+   * Retrieves a single event by its ID.
    *
-   * @param id - The ID of the event
-   * @returns Promise<Event>- The event with the given ID
-   * @throws NotFoundException if the event with the given ID does not exist
+   * @param {number} id - ID of the event.
+   * @returns {Promise<Event>} - The found event.
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @example
+   * const event = await eventsService.findOne(1);
    */
   async findOne(id: number): Promise<Event> {
     const event = await this.redisService.fetchCachedData(
@@ -106,13 +121,17 @@ export class EventsService {
   }
 
   /**
-   * Update an event by ID
+   * Updates an existing event.
    *
-   * @param id - The ID of the event
-   * @param updateEventDto - DTO for updating an event
-   * @returns - The updated event
-   * @throws NotFoundException if the event with the given ID does not exist
-   * @throws ConflictException if an event with the same title already exists
+   * @param {number} id - ID of the event to update.
+   * @param {UpdateEventDto} updateEventDto - DTO containing updated event details.
+   * @returns {Promise<Event>} - The updated event.
+   *
+   * @throws {ConflictException} If an event with the new title already exists.
+   * @throws {NotFoundException} If the event to update is not found.
+   *
+   * @example
+   * const updatedEvent = await eventsService.update(1, updateEventDto);
    */
   async update(id: number, updateEventDto: UpdateEventDto): Promise<Event> {
     const event = await this.findOne(id);
@@ -131,11 +150,15 @@ export class EventsService {
   }
 
   /**
-   * Remove an event by ID
+   * Deletes an event by its ID.
    *
-   * @param id - The ID of the event
-   * @returns - The removed event
-   * @throws NotFoundException if the event with the given ID does not exist
+   * @param {number} id - ID of the event to delete.
+   * @returns {Promise<string>} - Confirmation message.
+   *
+   * @throws {NotFoundException} If the event to delete is not found.
+   *
+   * @example
+   * const message = await eventsService.remove(1);
    */
   async remove(id: number): Promise<string> {
     const event = await this.findOne(id);
@@ -146,13 +169,18 @@ export class EventsService {
   }
 
   /**
-   * Ensure that an event with the given title does not already exist
+   * Ensures that the event title is unique.
    *
-   * @private - This method should not be exposed to the controller
-   * @param title - The title to check
-   * @param excludeId - The ID of the event to exclude from the check
-   * @returns - Promise that resolves if the title is unique
-   * @throws ConflictException if an event with the same title already exists
+   * @param {string} title - Title of the event.
+   * @param {number} [excludeId] - Optional ID to exclude from the uniqueness check.
+   * @returns {Promise<void>}
+   *
+   * @throws {ConflictException} If an event with the same title already exists.
+   *
+   * @private
+   *
+   * @example
+   * await eventsService.ensureTitleUnique('New Event');
    */
   private async ensureTitleUnique(title: string, excludeId?: number): Promise<void> {
     const existingEvent = await this.eventRepository.findOneBy({ title });
@@ -162,11 +190,15 @@ export class EventsService {
   }
 
   /**
-   * Find an event by ID
+   * Finds an event by its ID.
    *
-   * @param eventId - The ID of the event
-   * @returns - The event with the given ID
-   * @throws NotFoundException if the event with the given ID does not exist
+   * @param {number} eventId - ID of the event.
+   * @returns {Promise<Event>} - The found event.
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @example
+   * const event = await eventsService.findEventById(1);
    */
   async findEventById(eventId: number): Promise<Event> {
     const event = await this.eventRepository.findOneBy({ eventId });

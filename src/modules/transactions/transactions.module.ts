@@ -11,14 +11,31 @@ import { ReservationsModule } from '@modules/reservations/reservations.module';
 import { QueryHelperService } from '@database/query/query-helper.service';
 import { TransactionsController } from './transactions.controller';
 
+/**
+ * Module to manage transactions.
+ *
+ * @module
+ */
 @Module({
   imports: [
+    // Import TypeOrmModule for Transaction, Event, ReservationDetails, and User entities
     TypeOrmModule.forFeature([Transaction, Event, ReservationDetails, User]),
-    forwardRef(() => ReservationsModule),
-    forwardRef(() => TicketsModule)
+    forwardRef(() => ReservationsModule), // Import ReservationsModule with forward reference
+    forwardRef(() => TicketsModule) // Import TicketsModule with forward reference
   ],
-  providers: [TransactionsService, ReservationDetailsService, QueryHelperService],
-  controllers: [TransactionsController],
-  exports: [TransactionsService]
+  providers: [
+    // Register TransactionsService, ReservationDetailsService, and QueryHelperService as providers
+    TransactionsService,
+    ReservationDetailsService,
+    QueryHelperService
+  ],
+  controllers: [
+    // Register TransactionsController
+    TransactionsController
+  ],
+  exports: [
+    // Export TransactionsService
+    TransactionsService
+  ]
 })
 export class TransactionsModule {}

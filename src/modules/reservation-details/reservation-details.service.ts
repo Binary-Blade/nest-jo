@@ -7,8 +7,19 @@ import { CartItem } from '@modules/cart-items/entities/cartitems.entity';
 import { CreateReservationDetailsDto } from './dto/create-reservation-details.dto';
 import { Event } from '@modules/events/entities/event.entity';
 
+/**
+ * Service to manage reservation details.
+ * @class
+ */
 @Injectable()
 export class ReservationDetailsService {
+  /**
+   * Creates an instance of ReservationDetailsService.
+   *
+   * @constructor
+   * @param {Repository<ReservationDetails>} reservationDetailsRepository - Repository for the ReservationDetails entity.
+   * @param {Repository<Event>} eventRepository - Repository for the Event entity.
+   */
   constructor(
     @InjectRepository(ReservationDetails)
     private reservationDetailsRepository: Repository<ReservationDetails>,
@@ -17,12 +28,16 @@ export class ReservationDetailsService {
   ) {}
 
   /**
-   * Create a new reservation details from a reservation and a cart item.
+   * Creates reservation details from a reservation and cart item.
    *
-   * @param reservation - The reservation to create the details for
-   * @param cartItem - The cart item to create the details from
-   * @returns - The created reservation details
-   * @throws NotFoundException if the event is not found
+   * @param {Reservation} reservation - The reservation entity.
+   * @param {CartItem} cartItem - The cart item entity.
+   * @returns {Promise<ReservationDetails>} - The created reservation details.
+   *
+   * @throws {NotFoundException} If the event is not found in the cart item or in the repository.
+   *
+   * @example
+   * const reservationDetails = await reservationDetailsService.createReservationDetailsFromReservation(reservation, cartItem);
    */
   async createReservationDetailsFromReservation(
     reservation: Reservation,
@@ -32,7 +47,6 @@ export class ReservationDetailsService {
       throw new NotFoundException('Event ID is not found in CartItem');
     }
 
-    // Fetch event using eventId from the cartItem
     const event = await this.eventRepository.findOne({
       where: { eventId: cartItem.event.eventId }
     });
@@ -41,7 +55,6 @@ export class ReservationDetailsService {
       throw new NotFoundException('Event not found');
     }
 
-    // Create DTO from event details
     const createReservationDetailsDto: CreateReservationDetailsDto = {
       title: event.title,
       shortDescription: event.shortDescription,
@@ -59,19 +72,24 @@ export class ReservationDetailsService {
   }
 
   /**
-   * Find a reservation details by ID.
+   * Finds a reservation detail by its ID.
    *
-   * @param id - The ID of the reservation details to find
-   * @returns - The reservation details
-   * @throws NotFoundException if the reservation details is not found
+   * @param {number} id - ID of the reservation detail.
+   * @returns {Promise<ReservationDetails>} - The found reservation detail.
+   *
+   * @throws {NotFoundException} If the reservation detail is not found.
+   *
+   * @example
+   * const reservationDetails = await reservationDetailsService.findOne(1);
    */
   async findOne(id: number): Promise<ReservationDetails> {
     const reservationDetails = await this.reservationDetailsRepository.findOne({
       where: { reservationDetailsId: id },
       relations: ['event', 'reservation']
     });
-    if (!reservationDetails)
+    if (!reservationDetails) {
       throw new NotFoundException(`Reservation details with id ${id} not found`);
+    }
     return reservationDetails;
   }
 }

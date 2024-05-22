@@ -1,6 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
-import { TicketsController } from './tickets.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ticket } from './entities/ticket.entity';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
@@ -22,7 +21,6 @@ import { TransactionsModule } from '@modules/transactions/transactions.module';
     forwardRef(() => ReservationDetailsModule), // Import the ReservationsModule with forwardRef
     TransactionsModule
   ],
-  controllers: [TicketsController],
   providers: [TicketsService],
   exports: [TicketsService]
 })

@@ -5,56 +5,72 @@ import * as qrcode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Provides security utilities for password hashing and verification.
+ * Service to handle encryption tasks.
+ * @class
  */
 @Injectable()
 export class EncryptionService {
   /**
-   * Hashes a plaintext password using the Argon2 algorithm.
+   * Hashes a password using Argon2.
    *
-   * @param password The plaintext password to hash.
-   * @returns A promise that resolves to the hashed password.
+   * @param {string} password - The plain text password to hash.
+   * @returns {Promise<string>} - The hashed password.
+   *
+   * @example
+   * const hashedPassword = await encryptionService.hashPassword('password123');
    */
   async hashPassword(password: string): Promise<string> {
     return argon2.hash(password);
   }
 
   /**
-   * Verifies a plaintext password against a given hash.
+   * Verifies a password against a hash using Argon2.
    *
-   * @param hash The hash to verify against.
-   * @param password The plaintext password to verify.
-   * @returns A promise that resolves to a boolean indicating if the password matches the hash.
+   * @param {string} hash - The hashed password.
+   * @param {string} password - The plain text password to verify.
+   * @returns {Promise<boolean>} - Whether the password is valid.
+   *
+   * @example
+   * const isValid = await encryptionService.verifyPassword(hashedPassword, 'password123');
    */
   async verifyPassword(hash: string, password: string): Promise<boolean> {
     return argon2.verify(hash, password);
   }
 
   /**
-   * Generates a UUID v4 key.
+   * Generates a UUID.
    *
-   * @returns A promise that resolves to a UUID v4 key.
+   * @returns {Promise<string>} - The generated UUID.
+   *
+   * @example
+   * const uuid = await encryptionService.generatedKeyUuid();
    */
   async generatedKeyUuid(): Promise<string> {
     return uuidv4();
   }
 
   /**
-   * Generates a secure key for a user.
+   * Generates a secure key for a user by combining the user's account key with a new UUID.
    *
-   * @param user The user to generate the secure key for.
-   * @returns A promise that resolves to a secure key.
-   **/
+   * @param {User} user - The user entity.
+   * @returns {Promise<string>} - The generated secure key.
+   *
+   * @example
+   * const secureKey = await encryptionService.generatedSecureKey(user);
+   */
   async generatedSecureKey(user: User): Promise<string> {
     const purchaseKey = await this.generatedKeyUuid();
     return `${user.accountKey}-${purchaseKey}`;
   }
 
   /**
-   * Generates a QR code for a secure key.
+   * Generates a QR code from a secure key.
    *
-   * @param secureKey The secure key to generate the QR code for.
-   * @returns A promise that resolves to a data URL for the QR code.
+   * @param {string} secureKey - The secure key to encode in the QR code.
+   * @returns {Promise<string>} - The generated QR code as a data URL.
+   *
+   * @example
+   * const qrCode = await encryptionService.generatedQRCode(secureKey);
    */
   async generatedQRCode(secureKey: string): Promise<string> {
     return await qrcode.toDataURL(secureKey);

@@ -1,14 +1,17 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 /**
- * Exception for when the user provides invalid login credentials.
- *
- * @export InvalidCredentialsException
- * @class InvalidCredentialsException
+ * Custom exception for invalid login credentials.
+ * @class
  * @extends {HttpException}
- * @constructor Creates an instance of InvalidCredentialsException.
  */
 export class InvalidCredentialsException extends HttpException {
+  /**
+   * Constructs a new InvalidCredentialsException.
+   *
+   * @example
+   * throw new InvalidCredentialsException();
+   */
   constructor() {
     super('Invalid Login Credentials. Please try again.', HttpStatus.UNAUTHORIZED);
   }

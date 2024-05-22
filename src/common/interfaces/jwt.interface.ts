@@ -1,25 +1,67 @@
 /**
- * Interface for JWT payload
+ * Interface representing the payload of a JWT.
  *
- * @property {number} sub - The subject of the JWT.
- * @property {string} role - The role of the user.
- * @property {number} version - The version of the JWT.
+ * @interface JwtPayload
  */
 export interface JwtPayload {
+  /**
+   * Subject identifier (usually the user ID).
+   * @type {number}
+   *
+   * @example
+   * const payload: JwtPayload = { sub: 1, role: 'user', version: 1 };
+   */
   sub: number;
+
+  /**
+   * Role of the user.
+   * @type {string}
+   *
+   * @example
+   * const payload: JwtPayload = { sub: 1, role: 'admin', version: 1 };
+   */
   role: string;
+
+  /**
+   * Version of the token.
+   * @type {number}
+   *
+   * @example
+   * const payload: JwtPayload = { sub: 1, role: 'user', version: 2 };
+   */
   version: number;
 }
 
 /**
- * Interface for JWT tokens
+ * Interface representing JWT tokens.
  *
- * @property {string} accessToken - The access token.
- * @property {string} refreshToken - The refresh token.
- * @property {number} expiresIn - The expiration time of the token.
+ * @interface JWTTokens
  */
 export interface JWTTokens {
+  /**
+   * The access token.
+   * @type {string}
+   *
+   * @example
+   * const tokens: JWTTokens = { accessToken: 'abc123', refreshToken: 'def456' };
+   */
   accessToken: string;
+
+  /**
+   * The refresh token.
+   * @type {string}
+   *
+   * @example
+   * const tokens: JWTTokens = { accessToken: 'abc123', refreshToken: 'def456' };
+   */
   refreshToken: string;
+
+  /**
+   * Expiration time of the token in seconds (optional).
+   * @type {number}
+   *
+   * @example
+   * const tokens: JWTTokens = { accessToken: 'abc123', refreshToken: 'def456', expiresIn: 3600 };
+   */
   expiresIn?: number;
 }

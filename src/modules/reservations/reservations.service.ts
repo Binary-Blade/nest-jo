@@ -8,11 +8,19 @@ import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 import { QueryHelperService } from '@database/query/query-helper.service';
 
 /**
- * Service responsible for handling reservations.
- * This service is used to create, retrieve, and manage reservations.
+ * Service to manage reservations.
+ * @class
  */
 @Injectable()
 export class ReservationsService {
+  /**
+   * Creates an instance of ReservationsService.
+   *
+   * @constructor
+   * @param {Repository<Reservation>} reservationRepository - Repository for the Reservation entity.
+   * @param {ReservationsProcessorService} reservationProcessorService - Service for processing reservations.
+   * @param {QueryHelperService} queryHelperService - Service for building query options.
+   */
   constructor(
     @InjectRepository(Reservation) private reservationRepository: Repository<Reservation>,
     private readonly reservationProcessorService: ReservationsProcessorService,
@@ -20,23 +28,30 @@ export class ReservationsService {
   ) {}
 
   /**
-   * Generate a reservation for a user
+   * Generates reservations for a user based on their cart.
    *
-   * @param userId - The ID of the user to generate a reservation for
-   * @param cartId - The ID of the cart to generate a reservation from
-   * @returns - A list of reservations created
-   * @throws Error if the reservation cannot be generated
+   * @param {number} userId - ID of the user.
+   * @param {number} cartId - ID of the user's cart.
+   * @returns {Promise<Reservation[]>} - List of created reservations.
+   *
+   * @example
+   * const reservations = await reservationsService.generateReservation(1, 1);
    */
   async generateReservation(userId: number, cartId: number): Promise<Reservation[]> {
     return await this.reservationProcessorService.processUserReservation(userId, cartId);
   }
 
   /**
-   * Find all reservations for a user
+   * Retrieves all reservations for a user with pagination and filtering.
    *
-   * @param userId - The ID of the user to find reservations for
-   * @returns - A list of reservations for the user
-   * @throws NotFoundException if the user does not exist
+   * @param {number} userId - ID of the user.
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination and filter data.
+   * @returns {Promise<{ reservations: Reservation[]; total: number }>} - The filtered reservations and total count.
+   *
+   * @throws {InternalServerErrorException} If an error occurs while retrieving reservations.
+   *
+   * @example
+   * const result = await reservationsService.findAll(1, paginationFilterDto);
    */
   async findAll(
     userId: number,
@@ -62,6 +77,15 @@ export class ReservationsService {
     }
   }
 
+  /**
+   * Retrieves all reservations for a user.
+   *
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<Reservation[]>} - List of reservations.
+   *
+   * @example
+   * const reservations = await reservationsService.findAllData(1);
+   */
   async findAllData(userId: number): Promise<Reservation[]> {
     return await this.reservationRepository.find({
       where: { user: { userId } },
@@ -71,11 +95,15 @@ export class ReservationsService {
   }
 
   /**
-   * Find all reservations for an admin
+   * Retrieves all reservations with pagination for admin.
    *
-   * @returns - A list of all reservations
-   * @throws ForbiddenException if the user is not an admin
-   * @throws NotFoundException if the user does not exist
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination data.
+   * @returns {Promise<Reservation[]>} - List of reservations.
+   *
+   * @throws {NotFoundException} If no reservations are found.
+   *
+   * @example
+   * const reservations = await reservationsService.findAllAdmin(paginationFilterDto);
    */
   async findAllAdmin(paginationFilterDto: PaginationAndFilterDto): Promise<Reservation[]> {
     const { limit, offset } = paginationFilterDto;
@@ -94,13 +122,16 @@ export class ReservationsService {
   }
 
   /**
-   * Find a single reservation by ID
+   * Finds a reservation by its ID and user ID.
    *
-   * @param reservationId - The ID of the reservation to find
-   * @param userId - The ID of the user making the request
-   * @returns - The requested reservation
-   * @throws NotFoundException if the reservation does not exist
-   * @throws ForbiddenException if the user is not authorized to access the reservation
+   * @param {number} reservationId - ID of the reservation.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<Reservation>} - The found reservation.
+   *
+   * @throws {NotFoundException} If the reservation is not found.
+   *
+   * @example
+   * const reservation = await reservationsService.findOne(1, 1);
    */
   async findOne(reservationId: number, userId: number): Promise<Reservation> {
     const reservation = await this.reservationRepository.findOne({
@@ -124,17 +155,29 @@ export class ReservationsService {
   }
 
   /**
-   * Save a reservation to the database
+   * Saves a reservation to the repository.
    *
-   * @param reservation - The reservation to save
-   * @returns - The saved reservation
-   * @throws Error if the reservation cannot be saved
+   * @param {Reservation} reservation - The reservation entity to save.
+   * @returns {Promise<Reservation>} - The saved reservation.
+   *
+   * @example
+   * const savedReservation = await reservationsService.saveReservation(reservation);
    */
   async saveReservation(reservation: Reservation): Promise<Reservation> {
     return await this.reservationRepository.save(reservation);
   }
 
-  private getSelectFieldsFindAll() {
+  /**
+   * Gets the fields to select for findAll query.
+   *
+   * @returns {object} - The fields to select.
+   *
+   * @private
+   *
+   * @example
+   * const selectFields = reservationsService.getSelectFieldsFindAll();
+   */
+  private getSelectFieldsFindAll(): object {
     return {
       reservationId: true,
       reservationDetails: {
@@ -160,12 +203,22 @@ export class ReservationsService {
     };
   }
 
-  private getSelectFieldsFindAllAdmin() {
+  /**
+   * Gets the fields to select for findAllAdmin query.
+   *
+   * @returns {object} - The fields to select for admin view.
+   *
+   * @private
+   *
+   * @example
+   * const selectFields = reservationsService.getSelectFieldsFindAllAdmin();
+   */
+  private getSelectFieldsFindAllAdmin(): object {
     return {
       reservationId: true,
       user: {
         userId: true,
-        email: true // Example, adjust based on the fields you want to expose
+        email: true
       },
       reservationDetails: {
         title: true,
@@ -174,10 +227,10 @@ export class ReservationsService {
         }
       },
       transaction: {
-        transactionId: true, // Assuming you want to include this as well
+        transactionId: true,
         statusPayment: true,
         paymentId: true,
-        totalAmount: true // Example, adjust based on your schema
+        totalAmount: true
       }
     };
   }

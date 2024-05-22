@@ -11,33 +11,24 @@ import { NODE_ENV, PROD_ENV } from '@utils/constants/constants.env';
 import { Request, Response } from 'express';
 
 /**
- * A global exception filter that catches all HTTP exceptions and formats
- * the response to include helpful debugging information in non-production environments.
+ * Exception filter to handle HTTP exceptions.
+ * @class
+ * @implements {ExceptionFilter}
  */
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  /**
-   * Logger instance for the HttpExceptionFilter.
-   *
-   * @private
-   * @type {Logger}
-   * @memberof HttpExceptionFilter
-   * @readonly
-   */
   private readonly logger: Logger = new Logger(HttpExceptionFilter.name);
 
-  /**
-   * Constructor for the HttpExceptionFilter.
-   * @param configService - The configuration service
-   */
   constructor(private configService: ConfigService) {}
 
   /**
    * Method to catch and handle HTTP exceptions.
    *
-   * @param exception The caught HttpException.
-   * @param host The arguments host containing information about the request context.
-   * @returns void
+   * @param {HttpException} exception - The caught HTTP exception.
+   * @param {ArgumentsHost} host - The context for the caught exception.
+   *
+   * @example
+   * throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
    */
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -70,7 +61,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       errorResponse['errorDetails'] = detailedErrors;
     }
 
-    // Log the error message and send the response.
     this.logger.error(
       `Http Status: ${status}, Exception Message: ${exception.message}, Details: ${JSON.stringify(detailedErrors)}`
     );

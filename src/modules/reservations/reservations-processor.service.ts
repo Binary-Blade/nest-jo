@@ -16,11 +16,25 @@ import { TransactionsService } from '@modules/transactions/transactions.service'
 import { EventSalesService } from '@modules/events/event-sales.service';
 
 /**
- * Service responsible for handling reservations.
- * This service is used to create, retrieve, and manage reservations.
+ * Service to process reservations for users.
+ * @class
  */
 @Injectable()
 export class ReservationsProcessorService {
+  /**
+   * Constructor for the ReservationsProcessorService.
+   *
+   * @constructor
+   * @param {Repository<Reservation>} reservationRepository - Repository for the Reservation entity.
+   * @param {TicketsService} ticketService - Service to manage tickets.
+   * @param {EventSalesService} eventSalesService - Service to manage event sales.
+   * @param {TransactionsService} transactionService - Service to manage transactions.
+   * @param {UsersService} usersService - Service to manage users.
+   * @param {CartsService} cartService - Service to manage carts.
+   * @param {CartItemsService} cartItemsService - Service to manage cart items.
+   * @param {PaymentService} paymentService - Service to manage payments.
+   * @param {ReservationDetailsService} reservationDetailsService - Service to manage reservation details.
+   */
   constructor(
     @InjectRepository(Reservation) private reservationRepository: Repository<Reservation>,
     private readonly ticketService: TicketsService,
@@ -34,11 +48,14 @@ export class ReservationsProcessorService {
   ) {}
 
   /**
-   * Process a reservation, transcation, and payment for a user's cart
+   * Processes a user's reservation based on their cart.
    *
-   * @param userId - The ID of the user making the reservation
-   * @param cartId - The ID of the cart to process
-   * @returns - A promise that resolves with the reservations created
+   * @param {number} userId - ID of the user.
+   * @param {number} cartId - ID of the user's cart.
+   * @returns {Promise<Reservation[]>} - List of created reservations.
+   *
+   * @example
+   * const reservations = await reservationsProcessorService.processUserReservation(1, 1);
    */
   async processUserReservation(userId: number, cartId: number): Promise<Reservation[]> {
     const user = await this.usersService.verifyUserOneBy(userId);
@@ -62,14 +79,17 @@ export class ReservationsProcessorService {
   }
 
   /**
-   * Create reservations for all items in the cart
+   * Creates reservations for all items in the cart.
    *
-   * @private - This method is only used internally by the service
-   * @param cartItems - The items in the cart to create reservations for
-   * @param user - The user making the reservation
-   * @param transaction - The transaction associated with the reservation
-   * @returns - A promise that resolves with the reservations created
-   * @throws Error if a reservation already exists for an item
+   * @param {CartItem[]} cartItems - List of cart items.
+   * @param {User} user - The user entity.
+   * @param {Transaction} transaction - The transaction entity.
+   * @returns {Promise<Reservation[]>} - List of created reservations.
+   *
+   * @private
+   *
+   * @example
+   * const reservations = await reservationsProcessorService.createReservationsForAllCartItems(cartItems, user, transaction);
    */
   private async createReservationsForAllCartItems(
     cartItems: CartItem[],
@@ -85,14 +105,17 @@ export class ReservationsProcessorService {
   }
 
   /**
-   * Create reservations for each item in the cart
+   * Creates reservations for each cart item.
    *
-   * @private - This method is only used internally by the service
-   * @param item - The item in the cart to create reservations for
-   * @param user - The user making the reservation
-   * @param transaction - The transaction associated with the reservation
-   * @returns - A promise that resolves with the reservations created
-   * @throws Error if a reservation already exists for the item
+   * @param {CartItem} item - The cart item entity.
+   * @param {User} user - The user entity.
+   * @param {Transaction} transaction - The transaction entity.
+   * @returns {Promise<Reservation[]>} - List of created reservations for the cart item.
+   *
+   * @private
+   *
+   * @example
+   * const reservations = await reservationsProcessorService.createReservationsForEachCartItem(cartItem, user, transaction);
    */
   private async createReservationsForEachCartItem(
     item: CartItem,
@@ -116,13 +139,17 @@ export class ReservationsProcessorService {
   }
 
   /**
-   * Initiate a reservation for an item
+   * Initiates a new reservation.
    *
-   * @private - This method is only used internally by the service
-   * @param user - The user making the reservation
-   * @param cartItem - The item in the cart to create a reservation for
-   * @param transaction - The transaction associated with the reservation
-   * @returns - A promise that resolves with the reservation created
+   * @param {User} user - The user entity.
+   * @param {CartItem} cartItem - The cart item entity.
+   * @param {Transaction} transaction - The transaction entity.
+   * @returns {Promise<Reservation>} - The initiated reservation.
+   *
+   * @private
+   *
+   * @example
+   * const reservation = await reservationsProcessorService.initiateReservation(user, cartItem, transaction);
    */
   private async initiateReservation(
     user: User,
@@ -138,12 +165,16 @@ export class ReservationsProcessorService {
   }
 
   /**
-   * Finalize a booking by processing the event tickets and revenue
+   * Finalizes the booking process by updating event tickets and revenue.
    *
-   * @private - This method is only used internally by the service
-   * @param cartItems - The items in the cart to process
-   * @param reservations - The reservations to finalize
-   * @returns - A promise that resolves when the booking is complete
+   * @param {CartItem[]} cartItems - List of cart items.
+   * @param {Reservation[]} reservations - List of reservations.
+   * @returns {Promise<void>}
+   *
+   * @private
+   *
+   * @example
+   * await reservationsProcessorService.finalizeBooking(cartItems, reservations);
    */
   private async finalizeBooking(cartItems: CartItem[], reservations: Reservation[]): Promise<void> {
     const eventIds = new Set(cartItems.map(item => item.event.eventId));
@@ -155,13 +186,18 @@ export class ReservationsProcessorService {
   }
 
   /**
-   * Ensure that a reservation does not already exist for an item
+   * Prevents duplicate reservations for the same cart item and user.
    *
-   * @private - This method is only used internally by the service
-   * @param item - The item to check for existing reservations
-   * @param user - The user making the reservation
-   * @throws Error if a reservation already exists for the item
-   * @returns - A promise that resolves if there are no duplicate reservations
+   * @param {CartItem} item - The cart item entity.
+   * @param {User} user - The user entity.
+   * @returns {Promise<void>}
+   *
+   * @throws {Error} If a duplicate reservation is found.
+   *
+   * @private
+   *
+   * @example
+   * await reservationsProcessorService.preventDuplicateReservation(cartItem, user);
    */
   private async preventDuplicateReservation(item: CartItem, user: User): Promise<void> {
     const existingReservation = await this.reservationRepository.findOne({
@@ -171,16 +207,20 @@ export class ReservationsProcessorService {
       throw new Error(`Reservation already exists for item with ID ${item.cartItemId}.`);
     }
   }
+
   /**
-   * Clean up after a payment
+   * Cleans up after the payment process by removing cart items and deleting the cart.
    *
-   * @private - This method is only used internally by the service
-   * @param cartId - The ID of the cart to clean up
-   * @param userId - The ID of the user to clean up
-   * @returns - A promise that resolves when the cleanup is complete
-   * @throws Error if the cleanup fails
+   * @param {number} cartId - ID of the cart.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<void>}
+   *
+   * @private
+   *
+   * @example
+   * await reservationsProcessorService.cleanUpAfterPayment(1, 1);
    */
-  private async cleanUpAfterPayment(cartId: number, userId: number) {
+  private async cleanUpAfterPayment(cartId: number, userId: number): Promise<void> {
     await this.cartItemsService.removeAllItemFromCart(userId, cartId);
     await this.cartService.deleteCart(cartId);
     await this.cartService.getOrCreateCart(userId);

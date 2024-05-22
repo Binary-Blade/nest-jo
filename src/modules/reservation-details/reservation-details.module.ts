@@ -6,8 +6,21 @@ import { ReservationDetails } from './entities/reservation-details.entity';
 import { EventsModule } from '@modules/events/events.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
 
+/**
+ * Module to manage reservation details.
+ *
+ * @module
+ */
 @Module({
-  imports: [TypeOrmModule.forFeature([Event, ReservationDetails]), CartItemsModule, EventsModule],
-  providers: [ReservationDetailsService]
+  imports: [
+    // Import TypeOrmModule for Event and ReservationDetails entities
+    TypeOrmModule.forFeature([Event, ReservationDetails]),
+    CartItemsModule, // Import CartItemsModule
+    EventsModule // Import EventsModule
+  ],
+  providers: [
+    // Register ReservationDetailsService as a provider
+    ReservationDetailsService
+  ]
 })
 export class ReservationDetailsModule {}

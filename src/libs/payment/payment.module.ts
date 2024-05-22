@@ -6,9 +6,6 @@ import { ReservationsModule } from '@modules/reservations/reservations.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 
-/**
- * Module for handling payments.
- */
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),

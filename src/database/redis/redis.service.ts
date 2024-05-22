@@ -2,34 +2,39 @@ import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestj
 import Redis from 'ioredis';
 
 /**
- * Redis service for interacting with Redis cache
- *
- * @class RedisService class (provider) for interacting with Redis cache
- * @method set Set data in Redis cache
- * @method get Get data from Redis cache
- * @method del Delete data from Redis cache
- * @method setMultiple Set multiple key-value pairs in Redis cache
- * @method formatKey Format key with prefix
+ * Service to interact with Redis for caching purposes.
+ * @class
  */
 @Injectable()
 export class RedisService {
-  private readonly logger = new Logger(RedisService.name);
+  /**
+   * Logger instance from NestJS.
+   *
+   * @private
+   * @readonly
+   * @type {Logger}
+   * @memberof RedisService
+   * @default new Logger(RedisService.name)
+   */
+  private readonly logger: Logger = new Logger(RedisService.name);
 
   /**
-   * Constructor for RedisService class
-   *
-   * @param redisClient Redis client
-   * @param configService ConfigService instance
+   * @param {Redis} redisClient - The Redis client instance injected via dependency injection.
    */
   constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
 
   /**
-   * Set data in Redis cache
+   * Set a key-value pair in Redis with optional TTL (Time To Live).
    *
-   * @param key Key to set data against
-   * @param value Value to set
-   * @param ttl Time to live for the key
-   * @returns Success message
+   * @param {string} key - The key to set in Redis.
+   * @param {any} value - The value to set, will be stringified if not a string.
+   * @param {number} [ttl] - Optional TTL in seconds.
+   * @returns {Promise<string>} - Confirmation message after setting the key.
+   *
+   * @throws {Error} If the key is not provided.
+   *
+   * @example
+   * await redisService.set('user:1', { name: 'John' }, 3600);
    */
   async set(key: string, value: any, ttl?: number): Promise<string> {
     if (!key) throw new Error('Key is required');
@@ -43,10 +48,15 @@ export class RedisService {
   }
 
   /**
-   * Get data from Redis cache
+   * Get a value from Redis by key.
    *
-   * @param key Key to get data for
-   * @returns Value for the key
+   * @param {string} key - The key to retrieve from Redis.
+   * @returns {Promise<string | null>} - The value associated with the key, or null if not found.
+   *
+   * @throws {Error} If the key is not provided.
+   *
+   * @example
+   * const value = await redisService.get('user:1');
    */
   async get(key: string): Promise<string | null> {
     if (!key) throw new Error('Key is required');
@@ -62,10 +72,15 @@ export class RedisService {
   }
 
   /**
-   * Get data from Redis cache
+   * Delete a key from Redis.
    *
-   * @param key Key to get data for
-   * @returns Value for the key
+   * @param {string} key - The key to delete from Redis.
+   * @returns {Promise<string>} - Confirmation message after deleting the key.
+   *
+   * @throws {Error} If the key is not provided.
+   *
+   * @example
+   * await redisService.del('user:1');
    */
   async del(key: string): Promise<string> {
     if (!key) throw new Error('Key is required');
@@ -79,12 +94,17 @@ export class RedisService {
   }
 
   /**
-   * Fetch data from cache if available, otherwise fetch from the database
+   * Fetch data from Redis cache or execute a function to retrieve data and cache it.
    *
-   * @param key - The key to use for caching
-   * @param fetchFn - Function to fetch data if not available in cache
-   * @returns - The fetched data
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param {string} key - The key to fetch from cache.
+   * @param {() => Promise<T>} fetchFn - The function to execute if data is not found in cache.
+   * @param {number} TTL - Time To Live for the cached data in seconds.
+   * @returns {Promise<T>} - The fetched or cached data.
+   *
+   * @template T
+   *
+   * @example
+   * const data = await redisService.fetchCachedData('user:1', fetchUserFromDb, 3600);
    */
   async fetchCachedData<T>(key: string, fetchFn: () => Promise<T>, TTL: number): Promise<T> {
     let data = await this.get(key);
@@ -97,12 +117,14 @@ export class RedisService {
   }
 
   /**
-   * Safely parse JSON data
+   * Safely parse a JSON string.
    *
-   * @private Helper method to parse JSON data
-   * @param jsonString - The JSON string to parse
-   * @returns - The parsed data
-   * @throws InternalServerErrorException if there is an error parsing the data
+   * @param {string} jsonString - The JSON string to parse.
+   * @returns {T} - The parsed object.
+   *
+   * @throws {InternalServerErrorException} If parsing fails.
+   *
+   * @template T
    */
   private safeParse<T>(jsonString: string): T {
     try {
@@ -113,11 +135,14 @@ export class RedisService {
   }
 
   /**
-   * Clear cache for a specific event or all events
+   * Clear cache for a specific event or all events.
    *
-   * @param eventId - The ID of the event to clear cache for
-   * @returns - Promise that resolves when the cache is cleared
-   * @throws InternalServerErrorException if there is an error clearing the cache
+   * @param {number} [eventId] - Optional event ID to clear specific cache.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await redisService.clearCacheEvent(123);
+   * await redisService.clearCacheEvent();
    */
   async clearCacheEvent(eventId?: number): Promise<void> {
     if (eventId) {

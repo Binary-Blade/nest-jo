@@ -1,11 +1,19 @@
 /**
- * Enum for user role
- * @export UserRole
+ * Enumeration for user roles.
  * @enum {string}
- * @property {string} USER = 'USER'
- * @property {string} ADMIN = 'ADMIN'
  */
 export enum UserRole {
+  /**
+   * Standard user role.
+   * @example
+   * UserRole.USER
+   */
   USER = 'USER',
+
+  /**
+   * Admin user role.
+   * @example
+   * UserRole.ADMIN
+   */
   ADMIN = 'ADMIN'
 }

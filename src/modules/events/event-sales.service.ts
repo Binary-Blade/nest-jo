@@ -7,16 +7,18 @@ import { PriceFormulaEnum } from '@common/enums/price-formula.enum';
 import { EventsService } from './events.service';
 
 /**
- * Service responsible for handling event sales.
- * This service is used to process the tickets and revenue for a list of cart items.
+ * Service to manage event sales and revenue.
+ * @class
  */
 @Injectable()
 export class EventSalesService {
   /**
-   * Map of price formulas to the quantity to deduct
-   * @private Do not expose this map to the controller
+   * Map of price formulas to quantity deduction factors.
+   *
+   * @private
    * @readonly
    * @type {Record<string, number>}
+   * @memberof EventSalesService
    */
   private readonly deductionMap: Record<string, number> = {
     [PriceFormulaEnum.SOLO]: 1,
@@ -24,11 +26,6 @@ export class EventSalesService {
     [PriceFormulaEnum.FAMILY]: 4
   };
 
-  /**
-   * Constructor for the EventSalesService
-   * @param eventRepository - The event repository
-   * @param eventsService - The events service
-   */
   constructor(
     @InjectRepository(Event)
     private eventRepository: Repository<Event>,
@@ -36,11 +33,13 @@ export class EventSalesService {
   ) {}
 
   /**
-   * Process the tickets and revenue for a list of cart items.
+   * Processes event tickets and updates revenue based on cart items.
    *
-   * @param items - The items to process
-   * @throws NotFoundException if there are not enough tickets available
-   * @returns - void
+   * @param {CartItem[]} items - List of cart items to process.
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await eventSalesService.processEventTicketsAndRevenue(cartItems);
    */
   async processEventTicketsAndRevenue(items: CartItem[]): Promise<void> {
     let totalNewRevenue = 0;
@@ -54,13 +53,16 @@ export class EventSalesService {
   }
 
   /**
-   * Update the revenue for an event.
+   * Updates the revenue for a specific event.
    *
-   * @private Do not expose this method to the controller
-   * @param eventId - The ID of the event
-   * @param additionalRevenue - The additional revenue to add
-   * @returns - void
-   * @throws NotFoundException if the event does not exist
+   * @param {number} eventId - ID of the event.
+   * @param {number} additionalRevenue - The additional revenue to add.
+   * @returns {Promise<void>}
+   *
+   * @private
+   *
+   * @example
+   * await eventSalesService.updateRevenue(1, 500);
    */
   private async updateRevenue(eventId: number, additionalRevenue: number): Promise<void> {
     const event = await this.eventsService.findEventById(eventId);
@@ -69,15 +71,19 @@ export class EventSalesService {
   }
 
   /**
-   * Deduct the quantity of tickets available for an event.
+   * Deducts the quantity of tickets available for a specific event.
    *
-   * @private  Do not expose this method to the controller
-   * @param eventId - The ID of the event
-   * @param priceFormula - The price formula for the event
-   * @param quantity - The quantity to deduct
-   * @returns - void
-   * @throws NotFoundException if there are not enough tickets available
-   * @throws NotFoundException if the event does not exist
+   * @param {number} eventId - ID of the event.
+   * @param {string} priceFormula - The price formula used.
+   * @param {number} quantity - The quantity of tickets to deduct.
+   * @returns {Promise<void>}
+   *
+   * @throws {NotFoundException} If not enough tickets are available.
+   *
+   * @private
+   *
+   * @example
+   * await eventSalesService.deductEventQuantity(1, PriceFormulaEnum.SOLO, 3);
    */
   private async deductEventQuantity(
     eventId: number,
@@ -95,11 +101,15 @@ export class EventSalesService {
   }
 
   /**
-   * Get the quantity to deduct for a given price formula.
+   * Gets the quantity deduction factor for a given price formula.
    *
-   * @private Do not expose this method to the controller
-   * @param priceFormula - The price formula
-   * @returns - The quantity to deduct
+   * @param {string} priceFormula - The price formula.
+   * @returns {number} - The quantity deduction factor.
+   *
+   * @private
+   *
+   * @example
+   * const deductionFactor = eventSalesService.quantityPerFormula(PriceFormulaEnum.SOLO);
    */
   private quantityPerFormula(priceFormula: string): number {
     return this.deductionMap[priceFormula] || 1;

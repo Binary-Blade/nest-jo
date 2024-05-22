@@ -5,22 +5,36 @@ import { ROLE_KEY } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
 
 /**
- * A guard that enforces role-based access control. It checks if the
- * current user has the required role to access a particular route.
+ * Guard to check if the user has the required role to access the route.
+ * @class
+ * @implements {CanActivate}
+ *
+ * @example
+ * \@UseGuards(RoleGuard)
+ * \@Role(UserRole.ADMIN)
+ * \@Get('admin')
+ * getAdminData() {
+ *   // Admin route logic here
+ * }
  */
 @Injectable()
 export class RoleGuard implements CanActivate {
   /**
-   * Constructs a RoleGuard instance with dependency injection.
-   * @param reflector Reflector service for accessing route metadata.
+   * Creates an instance of RoleGuard.
+   *
+   * @constructor
+   * @param {Reflector} reflector - The reflector to retrieve metadata.
    */
   constructor(private reflector: Reflector) {}
 
   /**
-   * Method to determine if the current request is authorized based on user role.
-   * @param context The context of the execution allowing to access the request data.
-   * @returns Boolean or a Promise or an Observable that resolves to a boolean,
-   * indicating whether access is granted.
+   * Method to determine if the user can activate the route based on their role.
+   *
+   * @param {ExecutionContext} context - The execution context.
+   * @returns {boolean | Promise<boolean> | Observable<boolean>} - Whether the user can activate the route.
+   *
+   * @example
+   * const canActivate = roleGuard.canActivate(context);
    */
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     // Retrieve the required role for the route from the metadata.

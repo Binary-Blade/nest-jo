@@ -114,7 +114,7 @@ describe('TokenService', () => {
       jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue('oldRefreshToken');
       jest
         .spyOn(service, 'validateAndExtractFromRefreshToken')
-        .mockResolvedValue({ userId: 1, payload: {} });
+        .mockResolvedValue({ userId: 1, payload: { sub: 1, role: UserRole.ADMIN, version: 1 } });
       jest.spyOn(usersService, 'verifyUserOneBy').mockResolvedValue(user);
       jest.spyOn(service, 'getTokens').mockResolvedValue({ accessToken, refreshToken });
 
@@ -159,7 +159,7 @@ describe('TokenService', () => {
       jest.spyOn(cookieService, 'extractRefreshTokenCookie').mockReturnValue('refreshToken');
       jest
         .spyOn(service, 'validateAndExtractFromRefreshToken')
-        .mockResolvedValue({ userId: 1, payload: {} });
+        .mockResolvedValue({ userId: 1, payload: { sub: 1, role: UserRole.ADMIN, version: 1 } });
       jest.spyOn(tokenManagementService, 'createAccessToken').mockReturnValue(accessToken);
       jest.spyOn(configService, 'get').mockReturnValue('1h');
 
@@ -169,8 +169,8 @@ describe('TokenService', () => {
       expect(service.validateAndExtractFromRefreshToken).toHaveBeenCalledWith('refreshToken');
       expect(tokenManagementService.createAccessToken).toHaveBeenCalledWith({
         sub: 1,
-        role: undefined,
-        version: undefined
+        role: UserRole.ADMIN,
+        version: 1
       });
       expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(res.json).toHaveBeenCalledWith({
@@ -179,7 +179,6 @@ describe('TokenService', () => {
         expiresIn: '1h'
       });
     });
-
     it('should return an error response when no refresh token is provided', async () => {
       const req = { cookies: {} } as Request;
       const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;

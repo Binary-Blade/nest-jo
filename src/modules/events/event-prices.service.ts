@@ -7,10 +7,9 @@ import { Event } from '@modules/events/entities/event.entity';
 import { PRICES_FORMULA } from '@utils/constants/constants.common';
 
 /**
- * Service responsible for managing event prices.
- * This service is used to create, update, and delete prices for an event.
+ * Service to manage event prices.
+ * @class
  */
-
 @Injectable()
 export class EventPricesService {
   constructor(
@@ -21,12 +20,16 @@ export class EventPricesService {
   ) {}
 
   /**
-   * Create event prices based on a base price.
+   * Creates event prices based on a base price and predefined price formulas.
    *
-   * @param eventId - The ID of the event to create prices for
-   * @param basePrice - The base price to use for the prices
-   * @throws NotFoundException if the event does not exist
-   * @returns - void
+   * @param {number} eventId - ID of the event.
+   * @param {number} basePrice - The base price of the event.
+   * @returns {Promise<void>}
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @example
+   * await eventPricesService.createEventPrices(1, 100);
    */
   async createEventPrices(eventId: number, basePrice: number): Promise<void> {
     await this.findEventById(eventId);
@@ -42,12 +45,16 @@ export class EventPricesService {
   }
 
   /**
-   * Get the price for an event based on the price formula.
+   * Retrieves the price of an event by its ID and price formula.
    *
-   * @param eventId - The ID of the event to get the price for
-   * @param priceFormula - The price formula to use
-   * @returns - The price for the event
-   * @throws NotFoundException if the price is not found
+   * @param {number} eventId - ID of the event.
+   * @param {PriceFormulaEnum} priceFormula - The price formula type.
+   * @returns {Promise<number>} - The price of the event.
+   *
+   * @throws {NotFoundException} If the price is not found.
+   *
+   * @example
+   * const price = await eventPricesService.getPriceByEventAndType(1, PriceFormulaEnum.STANDARD);
    */
   async getPriceByEventAndType(eventId: number, priceFormula: PriceFormulaEnum): Promise<number> {
     const price = await this.eventPriceRepository.findOne({
@@ -65,11 +72,16 @@ export class EventPricesService {
   }
 
   /**
-   * Update the prices for an event based on a new base price.
+   * Updates the prices of an event based on a new base price and predefined price formulas.
    *
-   * @param eventId - The ID of the event to update prices for
-   * @param newBasePrice - The new base price to use for the prices
-   * @returns - void
+   * @param {number} eventId - ID of the event.
+   * @param {number} newBasePrice - The new base price of the event.
+   * @returns {Promise<void>}
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @example
+   * await eventPricesService.updateEventPrices(1, 150);
    */
   async updateEventPrices(eventId: number, newBasePrice: number): Promise<void> {
     await this.findEventById(eventId);
@@ -89,10 +101,15 @@ export class EventPricesService {
   }
 
   /**
-   * Delete all prices for an event.
+   * Deletes all prices of an event.
    *
-   * @param eventId - The ID of the event to delete prices for
-   * @returns - void
+   * @param {number} eventId - ID of the event.
+   * @returns {Promise<void>}
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @example
+   * await eventPricesService.deleteEventPrices(1);
    */
   async deleteEventPrices(eventId: number): Promise<void> {
     await this.findEventById(eventId);
@@ -106,11 +123,17 @@ export class EventPricesService {
   }
 
   /**
-   * Find an event by ID
+   * Finds an event by its ID.
    *
-   * @param eventId - The ID of the event to find
-   * @returns - The event
-   * @throws NotFoundException if the event does not exist
+   * @param {number} eventId - ID of the event.
+   * @returns {Promise<Event>} - The found event.
+   *
+   * @throws {NotFoundException} If the event is not found.
+   *
+   * @private
+   *
+   * @example
+   * const event = await eventPricesService.findEventById(1);
    */
   private async findEventById(eventId: number): Promise<Event> {
     const event = await this.eventRepository.findOneBy({ eventId });

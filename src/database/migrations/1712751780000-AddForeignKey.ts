@@ -27,7 +27,6 @@ export class AddForeignKeyConstraints1712751780000 implements MigrationInterface
     await queryRunner.query(`
             ALTER TABLE "reservations"
             DROP CONSTRAINT "fk_reservations_users",
-            DROP CONSTRAINT "fk_reservations_cart_items",
             DROP CONSTRAINT "fk_reservations_transactions",
             DROP CONSTRAINT "fk_reservations_tickets";
         `);

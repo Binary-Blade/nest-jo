@@ -7,10 +7,18 @@ import { QueryHelperService } from '@database/query/query-helper.service';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 
 /**
- * Service providing user management functionality.
+ * Service to manage users.
+ * @class
  */
 @Injectable()
 export class UsersService {
+  /**
+   * Creates an instance of UsersService.
+   *
+   * @constructor
+   * @param {Repository<User>} usersRepository - Repository for the User entity.
+   * @param {QueryHelperService} queryHelper - Service to build query options.
+   */
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -18,9 +26,15 @@ export class UsersService {
   ) {}
 
   /**
-   * Finds all users.
+   * Retrieves all users with pagination and filtering.
    *
-   * @returns A promise resolved with the list of all user entities.
+   * @param {PaginationAndFilterDto} paginationFilterDto - DTO containing pagination and filter data.
+   * @returns {Promise<{ users: User[]; total: number }>} - The filtered users and total count.
+   *
+   * @throws {InternalServerErrorException} If an error occurs while retrieving users.
+   *
+   * @example
+   * const result = await usersService.findAll(paginationFilterDto);
    */
   async findAll(
     paginationFilterDto: PaginationAndFilterDto
@@ -31,20 +45,32 @@ export class UsersService {
       const [users, total] = await this.usersRepository.findAndCount(queryOptions);
       return { users, total };
     } catch (error) {
-      throw new InternalServerErrorException('Failed to retrieve events', error.message);
+      throw new InternalServerErrorException('Failed to retrieve users', error.message);
     }
   }
 
+  /**
+   * Retrieves all users.
+   *
+   * @returns {Promise<User[]>} - List of all users.
+   *
+   * @example
+   * const users = await usersService.findAllValues();
+   */
   async findAllValues(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
   /**
-   * Finds a single user by their ID.
+   * Finds a user by ID.
    *
-   * @param id The ID of the user to find.
-   * @returns A promise resolved with the user entity.
-   * @throws NotFoundException if the user is not found.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<User>} - The found user.
+   *
+   * @throws {NotFoundException} If the user is not found.
+   *
+   * @example
+   * const user = await usersService.findOne(1);
    */
   async findOne(userId: number): Promise<User> {
     const user = await this.verifyUserOneBy(userId);
@@ -52,12 +78,16 @@ export class UsersService {
   }
 
   /**
-   * Updates a user's data.
+   * Updates a user's information.
    *
-   * @param id The ID of the user to update.
-   * @param updateUserDto The new data for the user.
-   * @returns A promise resolved with the updated user entity.
-   * @throws NotFoundException if the user is not found.
+   * @param {number} userId - ID of the user to update.
+   * @param {UpdateUserDto} updateUserDto - DTO containing updated user information.
+   * @returns {Promise<User>} - The updated user.
+   *
+   * @throws {NotFoundException} If the user is not found.
+   *
+   * @example
+   * const updatedUser = await usersService.update(1, updateUserDto);
    */
   async update(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.verifyUserOneBy(userId);
@@ -65,6 +95,17 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
+  /**
+   * Deactivates a user by setting their isActive flag to false.
+   *
+   * @param {number} userId - ID of the user to deactivate.
+   * @returns {Promise<void>}
+   *
+   * @throws {NotFoundException} If the user is not found.
+   *
+   * @example
+   * await usersService.removeUserActive(1);
+   */
   async removeUserActive(userId: number): Promise<void> {
     const user = await this.verifyUserOneBy(userId);
     user.isActive = false;
@@ -72,11 +113,15 @@ export class UsersService {
   }
 
   /**
-   * Verifies that a user exists in the database.
+   * Verifies a user exists by their ID.
    *
-   * @param userId The ID of the user to verify.
-   * @returns A promise resolved with the user entity.
-   * @throws NotFoundException if the user does not exist.
+   * @param {number} userId - ID of the user.
+   * @returns {Promise<User>} - The verified user.
+   *
+   * @throws {NotFoundException} If the user is not found.
+   *
+   * @example
+   * const user = await usersService.verifyUserOneBy(1);
    */
   async verifyUserOneBy(userId: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ userId });
@@ -87,12 +132,16 @@ export class UsersService {
   }
 
   /**
-   * Verifies that a user exists in the database with the specified relations.
+   * Verifies a user exists by their ID and loads specified relations.
    *
-   * @param userId The ID of the user to verify.
-   * @param relations The relations to include in the query.
-   * @returns A promise resolved with the user entity.
-   * @throws NotFoundException if the user does not exist.
+   * @param {number} userId - ID of the user.
+   * @param {string} relations - Relations to load.
+   * @returns {Promise<User>} - The verified user with relations loaded.
+   *
+   * @throws {NotFoundException} If the user is not found.
+   *
+   * @example
+   * const user = await usersService.verifyUserOneRelation(1, 'profile');
    */
   async verifyUserOneRelation(userId: number, relations: string): Promise<User> {
     const user = await this.usersRepository.findOne({

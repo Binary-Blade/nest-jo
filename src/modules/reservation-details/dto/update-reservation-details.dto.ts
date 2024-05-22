@@ -2,10 +2,9 @@ import { PartialType } from '@nestjs/swagger';
 import { CreateReservationDetailsDto } from './create-reservation-details.dto';
 
 /**
- * Data transfer object for updating a reservation details.
+ * Data Transfer Object (DTO) for updating reservation details.
+ * Extends CreateReservationDetailsDto with all properties optional.
  *
- * @export UpdateReservationDetailsrDto
- * @class UpdateReservationDetailsrDto
- * @extends {PartialType(CreateReservationDetailsDto)}
+ * @class
  */
-export class UpdateReservationDetailsrDto extends PartialType(CreateReservationDetailsDto) {}
+export class UpdateReservationDetailsDto extends PartialType(CreateReservationDetailsDto) {}

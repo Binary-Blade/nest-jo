@@ -4,73 +4,94 @@ import { CreateCartItemDto } from './dto/create-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { AccessTokenGuard } from '@security/guards';
 import { CartItemsService } from './cart-items.service';
+import { CartItem } from './entities/cartitems.entity';
 
 /**
- * Controller responsible for handling requests to the /carts route
- * This controller is used to manage cart items, including adding, updating, and removing items from a cart.
+ * Controller to manage cart items.
+ * @class
  */
 @UseGuards(AccessTokenGuard)
 @Controller('carts')
 export class CartItemsController {
+  /**
+   * Creates an instance of CartItemsController.
+   *
+   * @param {CartItemsService} cartItemsService - Service to manage cart items.
+   */
   constructor(private readonly cartItemsService: CartItemsService) {}
 
   /**
-   * Adds an item to a cart.
+   * Adds an item to the cart.
    *
-   * @param userId - The ID of the user adding the item to the cart.
-   * @param createCartItemDto - The item to add to the cart.
-   * @returns - The created cart item.
-   * @throws NotFoundException if the event does not exist.
-   * @throws ForbiddenException if the user is not authorized to add items to the cart.
+   * @param {number} userId - ID of the user.
+   * @param {CreateCartItemDto} createCartItemDto - DTO containing cart item details.
+   * @returns {Promise<CartItem>} - The added cart item.
+   *
+   * @example
+   * POST /carts/items
+   * {
+   *   "eventId": 1,
+   *   "priceFormula": "standard",
+   *   "quantity": 2
+   * }
    */
   @Post('/items')
-  create(@UserId() userId: number, @Body() createCartItemDto: CreateCartItemDto) {
+  create(
+    @UserId() userId: number,
+    @Body() createCartItemDto: CreateCartItemDto
+  ): Promise<CartItem> {
     return this.cartItemsService.addItemToCart(userId, createCartItemDto);
   }
 
   /**
-   * Fetches all items in a cart.
+   * Retrieves all items in a specific cart.
    *
-   * @param userId - The ID of the user to fetch the cart items for.
-   * @param cartId - The ID of the cart to fetch the items from.
-   * @returns - A list of cart items.
-   * @throws NotFoundException if the cart does not exist.
-   * @throws ForbiddenException if the user is not authorized to access the cart.
+   * @param {number} userId - ID of the user.
+   * @param {string} cartId - ID of the cart.
+   * @returns {Promise<CartItem[]>} - The cart items.
+   *
+   * @example
+   * GET /carts/1/items
    */
   @Get(':cartId/items')
-  findAll(@UserId() userId: number, @Param('cartId') cartId: string) {
+  findAll(@UserId() userId: number, @Param('cartId') cartId: string): Promise<CartItem[]> {
     return this.cartItemsService.findAllItemsInCart(userId, +cartId);
   }
 
   /**
-   * Fetches a specific item in a cart.
+   * Retrieves a specific item in a cart.
    *
-   * @param userId - The ID of the user to fetch the cart item for.
-   * @param cartId - The ID of the cart to fetch the item from.
-   * @param cartItemId - The ID of the item to fetch.
-   * @returns - The requested cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws ForbiddenException if the user is not authorized to access the cart.
+   * @param {number} userId - ID of the user.
+   * @param {string} cartId - ID of the cart.
+   * @param {string} cartItemId - ID of the cart item.
+   * @returns {Promise<CartItem>} - The cart item.
+   *
+   * @example
+   * GET /carts/1/items/1
    */
   @Get(':cartId/items/:cartItemId')
   findOne(
     @UserId() userId: number,
     @Param('cartId') cartId: string,
     @Param('cartItemId') cartItemId: string
-  ) {
+  ): Promise<CartItem> {
     return this.cartItemsService.findOneItemInCart(userId, +cartId, +cartItemId);
   }
 
   /**
-   * Updates the quantity of an item in the cart.
+   * Updates the quantity of a specific item in the cart.
    *
-   * @param userId - The ID of the user updating the cart item.
-   * @param cartId - The ID of the cart to update the item in.
-   * @param cartItemId - The ID of the item to update.
-   * @param updateCartItemDto - The updated quantity.
-   * @returns - The updated cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws ForbiddenException if the user is not authorized to update the cart item.
+   * @param {number} userId - ID of the user.
+   * @param {string} cartId - ID of the cart.
+   * @param {string} cartItemId - ID of the cart item.
+   * @param {UpdateCartItemDto} updateCartItemDto - DTO containing updated quantity.
+   * @returns {Promise<CartItem>} - The updated cart item.
+   *
+   * @example
+   * PATCH /carts/1/items/1
+   * {
+   *   "quantity": 3
+   * }
    */
   @Patch(':cartId/items/:cartItemId')
   update(
@@ -78,7 +99,7 @@ export class CartItemsController {
     @Param('cartId') cartId: string,
     @Param('cartItemId') cartItemId: string,
     @Body() updateCartItemDto: UpdateCartItemDto
-  ) {
+  ): Promise<CartItem> {
     return this.cartItemsService.updateQuantityInCart(
       userId,
       +cartId,
@@ -86,22 +107,24 @@ export class CartItemsController {
       updateCartItemDto.quantity
     );
   }
+
   /**
-   * Removes an item from a cart.
+   * Removes a specific item from the cart.
    *
-   * @param userId - The ID of the user removing the item from the cart.
-   * @param cartId - The ID of the cart to remove the item from.
-   * @param cartItemId - The ID of the item to remove.
-   * @returns - The removed cart item.
-   * @throws NotFoundException if the cart item does not exist in the cart.
-   * @throws ForbiddenException if the user is not authorized to remove items from the cart.
+   * @param {number} userId - ID of the user.
+   * @param {string} cartId - ID of the cart.
+   * @param {string} cartItemId - ID of the cart item.
+   * @returns {Promise<CartItem>} - The removed cart item.
+   *
+   * @example
+   * DELETE /carts/1/items/1
    */
   @Delete(':cartId/items/:cartItemId')
   remove(
     @UserId() userId: number,
     @Param('cartId') cartId: string,
     @Param('cartItemId') cartItemId: string
-  ) {
+  ): Promise<CartItem> {
     return this.cartItemsService.removeOneItemFromCart(userId, +cartId, +cartItemId);
   }
 }

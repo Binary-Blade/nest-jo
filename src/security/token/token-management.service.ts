@@ -4,22 +4,31 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 /**
- * Service responsible for managing JWT tokens, including their creation and validation.
- * This service is used by the TokenService to create and validate JWT tokens.
+ * Service to manage JWT tokens.
+ * @class
  */
 @Injectable()
 export class TokenManagementService {
+  /**
+   * Creates an instance of TokenManagementService.
+   *
+   * @constructor
+   * @param {JwtService} jwtService - Service to interact with JWT.
+   * @param {ConfigService} configService - Service to access configuration variables.
+   */
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService
   ) {}
 
   /**
-   * Creates a new access token for the given payload.
-   * The token is signed with the access token secret and has an expiration time specified in the configuration.
+   * Creates an access token.
    *
-   * @param payload The payload for the token.
-   * @returns The created access token.
+   * @param {Payload} payload - The payload to encode in the token.
+   * @returns {string} - The created access token.
+   *
+   * @example
+   * const accessToken = tokenManagementService.createAccessToken({ userId: 1, role: 'user' });
    */
   createAccessToken(payload: Payload): string {
     return this.jwtService.sign(payload, {
@@ -29,12 +38,14 @@ export class TokenManagementService {
   }
 
   /**
-   * Creates a new refresh token for the given payload.
-   * The token is signed with the refresh token secret and has an expiration time specified in the configuration.
+   * Creates a refresh token.
    *
-   * @param payload The payload for the token.
-   * @returns The created refresh token.
-   **/
+   * @param {Payload} payload - The payload to encode in the token.
+   * @returns {string} - The created refresh token.
+   *
+   * @example
+   * const refreshToken = tokenManagementService.createRefreshToken({ userId: 1, role: 'user' });
+   */
   createRefreshToken(payload: Payload): string {
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
@@ -43,15 +54,16 @@ export class TokenManagementService {
   }
 
   /**
-   * Verifies the given token and returns the decoded payload.
-   * The token is verified using the access token secret.
+   * Verifies a JWT token.
    *
-   *  @param token The token to verify.
-   *  @param isAccessToken A flag indicating whether the token is an access token.
-   *  @returns The decoded payload of the token.
-   *  @throws An error if the token is invalid or has expired.
-   **/
-  verifyToken(token: string, isAccessToken: boolean = false): any {
+   * @param {string} token - The token to verify.
+   * @param {boolean} [isAccessToken=false] - Whether the token is an access token.
+   * @returns {Promise<any>} - The decoded token payload.
+   *
+   * @example
+   * const payload = await tokenManagementService.verifyToken(token, true);
+   */
+  verifyToken(token: string, isAccessToken: boolean = false): Promise<any> {
     const secretKey = isAccessToken
       ? this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET')
       : this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET');
