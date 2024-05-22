@@ -155,11 +155,12 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not connected');
     }
-    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
+
     user.tokenVersion += 1;
+    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
     await this.usersRepository.save(user);
 
-    res.clearCookie('RefreshToken', { path: '/' });
+    this.cookieService.clearRefreshTokenCookie(res);
     res.status(200).send('Logged out successfully');
   }
 
@@ -177,7 +178,7 @@ export class AuthService {
     const user = await this.usersRepository.findOneBy({ userId });
     await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
     await this.usersRepository.remove(user);
-    res.clearCookie('RefreshToken', { path: '/' });
+    this.cookieService.clearRefreshTokenCookie(res);
     res.status(200).send('User deleted successfully');
   }
 }

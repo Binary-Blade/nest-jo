@@ -64,6 +64,12 @@ export class CookieService {
    * cookieService.clearRefreshTokenCookie(res);
    */
   clearRefreshTokenCookie(res: Response): void {
-    res.clearCookie('RefreshToken', { path: '/' });
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === PROD_ENV,
+      path: '/',
+      sameSite: this.configService.get('NODE_ENV') === PROD_ENV ? 'none' : 'strict'
+    };
+    res.clearCookie('RefreshToken', cookieOptions);
   }
 }
