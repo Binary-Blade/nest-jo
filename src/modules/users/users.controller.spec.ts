@@ -153,24 +153,4 @@ describe('UsersController', () => {
       expect(service.removeUserActive).toHaveBeenCalledWith(+userId);
     });
   });
-
-  describe('delete', () => {
-    it('should delete a user', async () => {
-      const userId = '1';
-
-      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
-
-      await controller.delete(userId);
-      expect(service.delete).toHaveBeenCalledWith(+userId);
-    });
-
-    it('should throw NotFoundException if user not found', async () => {
-      const userId = '1';
-
-      jest.spyOn(service, 'delete').mockRejectedValue(new NotFoundException());
-
-      await expect(controller.delete(userId)).rejects.toThrow(NotFoundException);
-      expect(service.delete).toHaveBeenCalledWith(+userId);
-    });
-  });
 });

@@ -74,6 +74,7 @@ describe('AuthService', () => {
     refreshTokenStoreService = module.get<RefreshTokenStoreService>(RefreshTokenStoreService);
     cartService = module.get<CartsService>(CartsService);
   });
+
   describe('signup', () => {
     it('should successfully sign up a new user', async () => {
       const createUserDto: CreateUserDto = {
@@ -97,6 +98,7 @@ describe('AuthService', () => {
       expect(encryptionService.generatedKeyUuid).toHaveBeenCalled();
       expect(userRepository.create).toHaveBeenCalledWith({
         ...createUserDto,
+        email: createUserDto.email.toLowerCase(),
         password: hashedPassword,
         role: UserRole.USER,
         accountKey: 'some-uuid-key',
@@ -121,6 +123,7 @@ describe('AuthService', () => {
       const email = 'test@example.com';
       const password = 'password123';
       const user = new User();
+      user.isActive = true;
       const response = {
         json: jest.fn(),
         clearCookie: jest.fn()
@@ -133,7 +136,7 @@ describe('AuthService', () => {
         refreshToken: 'refreshToken'
       });
       jest.spyOn(cartService, 'getOrCreateCart').mockResolvedValue(undefined);
-      jest.spyOn(userRepository, 'save').mockResolvedValue(undefined);
+      jest.spyOn(userRepository, 'save').mockResolvedValue(user);
 
       await authService.login(email, password, response);
 
@@ -147,6 +150,7 @@ describe('AuthService', () => {
         userId: user.userId
       });
     });
+
     it('should throw InvalidCredentialsException if email does not exist', async () => {
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
 
@@ -157,6 +161,7 @@ describe('AuthService', () => {
 
     it('should throw InvalidCredentialsException if password does not match', async () => {
       const user = new User();
+      user.isActive = true;
       user.password = 'hashedPassword';
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(user);
       jest.spyOn(encryptionService, 'verifyPassword').mockResolvedValue(false);
@@ -165,8 +170,17 @@ describe('AuthService', () => {
         authService.login('test@example.com', 'password123', {} as Response)
       ).rejects.toThrow(InvalidCredentialsException);
     });
-  });
 
+    it('should throw UnauthorizedException if user is not active', async () => {
+      const user = new User();
+      user.isActive = false;
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(user);
+
+      await expect(
+        authService.login('test@example.com', 'password123', {} as Response)
+      ).rejects.toThrow(UnauthorizedException);
+    });
+  });
   describe('updatePassword', () => {
     it("should successfully update a user's password", async () => {
       const user = new User();

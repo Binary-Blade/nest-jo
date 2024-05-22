@@ -11,21 +11,6 @@ import { JWTTokens } from '@common/interfaces/jwt.interface';
 import { UnauthorizedException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-const mockUser: User = {
-  userId: 1,
-  firstName: 'Test',
-  lastName: 'User',
-  email: 'testuser',
-  password: 'password',
-  role: UserRole.USER,
-  tokenVersion: 1
-};
-
-const mockTokens = {
-  accessToken: 'access-token',
-  refreshToken: 'refresh-token'
-};
-
 describe('TokenService', () => {
   let service: TokenService;
   let usersService: UsersService;
@@ -115,7 +100,7 @@ describe('TokenService', () => {
         refreshToken
       );
     });
-  }
+  });
 
   describe('refreshToken', () => {
     it('should refresh tokens and set the refresh token cookie', async () => {

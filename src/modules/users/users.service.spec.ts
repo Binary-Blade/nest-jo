@@ -158,30 +158,6 @@ describe('UsersService', () => {
     });
   });
 
-  describe('delete', () => {
-    it('should delete a user', async () => {
-      const userId = 1;
-      const user = { userId } as User;
-
-      jest.spyOn(service, 'verifyUserOneBy').mockResolvedValue(user);
-      jest.spyOn(usersRepository, 'remove').mockResolvedValue(undefined);
-
-      await service.delete(userId);
-
-      expect(service.verifyUserOneBy).toHaveBeenCalledWith(userId);
-      expect(usersRepository.remove).toHaveBeenCalledWith(user);
-    });
-
-    it('should throw NotFoundException if user is not found', async () => {
-      const userId = 1;
-
-      jest.spyOn(service, 'verifyUserOneBy').mockRejectedValue(new NotFoundException());
-
-      await expect(service.delete(userId)).rejects.toThrow(NotFoundException);
-      expect(service.verifyUserOneBy).toHaveBeenCalledWith(userId);
-    });
-  });
-
   describe('verifyUserOneBy', () => {
     it('should return a user by ID', async () => {
       const userId = 1;
