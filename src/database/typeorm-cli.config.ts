@@ -8,13 +8,13 @@ const configService = new ConfigService();
 
 /**
  * TypeORM DataSource configuration for PostgreSQL.
- * 
+ *
  * @class
  */
 export default new DataSource({
   /**
    * The type of database to connect to.
-   * 
+   *
    * @type {string}
    * @default 'postgres'
    */
@@ -22,7 +22,7 @@ export default new DataSource({
 
   /**
    * The host of the database.
-   * 
+   *
    * @type {string}
    * @example 'localhost'
    */
@@ -30,7 +30,7 @@ export default new DataSource({
 
   /**
    * The port of the database.
-   * 
+   *
    * @type {number}
    * @example 5432
    */
@@ -38,7 +38,7 @@ export default new DataSource({
 
   /**
    * The username to connect to the database.
-   * 
+   *
    * @type {string}
    * @example 'postgres'
    */
@@ -46,7 +46,7 @@ export default new DataSource({
 
   /**
    * The password to connect to the database.
-   * 
+   *
    * @type {string}
    * @example 'password123'
    */
@@ -54,7 +54,7 @@ export default new DataSource({
 
   /**
    * The name of the database.
-   * 
+   *
    * @type {string}
    * @example 'mydatabase'
    */
@@ -63,7 +63,7 @@ export default new DataSource({
   /**
    * Whether to synchronize the database schema with entities automatically.
    * This should be disabled in production.
-   * 
+   *
    * @type {boolean}
    * @default false
    */
@@ -71,15 +71,15 @@ export default new DataSource({
 
   /**
    * Paths to the entities files.
-   * 
+   *
    * @type {string[]}
-   * @example [__dirname + '/../../modules/**/*.entity{.ts,.js}']
+   * @example [__dirname + '/path-to-entity/*.entity{.ts,.js}']
    */
   entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
 
   /**
    * Paths to the migrations files.
-   * 
+   *
    * @type {string[]}
    * @example [__dirname + '/../database/migrations/*{.ts,.js}']
    */
