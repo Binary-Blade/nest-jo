@@ -12,7 +12,9 @@ export class InvalidCredentialsException extends HttpException {
    * @example
    * throw new InvalidCredentialsException();
    */
+
+  // Make it in french
   constructor() {
-    super('Invalid Login Credentials. Please try again.', HttpStatus.UNAUTHORIZED);
+    super('Identifiants invalides', HttpStatus.UNAUTHORIZED);
   }
 }
