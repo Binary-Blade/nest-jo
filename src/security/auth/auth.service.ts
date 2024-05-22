@@ -146,7 +146,8 @@ export class AuthService {
   async delete(userId: number, res: Response): Promise<void> {
     const user = await this.usersRepository.findOneBy({ userId });
     await this.refreshTokenStoreService.removeRefreshTokenRedis(userId); // Invalidate the current refresh token.
-    res.clearCookie('RefreshToken', { path: '/' }); // Clear the refresh token cookie
     await this.usersRepository.remove(user);
+    res.clearCookie('RefreshToken', { path: '/' });
+    res.status(200).send('User deleted successfully');
   }
 }
