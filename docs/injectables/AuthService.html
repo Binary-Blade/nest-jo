@@ -113,7 +113,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/security/auth/auth.service.ts</code>
+            <code>src/modules/auth/auth.service.ts</code>
         </p>
 
 
@@ -183,7 +183,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/security/auth/auth.service.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/modules/auth/auth.service.ts:25</a></div>
                             </td>
                         </tr>
 
@@ -347,8 +347,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="176"
-                                    class="link-to-prism">src/security/auth/auth.service.ts:176</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/modules/auth/auth.service.ts:177</a></div>
                         </td>
                     </tr>
 
@@ -444,7 +444,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/security/auth/auth.service.ts:90</a></div>
+                                    class="link-to-prism">src/modules/auth/auth.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -452,7 +452,7 @@
             <tr>
                 <td class="col-md-4">
                         <div class="io-description"><p>Logs in a user.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html"> await authService.login('user@example.com', 'password123', res);
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">await authService.login('user@example.com', 'password123', res);
 </code></pre></div></div>
 
                             <div class="io-description">
@@ -559,7 +559,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/security/auth/auth.service.ts:153</a></div>
+                                    class="link-to-prism">src/modules/auth/auth.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -655,7 +655,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/security/auth/auth.service.ts:58</a></div>
+                                    class="link-to-prism">src/modules/auth/auth.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -760,7 +760,7 @@
                     <tr>
                         <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="126"
-                                    class="link-to-prism">src/security/auth/auth.service.ts:126</a></div>
+                                    class="link-to-prism">src/modules/auth/auth.service.ts:126</a></div>
                         </td>
                     </tr>
 
@@ -1014,11 +1014,12 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException(&#x27;User not connected&#x27;);
     }
-    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
+
     user.tokenVersion +&#x3D; 1;
+    await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
     await this.usersRepository.save(user);
 
-    res.clearCookie(&#x27;RefreshToken&#x27;, { path: &#x27;/&#x27; });
+    this.cookieService.clearRefreshTokenCookie(res);
     res.status(200).send(&#x27;Logged out successfully&#x27;);
   }
 
@@ -1036,7 +1037,7 @@ export class AuthService {
     const user &#x3D; await this.usersRepository.findOneBy({ userId });
     await this.refreshTokenStoreService.removeRefreshTokenRedis(userId);
     await this.usersRepository.remove(user);
-    res.clearCookie(&#x27;RefreshToken&#x27;, { path: &#x27;/&#x27; });
+    this.cookieService.clearRefreshTokenCookie(res);
     res.status(200).send(&#x27;User deleted successfully&#x27;);
   }
 }
