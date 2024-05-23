@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from '@modules/users/users.module';
 import { RedisModule } from '@database/redis/redis.module';
 import { DatabaseModule } from '@database/database.module';
-import { AuthModule } from '@security/auth/auth.module';
 import { CartsModule } from '@modules/carts/carts.module';
 import { ReservationsModule } from '@modules/reservations/reservations.module';
 import { CartItemsModule } from '@modules/cart-items/cart-items.module';
@@ -12,6 +11,7 @@ import { EventsModule } from '@modules/events/events.module';
 import { TicketsModule } from '@modules/tickets/tickets.module';
 import { ThrollerModule } from '@security/throttler/throttler.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
+import { AuthModule } from '@modules/auth/auth.module';
 
 /**
  * The root module of the application.
