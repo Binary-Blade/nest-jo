@@ -48,7 +48,8 @@ describe('AuthService', () => {
         {
           provide: CookieService,
           useValue: {
-            setRefreshTokenCookie: jest.fn()
+            setRefreshTokenCookie: jest.fn(),
+            clearRefreshTokenCookie: jest.fn()
           }
         },
         {
@@ -242,7 +243,7 @@ describe('AuthService', () => {
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ userId: 1 });
       expect(refreshTokenStoreService.removeRefreshTokenRedis).toHaveBeenCalledWith(1);
       expect(userRepository.save).toHaveBeenCalledWith(user);
-      expect(response.clearCookie).toHaveBeenCalledWith('RefreshToken', { path: '/' });
+      expect(cookieService.clearRefreshTokenCookie).toHaveBeenCalledWith(response);
       expect(response.status).toHaveBeenCalledWith(200);
       expect(response.send).toHaveBeenCalledWith('Logged out successfully');
       expect(user.tokenVersion).toBe(1);
@@ -252,6 +253,31 @@ describe('AuthService', () => {
       jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(null);
 
       await expect(authService.logout(1, {} as Response)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('delete', () => {
+    it('should successfully delete a user', async () => {
+      const user = new User();
+      user.userId = 1;
+      const response = {
+        clearCookie: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+      } as unknown as Response;
+
+      jest.spyOn(userRepository, 'findOneBy').mockResolvedValue(user);
+      jest.spyOn(refreshTokenStoreService, 'removeRefreshTokenRedis').mockResolvedValue(undefined);
+      jest.spyOn(userRepository, 'remove').mockResolvedValue(user);
+
+      await authService.delete(1, response);
+
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({ userId: 1 });
+      expect(refreshTokenStoreService.removeRefreshTokenRedis).toHaveBeenCalledWith(1);
+      expect(userRepository.remove).toHaveBeenCalledWith(user);
+      expect(cookieService.clearRefreshTokenCookie).toHaveBeenCalledWith(response);
+      expect(response.status).toHaveBeenCalledWith(200);
+      expect(response.send).toHaveBeenCalledWith('User deleted successfully');
     });
   });
 });

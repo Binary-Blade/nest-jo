@@ -3,9 +3,9 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { AccessTokenStrategy } from '@security/auth/strategies/access-token.strategy';
 import { Transaction } from '@modules/transactions/entities/transaction.entity';
 import { QueryHelperService } from '@database/query/query-helper.service';
+import { AccessTokenStrategy } from '@security/strategies/access-token.strategy';
 
 /**
  * Module to manage users.
