@@ -3,6 +3,7 @@ import { CookieService } from './cookie.service';
 import { ConfigService } from '@nestjs/config';
 import { ConvertUtilsService } from '@utils/services/convert-utils.service';
 import { Request, Response } from 'express';
+import { PROD_ENV } from '@utils/constants/constants.env';
 
 describe('CookieService', () => {
   let service: CookieService;
@@ -73,10 +74,38 @@ describe('CookieService', () => {
   });
 
   describe('clearRefreshTokenCookie', () => {
-    it('should clear the refresh token cookie in the response', () => {
+    it('should clear the refresh token cookie in the response with production settings', () => {
+      jest.spyOn(configService, 'get').mockImplementation((key: string) => {
+        if (key === 'NODE_ENV') return PROD_ENV;
+        return null;
+      });
+
       const res = { clearCookie: jest.fn() } as unknown as Response;
       service.clearRefreshTokenCookie(res);
-      expect(res.clearCookie).toHaveBeenCalledWith('RefreshToken', { path: '/' });
+
+      expect(res.clearCookie).toHaveBeenCalledWith('RefreshToken', {
+        httpOnly: true,
+        secure: true,
+        path: '/',
+        sameSite: 'none'
+      });
+    });
+
+    it('should clear the refresh token cookie in the response with non-production settings', () => {
+      jest.spyOn(configService, 'get').mockImplementation((key: string) => {
+        if (key === 'NODE_ENV') return 'development';
+        return null;
+      });
+
+      const res = { clearCookie: jest.fn() } as unknown as Response;
+      service.clearRefreshTokenCookie(res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('RefreshToken', {
+        httpOnly: true,
+        secure: false,
+        path: '/',
+        sameSite: 'strict'
+      });
     });
   });
 });
