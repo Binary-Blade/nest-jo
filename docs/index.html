@@ -1,0 +1,1706 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>nestjs-jo documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+	   <link rel="stylesheet" href="./styles/style.css">
+        <link rel="stylesheet" href="./styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avaoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-block d-sm-none">
+            <a href="./" class="navbar-brand">nestjs-jo documentation</a>
+            <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="hidden-xs menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content getting-started">
+                   <div class="content-data">
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-markdown-open.svg" width="100" alt="project-logo">
+</p>
+<p align="center">
+    <h1 align="center">NEST-JO</h1>
+</p>
+<p align="center">
+    <em>Elevate Efficiency, Amplify Value!</em>
+</p>
+<p align="center">
+    <img src="https://img.shields.io/github/license/Binary-Blade/nest-jo?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+    <img src="https://img.shields.io/github/last-commit/Binary-Blade/nest-jo?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+    <img src="https://img.shields.io/github/languages/top/Binary-Blade/nest-jo?style=default&color=0080ff" alt="repo-top-language">
+    <img src="https://img.shields.io/github/languages/count/Binary-Blade/nest-jo?style=default&color=0080ff" alt="repo-language-count">
+<p>
+<p align="center">
+    <!-- default option, no dependency badges. -->
+</p>
+
+<p><br><!-- TABLE OF CONTENTS --></p>
+<details>
+  <summary>Table of Contents</summary><br>
+
+<ul>
+<li><a href="#-overview"> Overview</a></li>
+<li><a href="#-features"> Features</a></li>
+<li><a href="#-repository-structure"> Repository Structure</a></li>
+<li><a href="#-modules"> Modules</a></li>
+<li><a href="#-getting-started"> Getting Started</a><ul>
+<li><a href="#-installation"> Installation</a></li>
+<li><a href="#-usage"> Usage</a></li>
+<li><a href="#-tests"> Tests</a></li>
+</ul>
+</li>
+<li><a href="#-project-roadmap"> Project Roadmap</a></li>
+<li><a href="#-contributing"> Contributing</a></li>
+<li><a href="#-license"> License</a></li>
+<li><a href="#-acknowledgments"> Acknowledgments</a></details>
+<hr></li>
+</ul>
+<h2>Overview</h2>
+<p>Nest-Jo is a robust open-source project aimed at simplifying and optimizing the development and deployment processes for NestJS applications within a containerized environment. The project leverages Docker for seamless orchestration of services like NestJS, PostgreSQL, and Redis, enhancing communication and data persistence. With optimized TypeScript build configurations and tailored Docker setups for both development and production environments, Nest-Jo streamlines the build efficiency, maintains code scalability, and ensures secure deployment of NestJS applications. By providing clear structures, compiler options, and efficient Docker containers, Nest-Jo proves to be a valuable tool for developers seeking a hassle-free and organized approach to NestJS application development and deployment.</p>
+<hr>
+<h2>Features</h2>
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th></th>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚙️</td>
+<td><strong>Architecture</strong></td>
+<td>Nest-jo follows a modular architecture based on NestJS framework, enhancing maintainability and scalability. Utilizes Docker for containerization, optimizing development and deployment workflows.</td>
+</tr>
+<tr>
+<td>🔩</td>
+<td><strong>Code Quality</strong></td>
+<td>The codebase maintains high quality with TypeScript for type safety, eslint for linting, and Prettier for code formatting. Follows consistent style guidelines and leverages decorators for cleaner code.</td>
+</tr>
+<tr>
+<td>📄</td>
+<td><strong>Documentation</strong></td>
+<td>Documentation is extensive, covering setup instructions, API endpoints, and codebase structure. Utilizes Compodoc for generating API documentation, ensuring clear understanding for developers.</td>
+</tr>
+<tr>
+<td>🔌</td>
+<td><strong>Integrations</strong></td>
+<td>Key integrations include @nestjs/typeorm for database interactions, passport-local and passport-jwt for authentication, and Swagger for API documentation. Integrates Redis for caching data efficiently.</td>
+</tr>
+<tr>
+<td>🧩</td>
+<td><strong>Modularity</strong></td>
+<td>The codebase exhibits high modularity with reusable modules and services. Utilizes decorators for dependency injection, promoting code reusability and separation of concerns. Enhances maintainability and flexibility.</td>
+</tr>
+<tr>
+<td>🧪</td>
+<td><strong>Testing</strong></td>
+<td>Testing is comprehensive with Jest and Supertest for API testing. Employs ts-jest for TypeScript support in Jest. Includes unit tests for functions and integration tests for endpoints.</td>
+</tr>
+<tr>
+<td>⚡️</td>
+<td><strong>Performance</strong></td>
+<td>Performance is optimized through efficient database queries with TypeORM, caching with Redis, and rate limiting with express-rate-limit. Utilizes argon2 for secure password hashing, enhancing security without compromising speed.</td>
+</tr>
+<tr>
+<td>🛡️</td>
+<td><strong>Security</strong></td>
+<td>Implements security measures such as CSRF protection, CORS policies, and helmet for HTTP header protection. Utilizes JWT for secure authentication and authorization, guarding against unauthorized access.</td>
+</tr>
+<tr>
+<td>📦</td>
+<td><strong>Dependencies</strong></td>
+<td>Key dependencies include TypeORM for database management, NestJS for application framework, and winston for logging. Utilizes Docker and docker-compose to streamline development environments.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Repository Structure</h2>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-sh">└── nest-jo/
+    ├── Dockerfile
+    ├── Makefile
+    ├── README.md
+    ├── docker-compose.override.yml
+    ├── docker-compose.prod.yml
+    ├── docker-compose.yml
+    ├── nest-cli.json
+    ├── package.json
+    ├── src
+    │   ├── app.module.ts
+    │   ├── common
+    │   ├── database
+    │   ├── libs
+    │   ├── main.ts
+    │   ├── modules
+    │   ├── security
+    │   ├── type.d.ts
+    │   └── utils
+    ├── test
+    │   ├── app.e2e-spec.ts
+    │   └── jest-e2e.json
+    ├── tsconfig.build.json
+    └── tsconfig.json</code></pre></div><hr>
+<h2>Modules</h2>
+<details closed><summary>.</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/tsconfig.build.json">tsconfig.build.json</a></td>
+<td>Optimize TypeScript build configuration to exclude unnecessary files for compilation, enhancing build efficiency and focusing on relevant source code.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/docker-compose.yml">docker-compose.yml</a></td>
+<td>Orchestrates services for NestJS, PostgreSQL, and Redis in a Docker environment. Defines networks, volumes, and dependencies to ensure seamless communication and data persistence. Supports efficient development by mapping local directories to container paths.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/docker-compose.override.yml">docker-compose.override.yml</a></td>
+<td>Server with a custom image on port 3000, Postgres with defined environment variables, and Redis with a specific command and password. Settings help orchestrate development services.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/Dockerfile">Dockerfile</a></td>
+<td>Sets base image to Alpine, installs dependencies with pnpm, builds app, prunes dev dependencies, and prepares production environment with built files. Configures entry point and user settings.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/nest-cli.json">nest-cli.json</a></td>
+<td>Defines project structure and compiler options for NestJS. Specifies source root and deletes the output directory. Enhances project organization and compilation efficiency.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/docker-compose.prod.yml">docker-compose.prod.yml</a></td>
+<td>Orchestrates production environment for NestJS server, PostgreSQL, and Redis cache.-Configures Docker containers, network, environment variables, and persistent volumes.-Facilitates secure communication and data storage between services.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/tsconfig.json">tsconfig.json</a></td>
+<td>Defines paths for module resolution and configuration settings to build a Nest.js application with proper module organization and TypeScript compilation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/package.json">package.json</a></td>
+<td>Orchestrates project scripts for building, testing, and running the NestJS application. Manages linting, formatting, and database migrations using TypeORM. Dependencies ensure robustness, security, and expressiveness of the project.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/Makefile">Makefile</a></td>
+<td>Manages database migrations, testing, and Docker operations for development and production environments. Enables creating, running, and reverting migrations, running tests, interacting with Redis, and managing Docker containers.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/main.ts">main.ts</a></td>
+<td>Initiates** NestJS application with custom logger, CORS config, database migrations, cookies parsing, security headers, and environment logging. Applies global pipes, filters, and interceptors. Listens on defined port.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/type.d.ts">type.d.ts</a></td>
+<td>Enhances Express Request interface to include a user property linked to the User entity, facilitating TypeScript recognition.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/app.module.ts">app.module.ts</a></td>
+<td>Defines root module with components for configuration, database, Redis, authentication, user, events, cart, payment, ticket, reservation, and transaction management, along with request throttling. Orchestrates modules for key application functionalities within NestJS project.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.libs.payment</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/libs/payment/payment.module.ts">payment.module.ts</a></td>
+<td>Orchestrates payment operations by connecting user data. Imports modules for booking, transactions, and tickets, vital for payment services, ensuring smooth processing within the NestJS application architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/libs/payment/payment.service.spec.ts">payment.service.spec.ts</a></td>
+<td>Tests PaymentServices processPayment method based on cart total, generating payment results for different scenarios defined by status and detail messages. Enhances validation and accuracy of payment processing functionality within the repositorys NestJS architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/libs/payment/payment.service.ts">payment.service.ts</a></td>
+<td>Handles payment processing based on a carts total amount, determining approval or rejection using a defined success rate.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.enums</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/enums/sort-order.enum.ts">sort-order.enum.ts</a></td>
+<td>Defines sort order options with ASC and DESC values for modular, readable code in the repository architecture, enhancing the data sorting functionality.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/enums/user-role.enum.ts">user-role.enum.ts</a></td>
+<td>Enum with standard and admin roles for user authorization. Located in the enums directory within the source code.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/enums/status-reservation.enum.ts">status-reservation.enum.ts</a></td>
+<td>Defines reservation status options, such as APPROVED and REJECTED, using an enum in the src/common directory.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/enums/category-type.enum.ts">category-type.enum.ts</a></td>
+<td>Defines event category types. Categorizes sports events such as Archery, Athletics, and more. Crucial for structuring and categorizing data in the Nest.js projects architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/enums/price-formula.enum.ts">price-formula.enum.ts</a></td>
+<td>Defines price formulas enum for different user groups to streamline pricing logic in the repositorys architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.decorators</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/decorators/user-id.decorator.ts">user-id.decorator.ts</a></td>
+<td>Extracts user ID from the request in a Nest.js apps route handler. It helps access user data securely without direct request object manipulation, enhancing application security.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/decorators/role.decorator.ts">role.decorator.ts</a></td>
+<td>Enables defining user roles for route handlers in the Nest.js architecture. Uses <code>ROLE_KEY</code> constant to store role metadata. <code>Role</code> decorator assigns specified user roles. Supports maintaining clean and secure role-based access control within the applications common decorators.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.exceptions</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/exceptions/invalid-credentials.exception.ts">invalid-credentials.exception.ts</a></td>
+<td>Defines a custom exception class for invalid login credentials, inheriting from NestJSs HttpException. Handles unauthorized access with a clear error message. Crucial for maintaining codebase integrity and enhancing user experience within the Nest-JO repositorys architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.globals-filter</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/globals-filter/http-exceptions-filter.spec.ts">http-exceptions-filter.spec.ts</a></td>
+<td>Implements HTTP exception handling for logging and formatting error responses in different environments. Logs error details and returns specific messages based on environment settings.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/globals-filter/http-exceptions-filter.ts">http-exceptions-filter.ts</a></td>
+<td>Handles HTTP exceptions by providing custom error response messages. Determines if the exception is a BadRequestException to extract detailed errors. Constructs error response with timestamp, message, and optional debugging info for non-production environments.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/dto/pagination.dto.ts">pagination.dto.ts</a></td>
+<td>Limit, offset, sortBy, sortOrder, filterBy, and filterValue. Utilizes class-validator for input validation. Integral to handling data retrieval and query customization within the projects architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/dto/id.dto.ts">id.dto.ts</a></td>
+<td>Validates and ensures positive integer IDs using class-validator in DTO. Essential for robust data validation in the Nest-jo repository architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.interfaces</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/interfaces/token.interface.ts">token.interface.ts</a></td>
+<td>Defines token configuration interface with secret keys and expiration times for access and refresh tokens, crucial for managing authentication within the NestJS applications security module. Influences token handling and enhances security by encapsulating essential token details.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/interfaces/payment.interface.ts">payment.interface.ts</a></td>
+<td>Defines payment result and process response interfaces for reservation status handling in the booking system. It specifies payment status, details, and optional payment identifiers and reservations associated with the payment process.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/interfaces/key-value-redis.interface.ts">key-value-redis.interface.ts</a></td>
+<td>Defines KeyValuePairs interface for a collection of key-value pairs in the parent repositorys architecture. It allows the use of any type as values, aiding in data management within the system.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/interfaces/payload.interface.ts">payload.interface.ts</a></td>
+<td>Defines JWT payload structure with user ID, role, and token version for authentication in the repository.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/interfaces/jwt.interface.ts">jwt.interface.ts</a></td>
+<td>Defines interfaces for JWT payload and tokens in the Nest-JO repository, facilitating secure authentication and authorization mechanisms.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.common.logger</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/logger/winston.config.ts">winston.config.ts</a></td>
+<td>Configures Winston logger for different environments and output formats, adjusting logging level dynamically. Integrates file and console transports, with JSON and colorized formats, enhancing logging capabilities in the Nest JS repository.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/common/logger/winston.service.ts">winston.service.ts</a></td>
+<td>Implements** logging with Winston for the repository. <strong>Logs</strong> info, error, warn, debug, and verbose messages. <strong>Enhances</strong> centralized logging and debugging capabilities for the project architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/commom.module.ts">commom.module.ts</a></td>
+<td>Defines a global module aggregating essential services, including user management, data encryption, payments, and Redis operations. Enables seamless access to these services across the application.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservation-details</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/reservation-details.module.ts">reservation-details.module.ts</a></td>
+<td>Implements a module for managing reservation details in Nest.js by importing relevant modules and entities, solely focusing on providing the ReservationDetailsService as a provider within the applications architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/reservation-details.service.ts">reservation-details.service.ts</a></td>
+<td>Manages reservation details creation and retrieval within the repository structure. Creates reservation details from reservation and cart items, ensuring event and reservation existence. Allows finding reservation details by ID with related event and reservation data.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/reservation-details.service.spec.ts">reservation-details.service.spec.ts</a></td>
+<td>Implements reservation details creation, retrieval, handles missing events, and throws NotFoundException if needed. Uses repositories for data access. Maintains atomic operations while ensuring accurate reservations from cart items.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservation-details.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/entities/reservation-details.entity.ts">reservation-details.entity.ts</a></td>
+<td>Defines reservation details entity with associations to reservation and event, including price formula, title, price, description, creation and update timestamps. Centralizes reservation data structure within the NestJS architecture for efficient management and retrieval.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservation-details.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/dto/create-reservation-details.dto.ts">create-reservation-details.dto.ts</a></td>
+<td>Defines a DTO for creating reservation details, ensuring data integrity and validation. Implements class-validator for robust input validation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservation-details/dto/update-reservation-details.dto.ts">update-reservation-details.dto.ts</a></td>
+<td>Defines UpdateReservationDetailsDto for reservation details updating, extending CreateReservationDetailsDto with optional properties. Part of the reservation-details module in nest-jo repository architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.users</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/users.controller.spec.ts">users.controller.spec.ts</a></td>
+<td>Tests user-related operations with pagination, filtering, updates, and deactivation. Validates user retrieval, updating, deactivation, and error handling. Essential for ensuring correct user management functionality within the NestJS application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/users.module.ts">users.module.ts</a></td>
+<td>Defines a module for user management within the NestJS application. Imports necessary entities and services, registers related controllers, providers, and authentication strategy. Facilitates user-related functionality within the applications modular architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/users.service.ts">users.service.ts</a></td>
+<td>Manages user data retrieval, updates, and deactivation with error handling. Utilizes query options for pagination and filtering within the NestJS architecture, facilitating smooth user management operations.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/users.service.spec.ts">users.service.spec.ts</a></td>
+<td>Validates, retrieves, updates, and deactivates users via the <code>UsersService</code>.-Employs pagination, filtering, and error handling for user data operations.-Utilizes <code>User</code> entity repository and <code>QueryHelperService</code>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/users.controller.ts">users.controller.ts</a></td>
+<td>Retrieves all users with filtering, finds a single user, updates user information, and deactivates users. Implements role-based access control using guards for varying user permissions within the NestJS applications architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.users.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/entities/user.entity.ts">user.entity.ts</a></td>
+<td>Email, names, role, activity status, and transaction details. Represents relationships with Cart, Reservations, and Transactions. Tracks creation and login timestamps. Enforces data privacy by excluding sensitive fields in responses.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.users.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/dto/update-user.dto.ts">update-user.dto.ts</a></td>
+<td>Defines an UpdateUserDto class extending CreateUserDto for user updating. Marks all properties as optional. Fulfills the DTO pattern in the users module of the Nest.js framework.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/dto/index.ts">index.ts</a></td>
+<td>Exports user data transfer objects for creating and updating users within the users module.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/users/dto/create-user.dto.ts">create-user.dto.ts</a></td>
+<td>Defines a DTO for creating users, enforcing validation rules on user data and role assignment. This module enhances the codebase by ensuring data integrity and consistency during user creation processes.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.cart-items</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/cart-items.module.ts">cart-items.module.ts</a></td>
+<td>Defines a cart items module handling entities like CartItem, Event, and ReservationDetails. Integrates Controllers and Services, imports related modules, and provides essential functionalities for managing cart items within the NestJS architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/cart-items.service.ts">cart-items.service.ts</a></td>
+<td>Manages cart items by adding, updating, and removing them from carts. Ensures quantity availability and handles price calculations. Integrates with cart, event, and pricing services for a seamless shopping experience.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/cart-items.controller.ts">cart-items.controller.ts</a></td>
+<td>Manages cart items with endpoints for adding, retrieving, updating, and removing items in a users cart. Implements authorization checks using guards. Works seamlessly with the parent repositorys modular structure for efficient cart management.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/cart-items.service.spec.ts">cart-items.service.spec.ts</a></td>
+<td>Adds, updates, removes, finds cart items. Handles exceptions elegantly for missing items or unavailable quantities. Collaborates with carts and events services to ensure smooth cart operations.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/cart-items.controller.spec.ts">cart-items.controller.spec.ts</a></td>
+<td>Create, fetch, update, remove. Handles user authorization and returns detailed exceptions when needed. Interacts with CartItemsService for seamless cart item operations within the repositorys Nest.js architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.cart-items.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/entities/cartitems.entity.ts">cartitems.entity.ts</a></td>
+<td>Defines shopping cart item entity with relationships to cart, event, reservations. It includes fields for price, quantity, timestamps, and a pricing formula enum. This entity encapsulates crucial data for managing cart items within the wider application context.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.cart-items.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/dto/create-cart-item.dto.ts">create-cart-item.dto.ts</a></td>
+<td>Defines DTO for creating a cart item with user and event IDs, quantity, and price formula validation using class-validator. It enforces data integrity for adding items to the shopping cart within the NestJS e-commerce application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/cart-items/dto/update-cart-item.dto.ts">update-cart-item.dto.ts</a></td>
+<td>Defines DTO for cart item updates, extending CreateCartItemDto with optional properties. Key to managing cart items in the nest-jo repositorys modular architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservations</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations-processor.service.spec.ts">reservations-processor.service.spec.ts</a></td>
+<td>Processes user reservations including payment, ticket generation, and cleanup. Utilizes various services to manage cart items, transactions, and reservations. Implements steps such as creating, finalizing bookings, and preventing duplicates to ensure smooth reservation handling.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations.controller.spec.ts">reservations.controller.spec.ts</a></td>
+<td>Create, find all,find all admin, and find one. Mocks service responses for successful, unauthorized, and non-existent scenarios. Ensures correct service method calls with user and reservation IDs, pagination.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations.service.spec.ts">reservations.service.spec.ts</a></td>
+<td>Defines a service handling reservation operations in the Nest.js project. Implements functionality to generate, find, save reservations and provides admin-specific functions. Critical features include user-specific operations and error handling for seamless reservation management.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations-processor.service.ts">reservations-processor.service.ts</a></td>
+<td>Processes user reservations, creates bookings, prevents duplicates, and cleans up post-payment in the repositorys architecture. Manages transactions, payments, events, and users seamlessly.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations.service.ts">reservations.service.ts</a></td>
+<td>Processes user reservations, retrieves, saves, and finds reservations by user ID or admin. Handles pagination and filtering. Ensures accurate reservation data retrieval with user-specific and admin-specific fields.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations.module.ts">reservations.module.ts</a></td>
+<td>Defines a module managing reservations, including controllers, services, and entities like Reservation and Event. Imports related modules, registers controllers and services, and exports Reservation-related services for the parent repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/reservations.controller.ts">reservations.controller.ts</a></td>
+<td>Manages reservations, handles creation, retrieval, and filtering for users and admins. Utilizes guards for authorization. Key features include create, find-all, find-all-admin, find-all-data, and findOne reservation functions.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservations.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/entities/reservation.entity.ts">reservation.entity.ts</a></td>
+<td>Defines entities for reservations, linking to user, details, transaction, cart item, and ticket. Tracks creation and update timestamps. Key part of the repositorys module structure for managing reservation-related data in the system.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.reservations.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/dto/create-reservation.dto.ts">create-reservation.dto.ts</a></td>
+<td>Defines a DTO for reservation creation, validating user, cart item, total price, and payment ID. Essential for ensuring data integrity and user input correctness within the reservation module.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/reservations/dto/update-reservation.dto.ts">update-reservation.dto.ts</a></td>
+<td>Defines an update reservation DTO with optional properties, extending the create reservation DTO for the Nest-JO repositorys reservations module.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.events</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/events.controller.ts">events.controller.ts</a></td>
+<td>Manages event creation, retrieval, update, and deletion with access control. Handles event pricing calculation based on specified formulas. Facilitates filtering and pagination of events.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/event-prices.service.ts">event-prices.service.ts</a></td>
+<td>Creates, updates, retrieves, deletes prices based on formulas. Computes prices from base price and multipliers. Offers error handling for events and prices not found.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/events.service.spec.ts">events.service.spec.ts</a></td>
+<td>Creates, finds, updates, and removes events, ensuring data integrity. Handles conflicts and errors gracefully. Improves search efficiency by filtering events. Caches event data for quick access.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/events.service.ts">events.service.ts</a></td>
+<td>Creates, retrieves, updates, and deletes events. Includes methods to ensure title uniqueness, handle pagination and filtering, and interact with Redis cache for efficient data retrieval.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/events.module.ts">events.module.ts</a></td>
+<td>Defines an event management module within the repository. Manages events data using TypeORM. Provides services for handling events, event prices, and sales. Exports services for broader application usage.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/event-sales.service.ts">event-sales.service.ts</a></td>
+<td>Manages event sales and revenue by processing ticket purchases, updating revenue, and deducting ticket quantities. Offers methods to update revenue for specific events, deduct ticket quantities, and determine deduction factors based on price formulas.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/events.controller.spec.ts">events.controller.spec.ts</a></td>
+<td>Implements tests for event CRUD operations, verifying correct service interactions in the NestJS app.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/event-sales.service.spec.ts">event-sales.service.spec.ts</a></td>
+<td>Implements event ticket processing, revenue calculation, and quantity deduction. Utilizes mocked data for testing. Ensures accurate handling of ticket sales and revenue updates in the NestJS repositorys event-sales service.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/event-prices.service.spec.ts">event-prices.service.spec.ts</a></td>
+<td>Tests EventPricesService functionality in the NestJS app. Creates, retrieves, updates, and deletes event prices with validations. Handles events and prices using repositories and enforces necessary business logic.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.events.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/entities/event-price.entity.ts">event-price.entity.ts</a></td>
+<td>Defines event pricing entity with relationships and attributes for the NestJS project. Handles event price details with associations to the event entity, including price formula selection and actual event pricing.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/entities/event.entity.ts">event.entity.ts</a></td>
+<td>Defines Event entity with attributes like title, descriptions, pricing, dates, quantities, revenue, and relationships to prices, reservations, and cart items for efficient event management within the NestJS repositorys modular architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.events.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/dto/update-event.dto.ts">update-event.dto.ts</a></td>
+<td>Defines UpdateEventDto extending PartialType from create-event.dto for updating event data in the nest-jo repositorys events module.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/events/dto/create-event.dto.ts">create-event.dto.ts</a></td>
+<td>Validates and structures event creation data as a DTO. Enforces specific field requirements like title length, pricing, dates, and category type enum using class-validator. Essential for maintaining data integrity in the events module of the repository.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.tickets</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/tickets/tickets.service.ts">tickets.service.ts</a></td>
+<td>Manages ticket generation for approved reservations. Utilizes encryption, user, and reservation services. Generates tickets based on reservation status. Crucial for handling ticket creation in the overall application architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/tickets/tickets.module.ts">tickets.module.ts</a></td>
+<td>Defines a module handling tickets, creating reservations. Imports modules to manage transactions, users, and reservation details. Resolves circular dependencies using forwardRef. Exports TicketsService for use within the repository architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/tickets/tickets.service.spec.ts">tickets.service.spec.ts</a></td>
+<td>Implements ticket generation for approved reservations and handles non-approved cases with appropriate exceptions.-Generates tickets for reservations with necessary user and reservation validations.-Creates new tickets with specific keys and QR codes for secure ticketing.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.tickets.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/tickets/entities/ticket.entity.ts">ticket.entity.ts</a></td>
+<td>Defines a Ticket entity linking to a Reservation. Enables unique identifiers and keys for ticket management within the reservations system.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.transactions</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/transactions.controller.spec.ts">transactions.controller.spec.ts</a></td>
+<td>Tests TransactionsControllers findAll method, ensuring correct user transactions retrieval with specific filters and sorting. Mocks TransactionsServices findAll method to return expected results and checks the method calls.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/transactions.module.ts">transactions.module.ts</a></td>
+<td>Defines a module managing transactions, with services for transactions, reservation details, and query handling. Imports entities from TypeORM and modules for reservations and tickets. Provides necessary controllers and services for transaction management.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/transactions.service.ts">transactions.service.ts</a></td>
+<td>Manages transactions, creating and finding by reservation ID, and retrieving with pagination. Calculate cart total and select specific fields. Enhances the user experience through efficient handling of payment-related operations within the parent repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/transactions.service.spec.ts">transactions.service.spec.ts</a></td>
+<td>Create, find by ID, calculate total, and fetch all with pagination. Enhances user and cart interactions. Integrates with repository and query services for seamless data management within the repositorys NestJS architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/transactions.controller.ts">transactions.controller.ts</a></td>
+<td>Manages user transactions by retrieving filtered results with pagination. Uses <code>AccessTokenGuard</code> for security. Collaborates with <code>TransactionsService</code> to fetch and provide transaction data based on specified user ID and filtering criteria.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.transactions.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/entities/transaction.entity.ts">transaction.entity.ts</a></td>
+<td>Defines Transaction entity linking Users and Reservations, tracking payment status and amount. Facilitates creating and updating transactions with timestamps. Central to managing transaction-related data within the repositorys architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.transactions.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/dto/create-transaction.dto.ts">create-transaction.dto.ts</a></td>
+<td>Defines CreateTransactionDto capturing transaction data for the Nest-jo repository. Orchestrates data transfer functionality within the transactions module architecture, facilitating seamless communication between various components.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/transactions/dto/update-transaction.dto.ts">update-transaction.dto.ts</a></td>
+<td>Defines <code>UpdateTransactionDto</code> extending <code>PartialType</code> from <code>@nestjs/swagger</code>, inheriting properties from <code>CreateTransactionDto</code>. Located in <code>src/modules/transactions/dto</code>, it shapes data for updating transaction details in the NestJS architecture of the parent repo.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.carts</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/carts/carts.service.ts">carts.service.ts</a></td>
+<td>Manages and interacts with users shopping carts in the Nest.js repository. Features include cart retrieval, creation, verification, saving, and deletion. Handles exceptions for cart not found scenarios.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/carts/carts.service.spec.ts">carts.service.spec.ts</a></td>
+<td>Finding, creating, verifying, saving, and deleting in the NestJS apps cart service with robust error handling for missing cart instances.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/carts/carts.module.ts">carts.module.ts</a></td>
+<td>Defines a module managing carts. Imports TypeOrmModule for Cart entity, registers CartsService as a provider, and exports CartsService for use across the application.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.modules.carts.entities</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/modules/carts/entities/cart.entity.ts">cart.entity.ts</a></td>
+<td>Defines a shopping cart entity with user association and cart items. Records creation and last update timestamps. Central to managing user shopping activities in the applications modular architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.database</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/typeorm-cli.config.ts">typeorm-cli.config.ts</a></td>
+<td>Defines a TypeORM DataSource configuration for PostgreSQL in the NestJS project. Retrieves database connection details from environment variables using ConfigService. Specifies database connection settings like host, port, username, password, database name, entity, and migration paths.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migration-runner.ts">migration-runner.ts</a></td>
+<td>Executes database migrations for the Nest.js app using TypeORM. Logs initialization, migration execution, and handles failures gracefully. Integrated as a critical step in managing database schema changes within the repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/database.module.ts">database.module.ts</a></td>
+<td>Establishes database connection via TypeORM using PostgreSQL for the NestJS app. Dynamically loads config from env vars using ConfigService. Enables async configuration and defines entity paths for seamless integration.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.database.redis</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/redis/redis.service.ts">redis.service.ts</a></td>
+<td>Handles Redis caching with set, get, delete operations, and fetching cached data. Implements safe JSON parsing and event-based cache clearing. Interacts seamlessly with the NestJS architecture for efficient data caching and retrieval.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/redis/redis.module.ts">redis.module.ts</a></td>
+<td>Sets up Redis client and service using environment variables. Configures Redis client with host, port, and password. Encapsulates client creation logic with ConfigService access. Exportable for use across modules in the NestJS application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/redis/redis.service.spec.ts">redis.service.spec.ts</a></td>
+<td>Storing, retrieving, and deleting data. Manages caching with TTL and handles cache misses elegantly. Ensures safe JSON parsing and error handling.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.database.migrations</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712751776641-CreateTableReservationDetails.ts">1712751776641-CreateTableReservationDetails.ts</a></td>
+<td>Implements a migration that creates a reservation_details table for storing detailed reservation information, including event and pricing data. It ensures table creation only if not already existing and includes relationships with the events and reservations tables for database management.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712661230450-CreateTableCartItems.ts">1712661230450-CreateTableCartItems.ts</a></td>
+<td>Manages database migration to create a table for storing cart items, cart references, event data, and pricing details. Ensures table creation and handles rollback.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712661230451-CreateTableReservations.ts">1712661230451-CreateTableReservations.ts</a></td>
+<td>Creates reservations table schema to store reservation details like user, cart item, transaction, reservation details, and ticket. Implements migration methods to set up and remove the table in a database using TypeORM.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712717719010-CreateTableTickets.ts">1712717719010-CreateTableTickets.ts</a></td>
+<td>Creates tickets table for storing ticket details with reservation and security references. Manages creation and removal of the table via up and down migrations. Incorporated in the application&#39;s database schema for ticket management.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712572717258-CreateTableEvents.ts">1712572717258-CreateTableEvents.ts</a></td>
+<td>Creates events table schema for managing event details. Ensures a unique events table with columns for eventId, title, descriptions, pricing, dates. Utilizes Enum and QueryRunner for CRUD operations.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1711085051379-CreateTableUsers.ts">1711085051379-CreateTableUsers.ts</a></td>
+<td>Implements user table creation with user details columns. Tables are created only if not existing, with role enum type check. The migration can create or drop the users table, facilitating user data management in the app.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712661230452-CreateTableTransactions.ts">1712661230452-CreateTableTransactions.ts</a></td>
+<td>Creates transactions table with user, payment info. Safeguards existing table, enum type. Drops table if needed. Enables managing transaction data.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712661221574-CreateTableCarts.ts">1712661221574-CreateTableCarts.ts</a></td>
+<td>Creates a cart table in the database to manage shopping cart information, user references, and timestamps for creation and updates. Includes methods to apply and revert the table creation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712642603000-CreateTableEventPrices.ts">1712642603000-CreateTableEventPrices.ts</a></td>
+<td>Defines a migration scheme to create an event_prices table, facilitating event pricing management. Ensures table existence, includes event ID, price formula, and price columns. Enables migration rollback by dropping the table.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations/1712751780000-AddForeignKey.ts">1712751780000-AddForeignKey.ts</a></td>
+<td>Implements foreign key constraints for reservations and tickets tables, ensuring data integrity. Enables linking reservations to users, transactions, and tickets. Supports reverting changes if needed.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.database.migrations-test</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/add-foreign-key-constraints.migration.spec.ts">add-foreign-key-constraints.migration.spec.ts</a></td>
+<td>Implements foreign key constraints migration for reservations and tickets tables in the database. Ensures data integrity and consistency during database operations by adding or removing foreign key constraints based on the migration direction.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-cart-items.migration.spec.ts">create-table-cart-items.migration.spec.ts</a></td>
+<td>Implements migration tests for creating/dropping cart_items table. Verifies creation only if table doesn&#39;t exist, avoids duplicate creation. Validates proper table drop operation. Facilitates database schema evolution within the repository structure.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-reservation-details.migration.spec.ts">create-table-reservation-details.migration.spec.ts</a></td>
+<td>Ensures creation of reservation_details table if absent, avoiding duplication checks. It relies on TypeORM and constants for migrations, enhancing database schema management in the NestJS architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-reservations.migration.spec.ts">create-table-reservations.migration.spec.ts</a></td>
+<td>Implements migration to handle reservations table creation and deletion based on table existence status. Verifies table status before executing create or drop statements. Ensures database schema consistency during application lifecycle.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-events.migration.spec.ts">create-table-events.migration.spec.ts</a></td>
+<td>Implements migration tests for creating and dropping events table in the database. Verifies table creation based on existence, ensuring proper database schema management in the nest-jo repository.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-event-prices.migration.spec.ts">create-table-event-prices.migration.spec.ts</a></td>
+<td>Implements migrations to create/drop event_prices table based on existence. Verifies table creation and query execution. Maintains data integrity within the Nest.js backend architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-tickets.migration.spec.ts">create-table-tickets.migration.spec.ts</a></td>
+<td>Implements migrations for creating and dropping a tickets table in the database. Verifies existence before creating. Part of the database module structure within the parent repository.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-transactions.migration.spec.ts">create-table-transactions.migration.spec.ts</a></td>
+<td>Implements migration tests ensuring creation/dropping of transactions table based on existing state. Impacts database schema evolution, validating migration correctness and data integrity within repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-carts.migration.spec.ts">create-table-carts.migration.spec.ts</a></td>
+<td>Validates and performs database migrations for the cart table. Verifies table existence before creating, and drops the table on rollback. Enhances data integrity for the NestJS application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/migrations-test/create-table-users.migration.spec.ts">create-table-users.migration.spec.ts</a></td>
+<td>Tests creation of users table existence and creation in the database using TypeORM migrations. Verifies up and down methods handle table creation and deletion correctly based on existing table state.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.database.query</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/query/query-helper.service.spec.ts">query-helper.service.spec.ts</a></td>
+<td>Tests for QueryHelperService in nest-jo repository validate building query options, where conditions, and nested orders. They ensure accurate generation of queries based on provided criteria, contributing to the robustness and reliability of database interactions within the application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/database/query/query-helper.service.ts">query-helper.service.ts</a></td>
+<td>Optimizes filtering and sorting operations for database queries in Nest.js by generating dynamic query options based on pagination data. This service helps streamline querying processes by constructing conditions for filtering, sorting, and pagination.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.utils.constants</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/utils/constants/constants.env.ts">constants.env.ts</a></td>
+<td>Defines constants for node environment variables, aiding environment-specific logic in the parent repositorys architecture. Includes NODE_ENV, DEV_ENV, and PROD_ENV for distinguishing between development and production environments.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/utils/constants/constants.common.ts">constants.common.ts</a></td>
+<td>Defines price formulas and default page sizes for entities in a Nest.js application. Implements formulas and multipliers for pricing, along with fixed page sizes for users, reservations, and events.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/utils/constants/constants.migrationdb.ts">constants.migrationdb.ts</a></td>
+<td>Defines migration database enum types with values. Generates SQL commands to create enum types if they dont exist, ensuring data consistency. Key for managing database schema integrity in the NestJS projects architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.utils.services</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/utils/services/convert-utils.service.spec.ts">convert-utils.service.spec.ts</a></td>
+<td>Tests ConvertUtilsService for accurate conversion of days to seconds and date strings to Date objects. Validates correct conversion and error handling, ensuring reliable utility functions align with the parent repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/utils/services/convert-utils.service.ts">convert-utils.service.ts</a></td>
+<td>Convert Utils Service in src/utils handles conversions like days to seconds and date strings to Date objects. This service enriches the utility layer by providing essential functions for converting data formats seamlessly within the Nest-jo repository architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.encryption</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/encryption/encryption.service.ts">encryption.service.ts</a></td>
+<td>Hashing passwords with Argon2, verifying hashed passwords, generating UUIDs, creating secure keys for users, and generating QR codes from secure keys. Complements user security within the Nest-jo architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/encryption/encryption.service.spec.ts">encryption.service.spec.ts</a></td>
+<td>Tests encryption functions using argon2 for secure password hashing and verification. Part of the security module to ensure data security. Designed to hash and verify passwords to enhance user authentication.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.guards</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/is-creator.guard.ts">is-creator.guard.ts</a></td>
+<td>Enforces content creator ownership by verifying user identity against content ownership before allowing access to specified routes in the Nest.js application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/index.ts">index.ts</a></td>
+<td>Provides role-based, creator, and access token guards for secure API access control in the security module. Supports granular permission handling to enforce security policies across the Nest.js application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/role.guard.spec.ts">role.guard.spec.ts</a></td>
+<td>Tests <code>RoleGuard</code> behavior based on user roles. Verifies access allowance or denial. Uses Nest.js testing utilities and reflector to validate role-based access control logic.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/role.guard.ts">role.guard.ts</a></td>
+<td>Enables role-based access control in the Nest.js app. Determines if users can access routes based on their roles defined with decorators. Utilizes metadata and user roles to restrict or allow access.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/is-creator.guard.spec.ts">is-creator.guard.spec.ts</a></td>
+<td>Confirms true if user ID matches content creator, throws NotFoundException otherwise, or when user is missing. Enhances app security by restricting access based on creator status.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/guards/access-token.guard.ts">access-token.guard.ts</a></td>
+<td>Secures routes with JWT access tokens. Inherits AuthGuard to protect routes in the NestJS architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.cookie</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/cookie/cookie.service.spec.ts">cookie.service.spec.ts</a></td>
+<td>Implements cookie management functions for extracting, setting, and clearing refresh tokens within the NestJS security module. Functions leverage ConfigService for settings and ConvertUtilsService for conversions, ensuring secure and efficient cookie handling in the application.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/cookie/cookie.service.ts">cookie.service.ts</a></td>
+<td>Manages HTTP cookies for handling user authentication. Extracts and sets refresh token cookies securely with configurable expiration. Ability to clear refresh token cookies for enhanced security.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.token</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/token-management.service.spec.ts">token-management.service.spec.ts</a></td>
+<td>Implements TokenManagementService to handle token creation and verification with JwtService and ConfigService. It ensures secure generation of access and refresh tokens based on specified secrets and token expiration times.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/token.service.ts">token.service.ts</a></td>
+<td>Manages JWT tokens and their operations. Generates tokens for users, refreshes tokens, and validates refresh tokens. Implements secure token handling and error responses within the repositorys security architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/refreshtoken-store.service.spec.ts">refreshtoken-store.service.spec.ts</a></td>
+<td>Tests storing, verifying, and removing refresh tokens in Redis for the NestJS applications security module. Mocks services and config for unit testing. Maintains secure token management within the broader application structure.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/refreshtoken-store.service.ts">refreshtoken-store.service.ts</a></td>
+<td>Stores tokens with TTL, verifies their validity, and removes expired tokens. Dependencies: RedisService for Redis interactions, ConvertUtilsService for value conversions, and ConfigService for configuration access.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/token-management.service.ts">token-management.service.ts</a></td>
+<td>Manages JWT tokens for creating, refreshing, and verifying tokens. Utilizes ConfigService for secrets and expiration times. Enhances security and authentication within the repositorys architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/token/token.service.spec.ts">token.service.spec.ts</a></td>
+<td>Implements token handling logic for authentication and refresh token management. Validates, generates, and refreshes tokens, ensuring user access and security. Supports seamless token creation and storage in Redis for efficient authentication handling in the NestJS architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.throttler</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/throttler/throttler.module.ts">throttler.module.ts</a></td>
+<td>Enables rate limiting with a 10-requests-per-minute configuration, enhancing API security and performance. Integrated within the Nest-JO repositorys architecture to control incoming traffic effectively.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.auth</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/auth.controller.ts">auth.controller.ts</a></td>
+<td>Manages user authentication, including signup, login, password updates, access token generation, token refresh, logout, and user deletion. Interfaces with the AuthService and TokenService to provide these essential user-related operations securely.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/auth.controller.spec.ts">auth.controller.spec.ts</a></td>
+<td>Creating user, logging in, updating password, getting refresh token, refreshing token, and logging out with appropriate service interactions for the nest-jo repositorys auth functionality.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/auth.service.spec.ts">auth.service.spec.ts</a></td>
+<td>Implements authentication logic for signing up, logging in, updating passwords, and logging out users. Interacts with user, encryption, token, cookie, cart, and refresh token services. Handles various exceptions like unauthorized access and invalid credentials.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/auth.service.ts">auth.service.ts</a></td>
+<td>Manages user authentication, registration, login, password updates, logout, and deletion. Utilizes user repositories, encryption, tokens, cookies, and refresh tokens for various operations in the Nest.js repositorys security and authentication context.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/auth.module.ts">auth.module.ts</a></td>
+<td>Defines authentication module managing services and controllers for user authentication, utilizing TypeORM for user entity, alongside other services like JwtService and CookieService. Imports CartsModule and CommonModule for extended functionality within the NestJS application.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.auth.dto</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/dto/signup.dto.ts">signup.dto.ts</a></td>
+<td>Defines SignUpDto for user registration with validation rules supporting first name, last name, email, password, and optional role using class-validator.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/dto/login.dto.ts">login.dto.ts</a></td>
+<td>Defines a LoginDTO class with email and password fields for user login validation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/dto/refresh-token.dto.ts">refresh-token.dto.ts</a></td>
+<td>Defines DTO class for refreshing tokens with validation. Part of the security module in the Nest.js architecture.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/dto/update-password.dto.ts">update-password.dto.ts</a></td>
+<td>Defines UpdatePasswordDTO with old and new password fields, using class-validator to ensure they are non-empty strings and meet strong password criteria. This DTO facilitates secure user password updates within the NestJS projects security module.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>src.security.auth.strategies</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/strategies/access-token.strategy.spec.ts">access-token.strategy.spec.ts</a></td>
+<td>Implements access token validation strategy using JWT for user authentication. Validates user existence and token version, throwing exceptions when needed.Integration with TypeORM and NestJS configuration services.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/src/security/auth/strategies/access-token.strategy.ts">access-token.strategy.ts</a></td>
+<td>Validates and authorizes access tokens using JWT for user authentication. Implements a Passport strategy to verify token validity, ensuring users exist and tokens match. Mapped to User repository and app configuration for seamless integration within the NestJS architecture.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<details closed><summary>test</summary>
+
+<table class="table table-bordered compodoc-table">
+<thead>
+<tr>
+<th>File</th>
+<th>Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/test/app.e2e-spec.ts">app.e2e-spec.ts</a></td>
+<td>Verifies API endpoints by simulating HTTP requests using the NestJS testing framework. Initiates a testing module with the AppModule to validate the GET / route, ensuring a successful response and the expected message.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Binary-Blade/nest-jo/blob/master/test/jest-e2e.json">jest-e2e.json</a></td>
+<td>Configures Jest for end-to-end testing in the NestJS project. Specifies file extensions, test environment, test file matching regex, and transformation settings for TypeScript files.</td>
+</tr>
+</tbody>
+</table>
+</details>
+
+<hr>
+<h2>Getting Started</h2>
+<p><strong>System Requirements:</strong></p>
+<ul>
+<li><strong>TypeScript</strong>: <code>version x.y.z</code></li>
+</ul>
+<h3>Installation</h3>
+<h4>From <code>source</code></h4>
+
+<blockquote>
+<ol>
+<li>Clone the nest-jo repository:</li>
+</ol>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ git clone https://github.com/Binary-Blade/nest-jo</code></pre></div><ol start="2">
+<li>Change to the project directory:</li>
+</ol>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ cd nest-jo</code></pre></div><ol start="3">
+<li>Install the dependencies:</li>
+</ol>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm install</code></pre></div></blockquote>
+<h3>Usage</h3>
+<h4>From <code>source</code></h4>
+
+<blockquote>
+<p>Run nest-jo using the command below:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm run build &amp;&amp; node dist/main.js</code></pre></div></blockquote>
+<h3>Tests</h3>
+<blockquote>
+<p>Run the test suite using the command below:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm test</code></pre></div></blockquote>
+<hr>
+<h2>Project Roadmap</h2>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> <code>► INSERT-TASK-1</code></li>
+<li><input disabled="" type="checkbox"> <code>► INSERT-TASK-2</code></li>
+<li><input disabled="" type="checkbox"> <code>► ...</code></li>
+</ul>
+<hr>
+<h2>Contributing</h2>
+<p>Contributions are welcome! Here are several ways you can contribute:</p>
+<ul>
+<li><strong><a href="https://github.com/Binary-Blade/nest-jo/issues">Report Issues</a></strong>: Submit bugs found or log feature requests for the <code>nest-jo</code> project.</li>
+<li><strong><a href="https://github.com/Binary-Blade/nest-jo/blob/main/CONTRIBUTING.md">Submit Pull Requests</a></strong>: Review open PRs, and submit your own PRs.</li>
+<li><strong><a href="https://github.com/Binary-Blade/nest-jo/discussions">Join the Discussions</a></strong>: Share your insights, provide feedback, or ask questions.</li>
+</ul>
+<details closed>
+<summary>Contributing Guidelines</summary>
+
+<ol>
+<li><strong>Fork the Repository</strong>: Start by forking the project repository to your github account.</li>
+<li><strong>Clone Locally</strong>: Clone the forked repository to your local machine using a git client.<b>Example :</b><div><pre class="line-numbers"><code class="language-sh">git clone https://github.com/Binary-Blade/nest-jo</code></pre></div></li>
+<li><strong>Create a New Branch</strong>: Always work on a new branch, giving it a descriptive name.<b>Example :</b><div><pre class="line-numbers"><code class="language-sh">git checkout -b new-feature-x</code></pre></div></li>
+<li><strong>Make Your Changes</strong>: Develop and test your changes locally.</li>
+<li><strong>Commit Your Changes</strong>: Commit with a clear message describing your updates.<b>Example :</b><div><pre class="line-numbers"><code class="language-sh">git commit -m &#39;Implemented new feature x.&#39;</code></pre></div></li>
+<li><strong>Push to github</strong>: Push the changes to your forked repository.<b>Example :</b><div><pre class="line-numbers"><code class="language-sh">git push origin new-feature-x</code></pre></div></li>
+<li><strong>Submit a Pull Request</strong>: Create a PR against the original project repository. Clearly describe the changes and their motivations.</li>
+<li><strong>Review</strong>: Once your PR is reviewed and approved, it will be merged into the main branch. Congratulations on your contribution!</details></li>
+</ol>
+<details closed>
+<summary>Contributor Graph</summary>
+<br>
+<p align="center">
+   <a href="https://github.com{/Binary-Blade/nest-jo/}graphs/contributors">
+      <img src="https://contrib.rocks/image?repo=Binary-Blade/nest-jo">
+   </a>
+</p>
+</details>
+
+<hr>
+<h2>License</h2>
+<p>This project is protected under the <a href="https://choosealicense.com/licenses">SELECT-A-LICENSE</a> License. For more details, refer to the <a href="https://choosealicense.com/licenses/">LICENSE</a> file.</p>
+<hr>
+<h2>Acknowledgments</h2>
+<ul>
+<li>List any resources, contributors, inspiration, etc. here.</li>
+</ul>
+<p><a href="#-overview"><strong>Return</strong></a></p>
+<hr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 0;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'getting-started';
+            var COMPODOC_CURRENT_PAGE_URL = 'index.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="./js/libs/custom-elements.min.js"></script>
+       <script src="./js/libs/lit-html.js"></script>
+
+       <script src="./js/menu-wc.js" defer></script>
+       <script nomodule src="./js/menu-wc_es5.js" defer></script>
+
+       <script src="./js/libs/bootstrap-native.js"></script>
+
+       <script src="./js/libs/es6-shim.min.js"></script>
+       <script src="./js/libs/EventDispatcher.js"></script>
+       <script src="./js/libs/promise.min.js"></script>
+       <script src="./js/libs/zepto.min.js"></script>
+
+       <script src="./js/compodoc.js"></script>
+
+       <script src="./js/tabs.js"></script>
+       <script src="./js/menu.js"></script>
+       <script src="./js/libs/clipboard.min.js"></script>
+       <script src="./js/libs/prism.js"></script>
+       <script src="./js/sourceCode.js"></script>
+          <script src="./js/search/search.js"></script>
+          <script src="./js/search/lunr.min.js"></script>
+          <script src="./js/search/search-lunr.js"></script>
+          <script src="./js/search/search_index.js"></script>
+       <script src="./js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
