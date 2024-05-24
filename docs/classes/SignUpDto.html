@@ -154,11 +154,13 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Readonly</span>
                                     <span class="modifier">Optional</span>
                                 <a href="#firstName" >firstName</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -229,7 +231,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:62</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -237,8 +239,7 @@
                 <td class="col-md-4">
                     <div class="io-description"><p>Email address of the user.
 This field is required and must be a valid email address.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
-</code></pre></div></div>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
                 </td>
             </tr>
 
@@ -250,6 +251,7 @@ This field is required and must be a valid email address.</p>
                 <td class="col-md-4">
                     <a name="firstName"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
@@ -271,22 +273,22 @@ This field is required and must be a valid email address.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@MinLength(3)<br />@MaxLength(50)<br />
+                            @IsString()<br />@MinLength(3)<br />@MaxLength(50)<br />@Matches(/^[a-zA-Z-]+$/, {message: &#x27;firstName can only contain letters and hyphens&#x27;})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:36</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>First name of the user.
-This field is optional, must be a string, and have a length between 3 and 50 characters.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
-</code></pre></div></div>
+This field is optional, must be a string, and have a length between 3 and 50 characters.
+It should not contain any numbers or special characters other than hyphens.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
                 </td>
             </tr>
 
@@ -298,6 +300,7 @@ This field is optional, must be a string, and have a length between 3 and 50 cha
                 <td class="col-md-4">
                     <a name="lastName"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
@@ -319,22 +322,22 @@ This field is optional, must be a string, and have a length between 3 and 50 cha
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@MinLength(3)<br />@MaxLength(50)<br />
+                            @IsString()<br />@MinLength(3)<br />@MaxLength(50)<br />@Matches(/^[a-zA-Z-]+$/, {message: &#x27;lastName can only contain letters and hyphens&#x27;})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:55</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Last name of the user.
-This field is optional, must be a string, and have a length between 3 and 50 characters.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
-</code></pre></div></div>
+This field is optional, must be a string, and have a length between 3 and 50 characters.
+It should not contain any numbers or special characters other than hyphens.</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
                 </td>
             </tr>
 
@@ -372,7 +375,7 @@ This field is optional, must be a string, and have a length between 3 and 50 cha
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:78</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -380,8 +383,7 @@ This field is optional, must be a string, and have a length between 3 and 50 cha
                 <td class="col-md-4">
                     <div class="io-description"><p>Password for the user.
 This field is required, must be a strong password, and have a minimum length of 6 characters.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
-</code></pre></div></div>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
                 </td>
             </tr>
 
@@ -418,7 +420,7 @@ This field is required, must be a strong password, and have a minimum length of 
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:90</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="97" class="link-to-prism">src/modules/auth/dto/signup.dto.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -426,8 +428,7 @@ This field is required, must be a strong password, and have a minimum length of 
                 <td class="col-md-4">
                     <div class="io-description"><p>Role of the user.
 This field is optional and must be a valid enum value of UserRole.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
-</code></pre></div></div>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
                 </td>
             </tr>
 
@@ -452,6 +453,7 @@ import {
   IsOptional,
   IsString,
   IsStrongPassword,
+  Matches,
   MaxLength,
   MinLength
 } from &#x27;class-validator&#x27;;
@@ -465,10 +467,12 @@ export class SignUpDto {
   /**
    * First name of the user.
    * This field is optional, must be a string, and have a length between 3 and 50 characters.
+   * It should not contain any numbers or special characters other than hyphens.
    * @type {string}
    * @isString
    * @minLength 3
    * @maxLength 50
+   * @matches /^[a-zA-Z-]+$/
    *
    * @example
    * const dto: SignUpDto &#x3D; { firstName: &#x27;John&#x27;, lastName: &#x27;Doe&#x27;, email: &#x27;john.doe@example.com&#x27;, password: &#x27;StrongPassword123!&#x27; };
@@ -476,15 +480,18 @@ export class SignUpDto {
   @IsString()
   @MinLength(3)
   @MaxLength(50)
+  @Matches(/^[a-zA-Z-]+$/, { message: &#x27;firstName can only contain letters and hyphens&#x27; })
   readonly firstName?: string;
 
   /**
    * Last name of the user.
    * This field is optional, must be a string, and have a length between 3 and 50 characters.
+   * It should not contain any numbers or special characters other than hyphens.
    * @type {string}
    * @isString
    * @minLength 3
    * @maxLength 50
+   * @matches /^[a-zA-Z-]+$/
    *
    * @example
    * const dto: SignUpDto &#x3D; { firstName: &#x27;John&#x27;, lastName: &#x27;Doe&#x27;, email: &#x27;john.doe@example.com&#x27;, password: &#x27;StrongPassword123!&#x27; };
@@ -492,6 +499,7 @@ export class SignUpDto {
   @IsString()
   @MinLength(3)
   @MaxLength(50)
+  @Matches(/^[a-zA-Z-]+$/, { message: &#x27;lastName can only contain letters and hyphens&#x27; })
   readonly lastName?: string;
 
   /**

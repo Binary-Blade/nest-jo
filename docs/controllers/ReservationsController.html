@@ -152,6 +152,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#findAll" >findAll</a>
                             </li>
                             <li>
@@ -299,6 +300,7 @@
                     <a name="findAll"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>findAll</b></span>
                         <a href="#findAll"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -315,14 +317,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:userId/find-all&#x27;)<br /></code>
+                    <code>@UseGuards(IsCreatorGuard)<br />@Get(&#x27;:id/find-all&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -429,8 +431,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -517,8 +519,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -605,8 +607,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="104"
+                                    class="link-to-prism">src/modules/reservations/reservations.controller.ts:104</a></div>
                         </td>
                     </tr>
 
@@ -689,7 +691,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Post, Param, UseGuards, Query } from &#x27;@nestjs/common&#x27;;
 import { ReservationsService } from &#x27;./reservations.service&#x27;;
 import { UserId } from &#x27;@common/decorators/user-id.decorator&#x27;;
-import { AccessTokenGuard, RoleGuard } from &#x27;@security/guards&#x27;;
+import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from &#x27;@security/guards&#x27;;
 import { Role } from &#x27;@common/decorators/role.decorator&#x27;;
 import { UserRole } from &#x27;@common/enums/user-role.enum&#x27;;
 import { PaginationAndFilterDto } from &#x27;@common/dto/pagination.dto&#x27;;
@@ -738,9 +740,11 @@ export class ReservationsController {
    * @example
    * GET /reservations/1/find-all?page&#x3D;1&amp;limit&#x3D;10&amp;sortBy&#x3D;date&amp;sortOrder&#x3D;ASC
    */
-  @Get(&#x27;:userId/find-all&#x27;)
+
+  @UseGuards(IsCreatorGuard)
+  @Get(&#x27;:id/find-all&#x27;)
   findAll(
-    @Param(&#x27;userId&#x27;) userId: number,
+    @Param(&#x27;id&#x27;) userId: number,
     @Query() paginationDto: PaginationAndFilterDto
   ): Promise&lt;{ reservations: Reservation[]; total: number }&gt; {
     return this.reservationsService.findAll(userId, paginationDto);

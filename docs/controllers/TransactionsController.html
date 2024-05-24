@@ -147,6 +147,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#findAll" >findAll</a>
                             </li>
                         </ul>
@@ -173,6 +174,7 @@
                     <a name="findAll"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>findAll</b></span>
                         <a href="#findAll"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -189,14 +191,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:userId/find-all&#x27;)<br /></code>
+                    <code>@UseGuards(IsCreatorGuard)<br />@Get(&#x27;:id/find-all&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/modules/transactions/transactions.controller.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/modules/transactions/transactions.controller.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -277,7 +279,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Param, UseGuards, Query } from &#x27;@nestjs/common&#x27;;
-import { AccessTokenGuard } from &#x27;@security/guards&#x27;;
+import { AccessTokenGuard, IsCreatorGuard } from &#x27;@security/guards&#x27;;
 import { TransactionsService } from &#x27;./transactions.service&#x27;;
 import { PaginationAndFilterDto } from &#x27;@common/dto/pagination.dto&#x27;;
 import { Transaction } from &#x27;./entities/transaction.entity&#x27;;
@@ -301,9 +303,10 @@ export class TransactionsController {
    * @example
    * GET /transactions/1/find-all?page&#x3D;1&amp;limit&#x3D;10&amp;sortBy&#x3D;createdAt&amp;sortOrder&#x3D;ASC
    */
-  @Get(&#x27;:userId/find-all&#x27;)
+  @UseGuards(IsCreatorGuard)
+  @Get(&#x27;:id/find-all&#x27;)
   findAll(
-    @Param(&#x27;userId&#x27;) userId: number,
+    @Param(&#x27;id&#x27;) userId: number,
     @Query() paginationDto: PaginationAndFilterDto
   ): Promise&lt;{ transactions: Transaction[]; total: number }&gt; {
     return this.transactionsService.findAll(userId, paginationDto);

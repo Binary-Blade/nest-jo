@@ -215,7 +215,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>create(createUserDto: <a href="../classes/CreateUserDto.html" target="_self">CreateUserDto</a>)</code>
+                    <code>create(createUserDto: <a href="../classes/SignUpDto.html" target="_self">SignUpDto</a>)</code>
                 </td>
             </tr>
 
@@ -240,10 +240,10 @@
                         <div class="io-description"><p>Registers a new user.</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-html">POST /auth/signup
 {
- "email": "user@example.com",
- "password": "password123",
- "firstName": "First",
- "lastName": "Last"
+```html
+  &quot;password&quot;: &quot;password123&quot;,
+  &quot;firstName&quot;: &quot;First&quot;,
+  &quot;lastName&quot;: &quot;Last&quot;
 }</code></pre></div></div>
 
                             <div class="io-description">
@@ -262,7 +262,7 @@
                                         <tr>
                                                 <td>createUserDto</td>
                                             <td>
-                                                            <code><a href="../classes/CreateUserDto.html" target="_self" >CreateUserDto</a></code>
+                                                            <code><a href="../classes/SignUpDto.html" target="_self" >SignUpDto</a></code>
                                             </td>
 
                                             <td>
@@ -318,7 +318,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseGuards(AccessTokenGuard)<br />@Delete(&#x27;/delete/:id&#x27;)<br /></code>
+                    <code>@UseGuards(AccessTokenGuard, IsCreatorGuard)<br />@Delete(&#x27;/delete/:id&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -544,8 +544,8 @@
                         <div class="io-description"><p>Logs in a user.</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-html">POST /auth/login
 {
-   "email": "user@example.com",
-   "password": "password123"
+```html
+  &quot;password&quot;: &quot;password123&quot;
 }</code></pre></div></div>
 
                             <div class="io-description">
@@ -948,14 +948,14 @@
   Param
 } from &#x27;@nestjs/common&#x27;;
 import { AuthService } from &#x27;./auth.service&#x27;;
-import { CreateUserDto } from &#x27;@modules/users/dto/create-user.dto&#x27;;
 import { UserId } from &#x27;@common/decorators/user-id.decorator&#x27;;
 import { TokenService } from &#x27;@security/token/token.service&#x27;;
-import { AccessTokenGuard } from &#x27;@security/guards&#x27;;
+import { AccessTokenGuard, IsCreatorGuard } from &#x27;@security/guards&#x27;;
 import { LoginDTO } from &#x27;./dto/login.dto&#x27;;
 import { UpdatePasswordDTO } from &#x27;./dto/update-password.dto&#x27;;
 import { Request, Response } from &#x27;express&#x27;;
 import { User } from &#x27;@modules/users/entities/user.entity&#x27;;
+import { SignUpDto } from &#x27;./dto/signup.dto&#x27;;
 
 /**
  * Controller to manage authentication and user-related operations.
@@ -991,7 +991,7 @@ export class AuthController {
    * }
    */
   @Post(&#x27;signup&#x27;)
-  create(@Body() createUserDto: CreateUserDto): Promise&lt;User&gt; {
+  create(@Body() createUserDto: SignUpDto): Promise&lt;User&gt; {
     return this.authService.signup(createUserDto);
   }
 
@@ -1101,7 +1101,7 @@ export class AuthController {
    * @example
    * DELETE /auth/delete/1
    */
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, IsCreatorGuard)
   @Delete(&#x27;/delete/:id&#x27;)
   delete(@Param(&#x27;id&#x27;) id: string, @Res() response: Response): Promise&lt;void&gt; {
     return this.authService.delete(+id, response);

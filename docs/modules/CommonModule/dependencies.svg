@@ -24,167 +24,167 @@
 <title>cluster_CommonModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1168,-268 1168,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_CommonModule_providers</title>
-<polygon fill="none" stroke="black" points="132,-78 132,-130 1160,-130 1160,-78 132,-78"/>
+<g id="clust4" class="cluster">
+<title>cluster_CommonModule_exports</title>
+<polygon fill="none" stroke="black" points="294,-208 294,-260 937,-260 937,-208 294,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_CommonModule_imports</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 124,-130 124,-78 16,-78"/>
+<polygon fill="none" stroke="black" points="1052,-78 1052,-130 1160,-130 1160,-78 1052,-78"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_CommonModule_exports</title>
-<polygon fill="none" stroke="black" points="228,-208 228,-260 871,-260 871,-208 228,-208"/>
+<g id="clust6" class="cluster">
+<title>cluster_CommonModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 1044,-130 1044,-78 16,-78"/>
 </g>
 <!-- RedisModule -->
 <g id="node1" class="node">
 <title>RedisModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="115.94,-122 112.94,-126 91.94,-126 88.94,-122 24.06,-122 24.06,-86 115.94,-86 115.94,-122"/>
-<text text-anchor="middle" x="70" y="-99.8" font-family="Times,serif" font-size="14.00">RedisModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="1151.94,-122 1148.94,-126 1127.94,-126 1124.94,-122 1060.06,-122 1060.06,-86 1151.94,-86 1151.94,-122"/>
+<text text-anchor="middle" x="1106" y="-99.8" font-family="Times,serif" font-size="14.00">RedisModule</text>
 </g>
 <!-- CommonModule -->
 <g id="node2" class="node">
 <title>CommonModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="569.67,-187 566.67,-191 545.67,-191 542.67,-187 458.33,-187 458.33,-151 569.67,-151 569.67,-187"/>
-<text text-anchor="middle" x="514" y="-164.8" font-family="Times,serif" font-size="14.00">CommonModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="635.67,-187 632.67,-191 611.67,-191 608.67,-187 524.33,-187 524.33,-151 635.67,-151 635.67,-187"/>
+<text text-anchor="middle" x="580" y="-164.8" font-family="Times,serif" font-size="14.00">CommonModule</text>
 </g>
 <!-- RedisModule&#45;&gt;CommonModule -->
 <g id="edge1" class="edge">
 <title>RedisModule&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M70,-122.11C70,-141.34 70,-169 70,-169 70,-169 448.22,-169 448.22,-169"/>
-<polygon fill="black" stroke="black" points="448.22,-172.5 458.22,-169 448.22,-165.5 448.22,-172.5"/>
+<path fill="none" stroke="black" d="M1106,-122.11C1106,-141.34 1106,-169 1106,-169 1106,-169 645.79,-169 645.79,-169"/>
+<polygon fill="black" stroke="black" points="645.79,-165.5 635.79,-169 645.79,-172.5 645.79,-165.5"/>
 </g>
 <!-- ConvertUtilsService  -->
 <g id="node3" class="node">
 <title>ConvertUtilsService </title>
-<polygon fill="#fb8072" stroke="black" points="862.8,-252 729.2,-252 729.2,-216 862.8,-216 862.8,-252"/>
-<text text-anchor="middle" x="796" y="-229.8" font-family="Times,serif" font-size="14.00">ConvertUtilsService </text>
+<polygon fill="#fb8072" stroke="black" points="928.8,-252 795.2,-252 795.2,-216 928.8,-216 928.8,-252"/>
+<text text-anchor="middle" x="862" y="-229.8" font-family="Times,serif" font-size="14.00">ConvertUtilsService </text>
 </g>
 <!-- CommonModule&#45;&gt;ConvertUtilsService  -->
 <g id="edge2" class="edge">
 <title>CommonModule&#45;&gt;ConvertUtilsService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M569.8,-175C639.42,-175 749.44,-175 749.44,-175 749.44,-175 749.44,-205.98 749.44,-205.98"/>
-<polygon fill="black" stroke="black" points="745.94,-205.98 749.44,-215.98 752.94,-205.98 745.94,-205.98"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M635.75,-175C705.67,-175 816.5,-175 816.5,-175 816.5,-175 816.5,-205.98 816.5,-205.98"/>
+<polygon fill="black" stroke="black" points="813,-205.98 816.5,-215.98 820,-205.98 813,-205.98"/>
 </g>
 <!-- EncryptionService  -->
 <g id="node4" class="node">
 <title>EncryptionService </title>
-<polygon fill="#fb8072" stroke="black" points="710.69,-252 587.31,-252 587.31,-216 710.69,-216 710.69,-252"/>
-<text text-anchor="middle" x="649" y="-229.8" font-family="Times,serif" font-size="14.00">EncryptionService </text>
+<polygon fill="#fb8072" stroke="black" points="776.69,-252 653.31,-252 653.31,-216 776.69,-216 776.69,-252"/>
+<text text-anchor="middle" x="715" y="-229.8" font-family="Times,serif" font-size="14.00">EncryptionService </text>
 </g>
 <!-- CommonModule&#45;&gt;EncryptionService  -->
 <g id="edge3" class="edge">
 <title>CommonModule&#45;&gt;EncryptionService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M569.9,-181C584.28,-181 595.78,-181 595.78,-181 595.78,-181 595.78,-205.76 595.78,-205.76"/>
-<polygon fill="black" stroke="black" points="592.28,-205.76 595.78,-215.76 599.28,-205.76 592.28,-205.76"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M635.78,-181C650.79,-181 662.94,-181 662.94,-181 662.94,-181 662.94,-205.76 662.94,-205.76"/>
+<polygon fill="black" stroke="black" points="659.44,-205.76 662.94,-215.76 666.44,-205.76 659.44,-205.76"/>
 </g>
 <!-- PaymentService  -->
 <g id="node5" class="node">
 <title>PaymentService </title>
-<polygon fill="#fb8072" stroke="black" points="569.47,-252 458.53,-252 458.53,-216 569.47,-216 569.47,-252"/>
-<text text-anchor="middle" x="514" y="-229.8" font-family="Times,serif" font-size="14.00">PaymentService </text>
+<polygon fill="#fb8072" stroke="black" points="635.47,-252 524.53,-252 524.53,-216 635.47,-216 635.47,-252"/>
+<text text-anchor="middle" x="580" y="-229.8" font-family="Times,serif" font-size="14.00">PaymentService </text>
 </g>
 <!-- CommonModule&#45;&gt;PaymentService  -->
 <g id="edge4" class="edge">
 <title>CommonModule&#45;&gt;PaymentService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M514,-187.11C514,-187.11 514,-205.99 514,-205.99"/>
-<polygon fill="black" stroke="black" points="510.5,-205.99 514,-215.99 517.5,-205.99 510.5,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M580,-187.11C580,-187.11 580,-205.99 580,-205.99"/>
+<polygon fill="black" stroke="black" points="576.5,-205.99 580,-215.99 583.5,-205.99 576.5,-205.99"/>
 </g>
 <!-- RedisService  -->
 <g id="node6" class="node">
 <title>RedisService </title>
-<polygon fill="#fb8072" stroke="black" points="440.86,-252 347.14,-252 347.14,-216 440.86,-216 440.86,-252"/>
-<text text-anchor="middle" x="394" y="-229.8" font-family="Times,serif" font-size="14.00">RedisService </text>
+<polygon fill="#fb8072" stroke="black" points="506.86,-252 413.14,-252 413.14,-216 506.86,-216 506.86,-252"/>
+<text text-anchor="middle" x="460" y="-229.8" font-family="Times,serif" font-size="14.00">RedisService </text>
 </g>
 <!-- CommonModule&#45;&gt;RedisService  -->
 <g id="edge5" class="edge">
 <title>CommonModule&#45;&gt;RedisService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M458.04,-181C443.66,-181 432.14,-181 432.14,-181 432.14,-181 432.14,-205.76 432.14,-205.76"/>
-<polygon fill="black" stroke="black" points="428.64,-205.76 432.14,-215.76 435.64,-205.76 428.64,-205.76"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M523.92,-181C509.18,-181 497.3,-181 497.3,-181 497.3,-181 497.3,-205.76 497.3,-205.76"/>
+<polygon fill="black" stroke="black" points="493.8,-205.76 497.3,-215.76 500.8,-205.76 493.8,-205.76"/>
 </g>
 <!-- UsersService  -->
 <g id="node7" class="node">
 <title>UsersService </title>
-<polygon fill="#fb8072" stroke="black" points="329.85,-252 236.15,-252 236.15,-216 329.85,-216 329.85,-252"/>
-<text text-anchor="middle" x="283" y="-229.8" font-family="Times,serif" font-size="14.00">UsersService </text>
+<polygon fill="#fb8072" stroke="black" points="395.85,-252 302.15,-252 302.15,-216 395.85,-216 395.85,-252"/>
+<text text-anchor="middle" x="349" y="-229.8" font-family="Times,serif" font-size="14.00">UsersService </text>
 </g>
 <!-- CommonModule&#45;&gt;UsersService  -->
 <g id="edge6" class="edge">
 <title>CommonModule&#45;&gt;UsersService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M458.22,-175C396.56,-175 305.84,-175 305.84,-175 305.84,-175 305.84,-205.98 305.84,-205.98"/>
-<polygon fill="black" stroke="black" points="302.34,-205.98 305.84,-215.98 309.34,-205.98 302.34,-205.98"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M524.14,-175C456.53,-175 351.64,-175 351.64,-175 351.64,-175 351.64,-205.98 351.64,-205.98"/>
+<polygon fill="black" stroke="black" points="348.14,-205.98 351.64,-215.98 355.14,-205.98 348.14,-205.98"/>
 </g>
 <!-- ConvertUtilsService -->
 <g id="node8" class="node">
 <title>ConvertUtilsService</title>
-<ellipse fill="#fdb462" stroke="black" cx="1062" cy="-104" rx="89.76" ry="18"/>
-<text text-anchor="middle" x="1062" y="-99.8" font-family="Times,serif" font-size="14.00">ConvertUtilsService</text>
+<ellipse fill="#fdb462" stroke="black" cx="946" cy="-104" rx="89.76" ry="18"/>
+<text text-anchor="middle" x="946" y="-99.8" font-family="Times,serif" font-size="14.00">ConvertUtilsService</text>
 </g>
 <!-- ConvertUtilsService&#45;&gt;CommonModule -->
 <g id="edge7" class="edge">
 <title>ConvertUtilsService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M1062,-122.11C1062,-141.34 1062,-169 1062,-169 1062,-169 579.82,-169 579.82,-169"/>
-<polygon fill="black" stroke="black" points="579.82,-165.5 569.82,-169 579.82,-172.5 579.82,-165.5"/>
+<path fill="none" stroke="black" d="M892.51,-118.58C892.51,-136.06 892.51,-163 892.51,-163 892.51,-163 645.87,-163 645.87,-163"/>
+<polygon fill="black" stroke="black" points="645.87,-159.5 635.87,-163 645.87,-166.5 645.87,-159.5"/>
 </g>
 <!-- EncryptionService -->
 <g id="node9" class="node">
 <title>EncryptionService</title>
-<ellipse fill="#fdb462" stroke="black" cx="871" cy="-104" rx="82.81" ry="18"/>
-<text text-anchor="middle" x="871" y="-99.8" font-family="Times,serif" font-size="14.00">EncryptionService</text>
+<ellipse fill="#fdb462" stroke="black" cx="755" cy="-104" rx="82.81" ry="18"/>
+<text text-anchor="middle" x="755" y="-99.8" font-family="Times,serif" font-size="14.00">EncryptionService</text>
 </g>
 <!-- EncryptionService&#45;&gt;CommonModule -->
 <g id="edge8" class="edge">
 <title>EncryptionService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M825.5,-119.19C825.5,-136.68 825.5,-163 825.5,-163 825.5,-163 579.69,-163 579.69,-163"/>
-<polygon fill="black" stroke="black" points="579.69,-159.5 569.69,-163 579.69,-166.5 579.69,-159.5"/>
+<path fill="none" stroke="black" d="M724.47,-120.77C724.47,-136.3 724.47,-157 724.47,-157 724.47,-157 645.86,-157 645.86,-157"/>
+<polygon fill="black" stroke="black" points="645.86,-153.5 635.86,-157 645.86,-160.5 645.86,-153.5"/>
 </g>
 <!-- PaymentService -->
 <g id="node10" class="node">
 <title>PaymentService</title>
-<ellipse fill="#fdb462" stroke="black" cx="696" cy="-104" rx="73.57" ry="18"/>
-<text text-anchor="middle" x="696" y="-99.8" font-family="Times,serif" font-size="14.00">PaymentService</text>
+<ellipse fill="#fdb462" stroke="black" cx="580" cy="-104" rx="73.57" ry="18"/>
+<text text-anchor="middle" x="580" y="-99.8" font-family="Times,serif" font-size="14.00">PaymentService</text>
 </g>
 <!-- PaymentService&#45;&gt;CommonModule -->
 <g id="edge9" class="edge">
 <title>PaymentService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M666.53,-120.77C666.53,-136.3 666.53,-157 666.53,-157 666.53,-157 579.93,-157 579.93,-157"/>
-<polygon fill="black" stroke="black" points="579.93,-153.5 569.93,-157 579.93,-160.5 579.93,-153.5"/>
+<path fill="none" stroke="black" d="M580,-122.11C580,-122.11 580,-140.99 580,-140.99"/>
+<polygon fill="black" stroke="black" points="576.5,-140.99 580,-150.99 583.5,-140.99 576.5,-140.99"/>
 </g>
 <!-- QueryHelperService -->
 <g id="node11" class="node">
 <title>QueryHelperService</title>
-<ellipse fill="#fdb462" stroke="black" cx="514" cy="-104" rx="90.29" ry="18"/>
-<text text-anchor="middle" x="514" y="-99.8" font-family="Times,serif" font-size="14.00">QueryHelperService</text>
+<ellipse fill="#fdb462" stroke="black" cx="398" cy="-104" rx="90.29" ry="18"/>
+<text text-anchor="middle" x="398" y="-99.8" font-family="Times,serif" font-size="14.00">QueryHelperService</text>
 </g>
 <!-- QueryHelperService&#45;&gt;CommonModule -->
 <g id="edge10" class="edge">
 <title>QueryHelperService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M514,-122.11C514,-122.11 514,-140.99 514,-140.99"/>
-<polygon fill="black" stroke="black" points="510.5,-140.99 514,-150.99 517.5,-140.99 510.5,-140.99"/>
+<path fill="none" stroke="black" d="M450.86,-118.76C450.86,-134.45 450.86,-157 450.86,-157 450.86,-157 514.11,-157 514.11,-157"/>
+<polygon fill="black" stroke="black" points="514.11,-160.5 524.11,-157 514.11,-153.5 514.11,-160.5"/>
 </g>
 <!-- RedisService -->
 <g id="node12" class="node">
 <title>RedisService</title>
-<ellipse fill="#fdb462" stroke="black" cx="344" cy="-104" rx="61.97" ry="18"/>
-<text text-anchor="middle" x="344" y="-99.8" font-family="Times,serif" font-size="14.00">RedisService</text>
+<ellipse fill="#fdb462" stroke="black" cx="228" cy="-104" rx="61.97" ry="18"/>
+<text text-anchor="middle" x="228" y="-99.8" font-family="Times,serif" font-size="14.00">RedisService</text>
 </g>
 <!-- RedisService&#45;&gt;CommonModule -->
 <g id="edge11" class="edge">
 <title>RedisService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M376.65,-119.33C376.65,-134.98 376.65,-157 376.65,-157 376.65,-157 448.14,-157 448.14,-157"/>
-<polygon fill="black" stroke="black" points="448.14,-160.5 458.14,-157 448.14,-153.5 448.14,-160.5"/>
+<path fill="none" stroke="black" d="M228,-122.02C228,-139.37 228,-163 228,-163 228,-163 514.22,-163 514.22,-163"/>
+<polygon fill="black" stroke="black" points="514.22,-166.5 524.22,-163 514.22,-159.5 514.22,-166.5"/>
 </g>
 <!-- UsersService -->
 <g id="node13" class="node">
 <title>UsersService</title>
-<ellipse fill="#fdb462" stroke="black" cx="202" cy="-104" rx="61.95" ry="18"/>
-<text text-anchor="middle" x="202" y="-99.8" font-family="Times,serif" font-size="14.00">UsersService</text>
+<ellipse fill="#fdb462" stroke="black" cx="86" cy="-104" rx="61.95" ry="18"/>
+<text text-anchor="middle" x="86" y="-99.8" font-family="Times,serif" font-size="14.00">UsersService</text>
 </g>
 <!-- UsersService&#45;&gt;CommonModule -->
 <g id="edge12" class="edge">
 <title>UsersService&#45;&gt;CommonModule</title>
-<path fill="none" stroke="black" d="M250.15,-115.38C250.15,-132.52 250.15,-163 250.15,-163 250.15,-163 448.04,-163 448.04,-163"/>
-<polygon fill="black" stroke="black" points="448.04,-166.5 458.04,-163 448.04,-159.5 448.04,-166.5"/>
+<path fill="none" stroke="black" d="M86,-122.11C86,-141.34 86,-169 86,-169 86,-169 514.29,-169 514.29,-169"/>
+<polygon fill="black" stroke="black" points="514.29,-172.5 524.29,-169 514.29,-165.5 514.29,-172.5"/>
 </g>
 </g>
 </svg>

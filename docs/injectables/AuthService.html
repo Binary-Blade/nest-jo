@@ -452,8 +452,7 @@
             <tr>
                 <td class="col-md-4">
                         <div class="io-description"><p>Logs in a user.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-html">await authService.login('user@example.com', 'password123', res);
-</code></pre></div></div>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html">```html</code></pre></div></div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -647,7 +646,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>signup(createUserDto: <a href="../classes/CreateUserDto.html" target="_self">CreateUserDto</a>, role: <a href="../undefineds/UserRole.html" target="_self">UserRole</a>)</code>
+                    <code>signup(createUserDto: <a href="../classes/SignUpDto.html" target="_self">SignUpDto</a>, role: <a href="../undefineds/UserRole.html" target="_self">UserRole</a>)</code>
                 </td>
             </tr>
 
@@ -682,7 +681,7 @@
                                         <tr>
                                                 <td>createUserDto</td>
                                             <td>
-                                                            <code><a href="../classes/CreateUserDto.html" target="_self" >CreateUserDto</a></code>
+                                                            <code><a href="../classes/SignUpDto.html" target="_self" >SignUpDto</a></code>
                                             </td>
 
                                             <td>
@@ -867,7 +866,6 @@ import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
 import { User } from &#x27;@modules/users/entities/user.entity&#x27;;
 import { InvalidCredentialsException } from &#x27;@common/exceptions/invalid-credentials.exception&#x27;;
-import { CreateUserDto } from &#x27;@modules/users/dto&#x27;;
 import { TokenService } from &#x27;@security/token/token.service&#x27;;
 import { EncryptionService } from &#x27;@security/encryption/encryption.service&#x27;;
 import { UserRole } from &#x27;@common/enums/user-role.enum&#x27;;
@@ -875,6 +873,7 @@ import { Response } from &#x27;express&#x27;;
 import { CookieService } from &#x27;@security/cookie/cookie.service&#x27;;
 import { RefreshTokenStoreService } from &#x27;@security/token/refreshtoken-store.service&#x27;;
 import { CartsService } from &#x27;@modules/carts/carts.service&#x27;;
+import { SignUpDto } from &#x27;./dto/signup.dto&#x27;;
 
 /**
  * Service to manage authentication and user-related operations.
@@ -914,7 +913,7 @@ export class AuthService {
    * @example
    * const user &#x3D; await authService.signup(createUserDto);
    */
-  async signup(createUserDto: CreateUserDto, role: UserRole &#x3D; UserRole.USER): Promise&lt;User&gt; {
+  async signup(createUserDto: SignUpDto, role: UserRole &#x3D; UserRole.USER): Promise&lt;User&gt; {
     const normalizedEmail &#x3D; createUserDto.email.toLowerCase();
     const existingUser &#x3D; await this.usersRepository.findOneBy({ email: normalizedEmail });
     if (existingUser) {

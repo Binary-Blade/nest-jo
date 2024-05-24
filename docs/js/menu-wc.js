@@ -505,9 +505,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/CreateTransactionDto.html" data-type="entity-link" >CreateTransactionDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/CreateUserDto.html" data-type="entity-link" >CreateUserDto</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/HttpExceptionFilter.html" data-type="entity-link" >HttpExceptionFilter</a>
                             </li>
                             <li class="link">
