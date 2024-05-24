@@ -12,14 +12,14 @@ import {
   Param
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '@modules/users/dto/create-user.dto';
 import { UserId } from '@common/decorators/user-id.decorator';
 import { TokenService } from '@security/token/token.service';
-import { AccessTokenGuard } from '@security/guards';
+import { AccessTokenGuard, IsCreatorGuard } from '@security/guards';
 import { LoginDTO } from './dto/login.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
 import { Request, Response } from 'express';
 import { User } from '@modules/users/entities/user.entity';
+import { SignUpDto } from './dto/signup.dto';
 
 /**
  * Controller to manage authentication and user-related operations.
@@ -55,7 +55,7 @@ export class AuthController {
    * }
    */
   @Post('signup')
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  create(@Body() createUserDto: SignUpDto): Promise<User> {
     return this.authService.signup(createUserDto);
   }
 
@@ -165,7 +165,7 @@ export class AuthController {
    * @example
    * DELETE /auth/delete/1
    */
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, IsCreatorGuard)
   @Delete('/delete/:id')
   delete(@Param('id') id: string, @Res() response: Response): Promise<void> {
     return this.authService.delete(+id, response);

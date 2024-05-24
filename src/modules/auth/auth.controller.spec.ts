@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TokenService } from '@security/token/token.service';
-import { CreateUserDto } from '@modules/users/dto/create-user.dto';
+import { SignUpDto } from '@modules/auth/dto/signup.dto';
 import { LoginDTO } from './dto/login.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
 import { AccessTokenGuard } from '@security/guards';
@@ -50,7 +50,7 @@ describe('AuthController', () => {
 
   describe('create', () => {
     it('should call AuthService.signup with correct parameters', async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserDto: SignUpDto = {
         email: 'test@example.com',
         password: 'password123'
       };

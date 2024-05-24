@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+import { IsNotEmpty, IsString, IsStrongPassword, MinLength } from 'class-validator';
 
 /**
  * Data Transfer Object (DTO) for updating a user's password.
@@ -31,6 +31,7 @@ export class UpdatePasswordDTO {
    * const dto: UpdatePasswordDTO = { oldPassword: 'OldPassword123!', newPassword: 'NewStrongPassword123!' };
    */
   @IsNotEmpty()
+  @MinLength(6)
   @IsStrongPassword()
   readonly newPassword: string;
 }

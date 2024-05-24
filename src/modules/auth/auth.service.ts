@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@modules/users/entities/user.entity';
 import { InvalidCredentialsException } from '@common/exceptions/invalid-credentials.exception';
-import { CreateUserDto } from '@modules/users/dto';
 import { TokenService } from '@security/token/token.service';
 import { EncryptionService } from '@security/encryption/encryption.service';
 import { UserRole } from '@common/enums/user-role.enum';
@@ -16,6 +15,7 @@ import { Response } from 'express';
 import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
 import { CartsService } from '@modules/carts/carts.service';
+import { SignUpDto } from './dto/signup.dto';
 
 /**
  * Service to manage authentication and user-related operations.
@@ -55,7 +55,7 @@ export class AuthService {
    * @example
    * const user = await authService.signup(createUserDto);
    */
-  async signup(createUserDto: CreateUserDto, role: UserRole = UserRole.USER): Promise<User> {
+  async signup(createUserDto: SignUpDto, role: UserRole = UserRole.USER): Promise<User> {
     const normalizedEmail = createUserDto.email.toLowerCase();
     const existingUser = await this.usersRepository.findOneBy({ email: normalizedEmail });
     if (existingUser) {

@@ -1,5 +1,5 @@
 import { Controller, Get, Param, UseGuards, Query } from '@nestjs/common';
-import { AccessTokenGuard } from '@security/guards';
+import { AccessTokenGuard, IsCreatorGuard } from '@security/guards';
 import { TransactionsService } from './transactions.service';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
 import { Transaction } from './entities/transaction.entity';
@@ -23,9 +23,10 @@ export class TransactionsController {
    * @example
    * GET /transactions/1/find-all?page=1&limit=10&sortBy=createdAt&sortOrder=ASC
    */
-  @Get(':userId/find-all')
+  @UseGuards(IsCreatorGuard)
+  @Get(':id/find-all')
   findAll(
-    @Param('userId') userId: number,
+    @Param('id') userId: number,
     @Query() paginationDto: PaginationAndFilterDto
   ): Promise<{ transactions: Transaction[]; total: number }> {
     return this.transactionsService.findAll(userId, paginationDto);

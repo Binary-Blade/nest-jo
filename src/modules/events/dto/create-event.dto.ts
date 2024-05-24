@@ -1,5 +1,5 @@
 import { CategoryEventTypeEnum } from '@common/enums/category-type.enum';
-import { IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 /**
  * Data Transfer Object (DTO) for creating an event.

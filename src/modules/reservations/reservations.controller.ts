@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Param, UseGuards, Query } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { UserId } from '@common/decorators/user-id.decorator';
-import { AccessTokenGuard, RoleGuard } from '@security/guards';
+import { AccessTokenGuard, IsCreatorGuard, RoleGuard } from '@security/guards';
 import { Role } from '@common/decorators/role.decorator';
 import { UserRole } from '@common/enums/user-role.enum';
 import { PaginationAndFilterDto } from '@common/dto/pagination.dto';
@@ -50,9 +50,11 @@ export class ReservationsController {
    * @example
    * GET /reservations/1/find-all?page=1&limit=10&sortBy=date&sortOrder=ASC
    */
-  @Get(':userId/find-all')
+
+  @UseGuards(IsCreatorGuard)
+  @Get(':id/find-all')
   findAll(
-    @Param('userId') userId: number,
+    @Param('id') userId: number,
     @Query() paginationDto: PaginationAndFilterDto
   ): Promise<{ reservations: Reservation[]; total: number }> {
     return this.reservationsService.findAll(userId, paginationDto);

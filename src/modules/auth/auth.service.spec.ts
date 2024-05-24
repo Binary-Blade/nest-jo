@@ -7,7 +7,7 @@ import { EncryptionService } from '@security/encryption/encryption.service';
 import { TokenService } from '@security/token/token.service';
 import { CookieService } from '@security/cookie/cookie.service';
 import { RefreshTokenStoreService } from '@security/token/refreshtoken-store.service';
-import { CreateUserDto } from '@modules/users/dto/create-user.dto';
+import { SignUpDto } from '@modules/auth/dto/signup.dto';
 import { UserRole } from '@common/enums/user-role.enum';
 import { InvalidCredentialsException } from '@common/exceptions/invalid-credentials.exception';
 import { UnauthorizedException, NotFoundException, HttpException } from '@nestjs/common';
@@ -78,7 +78,7 @@ describe('AuthService', () => {
 
   describe('signup', () => {
     it('should successfully sign up a new user', async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserDto: SignUpDto = {
         email: 'test@example.com',
         password: 'password123'
       };
@@ -109,7 +109,7 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException if email already exists', async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserDto: SignUpDto = {
         email: 'test@example.com',
         password: 'password123'
       };
