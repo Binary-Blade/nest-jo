@@ -1535,34 +1535,156 @@
 
 <hr>
 <h2>Getting Started</h2>
-<p><strong>System Requirements:</strong></p>
+
+<h3>System Requirements:</h3>
 <ul>
-<li><strong>TypeScript</strong>: <code>version x.y.z</code></li>
+  <li><strong>TypeScript</strong>: <code>version x.y.z</code></li>
+  <li><strong>Docker & Docker Compose</strong></li>
+  <li><strong>Node.js</strong></li>
+  <li><strong>NestJS CLI</strong></li>
 </ul>
+
 <h3>Installation</h3>
 <h4>From <code>source</code></h4>
 
 <blockquote>
-<ol>
-<li>Clone the nest-jo repository:</li>
-</ol>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ git clone https://github.com/Binary-Blade/nest-jo</code></pre></div><ol start="2">
-<li>Change to the project directory:</li>
-</ol>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ cd nest-jo</code></pre></div><ol start="3">
-<li>Install the dependencies:</li>
-</ol>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm install</code></pre></div></blockquote>
-<h3>Usage</h3>
-<h4>From <code>source</code></h4>
+  <ol>
+    <li>Clone the nest-jo repository:</li>
+  </ol>
+  <b>Example :</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ git clone https://github.com/Binary-Blade/nest-jo</code>
+    </pre>
+  </div>
+  <ol start="2">
+    <li>Change to the project directory:</li>
+  </ol>
+  <b>Example :</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ cd nest-jo</code>
+    </pre>
+  </div>
+  <ol start="3">
+    <li>Install the dependencies:</li>
+  </ol>
+  <b>Example :</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ pnpm install</code>
+    </pre>
+  </div>
+
+  <ol start="4">
+    <li>Configure environment variables:<br> Rename the <code>.development.env.example</code> and <code>.production.env.example</code> files to <code>.development.env</code> and <code>.production.env</code>, then update these files with your connection information.</li>
+  </ol>
+  <b>Example configuration:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-env">
+# POSTGRES Docker 
+PGHOST=dev-postgres-host
+PGPORT=5432
+PGDATABASE=dev_database
+PGUSER=dev_user
+PGPASSWORD=dev_password
+
+# Redis configuration
+REDIS_HOST=dev-redis-host
+REDIS_PORT=6379
+REDIS_PASSWORD=dev_redis_password
+
+# JWT Configuration
+JWT_ACCESS_TOKEN_SECRET=dev_access_token_secret
+JWT_ACCESS_TOKEN_EXPIRATION=20m
+JWT_REFRESH_TOKEN_SECRET=dev_refresh_token_secret
+JWT_REFRESH_TOKEN_EXPIRATION=30d
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Frontend connection
+FRONTEND_URL=http://localhost:5173
+      </code>
+    </pre>
+  </div>
+</blockquote>
+
+<h4>Use Docker containers for development or production:</h4>
+<p>Using commands via Makefile</p>
 
 <blockquote>
-<p>Run nest-jo using the command below:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm run build &amp;&amp; node dist/main.js</code></pre></div></blockquote>
-<h3>Tests</h3>
+  <h5>Development</h5>
+  <p>To start the containers in development mode:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make dev</code>
+    </pre>
+  </div>
+  <p>To stop the development containers:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make clean-d</code>
+    </pre>
+  </div>
+
+  <h5>Production</h5>
+  <p>To start the containers in production mode:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make prod</code>
+    </pre>
+  </div>
+  <p>To stop the production containers:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make clean-p</code>
+    </pre>
+  </div>
+</blockquote>
+
+<h4>Run database migrations:</h4>
 <blockquote>
-<p>Run the test suite using the command below:</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-console">$ npm test</code></pre></div></blockquote>
+  <p>Create a new migration:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make migrate-create</code>
+    </pre>
+  </div>
+  <p>Run the migrations:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make migrate-run</code>
+    </pre>
+  </div>
+  <p>Revert the last migration:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make migrate-revert</code>
+    </pre>
+  </div>
+</blockquote>
+
+<h4>Run tests:</h4>
+<blockquote>
+  <p>Run the test suite using the command below:</p>
+  <b>Example:</b>
+  <div>
+    <pre class="line-numbers">
+      <code class="language-console">$ make test</code>
+    </pre>
+  </div>
+</blockquote>
+
 <hr>
 <h2>Project Roadmap</h2>
 <ul>
