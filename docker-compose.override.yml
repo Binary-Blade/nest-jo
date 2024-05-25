@@ -15,14 +15,14 @@ services:
       - .development.env
 
   postgres:
-    container_name: postgres-jo-dev
+    container_name: ${PGHOST}
     environment:
       POSTGRES_USER: ${PGUSER}
       POSTGRES_PASSWORD: ${PGPASSWORD}
       POSTGRES_DB: ${PGDATABASE}
 
   redis:
-    container_name: redis-jo-dev
+    container_name: ${REDIS_HOST}
     command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}

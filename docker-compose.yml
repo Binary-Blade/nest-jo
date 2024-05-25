@@ -38,6 +38,7 @@ services:
 # Setup the Redis cache service.
   redis:
     image: redis:alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes
     ports:
       - "6379:6379"
     networks:
