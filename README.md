@@ -601,43 +601,88 @@ Nest-Jo is a robust open-source project aimed at simplifying and optimizing the 
 **System Requirements:**
 
 * **TypeScript**: `version x.y.z`
+* **Docker & Docker Compose**
+* **Nodejs**
+* **Nestjs CLI**
 
-###  Installation
+## Installation
+### 1. Clone the Git repository:
+   ```sh
+   git clone https://github.com/Binary-Blade/nest-jo
+   cd nest-jo
+   ```
+### 2. Install backend dependencies:
+   ```sh
+   pnpm install
+   ```
+### 3. Configure environment variables:
+Rename the **.development.env.example** and **.production.env.example** files to **.development.env** and **.production.env**, then update these files with your connection information.
+#### Example configuration:
+   ```env
+    # POSTGRES Docker 
+    PGHOST=dev-postgres-host
+    PGPORT=5432
+    PGDATABASE=dev_database
+    PGUSER=dev_user
+    PGPASSWORD=dev_password
 
-<h4>From <code>source</code></h4>
+    # Redis configuration
+    REDIS_HOST=dev-redis-host
+    REDIS_PORT=6379
+    REDIS_PASSWORD=dev_redis_password
 
-> 1. Clone the nest-jo repository:
->
-> ```console
-> $ git clone https://github.com/Binary-Blade/nest-jo
-> ```
->
-> 2. Change to the project directory:
-> ```console
-> $ cd nest-jo
-> ```
->
-> 3. Install the dependencies:
-> ```console
-> $ npm install
-> ```
+    # JWT Configuration
+    JWT_ACCESS_TOKEN_SECRET=dev_access_token_secret
+    JWT_ACCESS_TOKEN_EXPIRATION=20m
+    JWT_REFRESH_TOKEN_SECRET=dev_refresh_token_secret
+    JWT_REFRESH_TOKEN_EXPIRATION=30d
 
-###  Usage
+    # Server Configuration
+    PORT=3000
+    NODE_ENV=development
 
-<h4>From <code>source</code></h4>
+    # Frontend connection
+    FRONTEND_URL=http://localhost:5173
+   ```
+### 4. Use Docker containers for development or production:
+Using commands via Makefile
+#### Development
+   To start the containers in development mode:
+   ```sh
+   make dev
+   ```
+   To stop the development containers:
+   ```sh
+   make clean-d
+   ```
+#### Production
+   To start the containers in production mode:
+   ```sh
+   make prod
+   ```
+   To stop the production containers:
+   ```sh
+   make clean-p
+   ```
+### 5. Run database migrations:
+   - Create a new migration:
+     ```sh
+     make migrate-create
+     ```
+   - Run the migrations:
+     ```sh
+     make migrate-run
+     ```
+   - Revert the last migration:
+     ```sh
+     make migrate-revert
+     ```
+### 6. Run tests:
 
-> Run nest-jo using the command below:
-> ```console
-> $ npm run build && node dist/main.js
-> ```
-
-###  Tests
-
-> Run the test suite using the command below:
-> ```console
-> $ npm test
-> ```
-
+   - Unit tests:
+     ```sh
+     make test
+     ```
 ---
 
 ##  Project Roadmap
