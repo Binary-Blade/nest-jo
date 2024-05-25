@@ -55,4 +55,4 @@ clean-p:
 	@echo "Stopping production containers..."
 	docker-compose --env-file .production.env -f docker-compose.prod.yml down 
 
-.PHONY: migrate-create migrate-run migrat je-revert test e2e redis-cli dev clean-d prod clean-p
+.PHONY: migrate-create migrate-run migrate-revert test e2e redis-cli dev clean-d prod clean-p
