@@ -20,13 +20,13 @@ export class UpdateUserDto {
    * This field is optional, must be a string, and have a length between 3 and 50 characters.
    * It should not contain any numbers or special characters other than hyphens.
    * @type {string}
-   * @isString
-   * @minLength 3
-   * @maxLength 50
-   * @matches /^[a-zA-Z-]+$/
+   * @IsString
+   * @MinLength 3
+   * @MaxLength 50
+   * @Matches /^[a-zA-Z-]+$/
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = { firstName: 'John' };
    */
   @IsString()
   @IsOptional()
@@ -40,13 +40,14 @@ export class UpdateUserDto {
    * This field is optional, must be a string, and have a length between 3 and 50 characters.
    * It should not contain any numbers or special characters other than hyphens.
    * @type {string}
-   * @isString
-   * @minLength 3
-   * @maxLength 50
-   * @matches /^[a-zA-Z-]+$/
+   * @IsString
+   * @IsOptional
+   * @MinLength 3
+   * @MaxLength 50
+   * @Matches /^[a-zA-Z-]+$/
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = {  lastName: 'Doe' };
    */
   @IsString()
   @IsOptional()
@@ -58,12 +59,14 @@ export class UpdateUserDto {
   /**
    * Email address of the user.
    * This field is required and must be a valid email address.
+   *
    * @type {string}
-   * @isNotEmpty
-   * @isEmail
+   * @IsNotEmpty
+   * @IsOptional
+   * @IsEmail
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = {  email: 'john.doe@example.com' };
    */
   @IsNotEmpty()
   @IsOptional()

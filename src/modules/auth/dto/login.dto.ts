@@ -9,12 +9,13 @@ export class LoginDTO {
   /**
    * Email address of the user.
    * This field is required and must be a valid email address.
+   *
    * @type {string}
-   * @isNotEmpty
-   * @isEmail
+   * @IsNotEmpty
+   * @IsEmail
    *
    * @example
-   * const dto: LoginDTO = { email: 'john.doe@example.com', password: 'password123' };
+   * const LoginDTO = {  email: 'john.doe@example.com' };
    */
   @IsNotEmpty()
   @IsEmail()
@@ -24,10 +25,10 @@ export class LoginDTO {
    * Password of the user.
    * This field is required and must not be empty.
    * @type {string}
-   * @isNotEmpty
+   * @IsNotEmpty
    *
    * @example
-   * const dto: LoginDTO = { email: 'john.doe@example.com', password: 'password123' };
+   * const dto: LoginDTO = {  password: 'password123' };
    */
   @IsNotEmpty()
   readonly password: string;

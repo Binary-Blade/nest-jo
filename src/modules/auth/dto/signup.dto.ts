@@ -21,13 +21,13 @@ export class SignUpDto {
    * This field is optional, must be a string, and have a length between 3 and 50 characters.
    * It should not contain any numbers or special characters other than hyphens.
    * @type {string}
-   * @isString
-   * @minLength 3
-   * @maxLength 50
-   * @matches /^[a-zA-Z-]+$/
+   * @IsString
+   * @MinLength 3
+   * @MaxLength 50
+   * @Matches /^[a-zA-Z-]+$/
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = { firstName: 'John' };
    */
   @IsString()
   @MinLength(3)
@@ -46,7 +46,7 @@ export class SignUpDto {
    * @matches /^[a-zA-Z-]+$/
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = { lastName: 'Doe' };
    */
   @IsString()
   @MinLength(3)
@@ -62,7 +62,7 @@ export class SignUpDto {
    * @isEmail
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = {  email: 'john.doe@example.com' };
    */
   @IsNotEmpty()
   @IsEmail()
@@ -72,12 +72,12 @@ export class SignUpDto {
    * Password for the user.
    * This field is required, must be a strong password, and have a minimum length of 6 characters.
    * @type {string}
-   * @isNotEmpty
-   * @isStrongPassword
-   * @minLength 6
+   * @IsNotEmpty
+   * @IsStrongPassword
+   * @MinLength 6
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!' };
+   * const dto: SignUpDto = {  password: 'StrongPassword123!' };
    */
   @IsNotEmpty()
   @IsStrongPassword()
@@ -88,10 +88,10 @@ export class SignUpDto {
    * Role of the user.
    * This field is optional and must be a valid enum value of UserRole.
    * @type {UserRole}
-   * @isOptional
+   * @IsOptional
    *
    * @example
-   * const dto: SignUpDto = { firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'StrongPassword123!', role: UserRole.ADMIN };
+   * const dto: SignUpDto = {  role: UserRole.ADMIN };
    */
   @IsOptional()
   readonly role?: UserRole;
