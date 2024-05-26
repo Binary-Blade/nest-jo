@@ -81,7 +81,7 @@ export class SignUpDto {
    */
   @IsNotEmpty()
   @IsStrongPassword()
-  @MinLength(6)
+  @MinLength(8)
   readonly password: string;
 
   /**
